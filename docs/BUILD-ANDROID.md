@@ -21,7 +21,7 @@
 (в git попадает только потому, что `objects.githubusercontent.com`, откуда GitHub отдаёт
 release-ассеты, в России часто заблокирован — обычный файл репозитория качается надёжнее).
 sha256 последней сборки — в `ops/apk-report.md`.
-- внутри APK лежат все 167 PNG, 8 MP3, `project.lua`, `layout.lua`, `index.json`,
+- внутри APK лежат все 122 PNG, 16 MP3, `project.lua`, `layout.lua`, `index.json`,
   136 сгенерированных Lua-модулей и три файла `src/lua` — ничего не докачивается из сети
 
 Отчёт каждой сборки (размер APK, sha256, sha, содержимое, хвост лога Gradle) лежит
@@ -43,7 +43,7 @@ android/app/build.gradle                                    ABI, minSdk, assets
 3. `libmain.so` содержит движок и вызывает `SDL_main`; `main()` на Android берёт корень
    из `SDL_AndroidGetInternalStoragePath() + "/root"` и стартует со сцены 42 «Загрузка».
 4. Касания (`SDL_FINGERDOWN/MOTION/UP`) переводятся в координаты сцены
-   (1348×720, начало координат в центре) и попадают в тот же `Engine::set_touch`,
+   (1500×720, начало координат в центре) и попадают в тот же `Engine::set_touch`,
    что и мышь на десктопе.
 
 ## Сборка вручную

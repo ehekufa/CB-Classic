@@ -20,7 +20,7 @@
 
 1. `.github/workflows/asset-probe.yml` — workflow с `gh release download` и `unzip`;
    сначала он собрал **манифест** архива (`ops/manifest.md`): 964 записи, из них
-   646 `*.txt`, 167 `*.png`, 15 `*.mp3`, 13 сцен.
+   646 `*.txt`, 122 `*.png`, 15 `*.mp3`, 14 сцен.
 2. Затем тот же workflow скопировал в ветку **все файлы < 50 МБ** (`original/`, 826 файлов,
    30 МБ) и сохранил аудит: `ops/sha256-all.txt` (все файлы архива),
    `ops/sha256-imported.txt` (то, что попало в репозиторий), `ops/zip-listing.txt`,

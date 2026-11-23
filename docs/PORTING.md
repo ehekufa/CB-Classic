@@ -7,7 +7,7 @@
 Формат — **Pocket Code / Catrobat**, экспортированный в текстовые файлы:
 
 ```
-options.txt        {"displayWidth":720,"displayHeight":1348,"orientation":"horizontal",...}
+options.txt        {"displayWidth":720,"displayHeight":1500,"orientation":"horizontal",...}
 scenes.txt         [["Загрузка",42],["Меню",1],...]
 variables.txt      глобальные переменные: [[id,"имя"],...]
 arrays.txt         массивы
@@ -67,8 +67,8 @@ scene_N/object_M/sounds.txt    [[имя,soundId],...]  + sound_<id>.mp3
    Позиции, которые не задаются блоком `setPosition`, восстановлены по скриншотам
    сцен (`assets/icons/*.png`, их сохранил сам Pocket Code) и записаны в
    `assets/layout.lua`. Это единственное место, где числа не следуют из данных.
-2. **Ориентация.** `options.txt` даёт разрешение устройства (720×1348) и
-   `orientation: horizontal`; сцена — 1348×720. Проверяется по координатам игры:
+2. **Ориентация.** `options.txt` даёт разрешение устройства (720×1500) и
+   `orientation: horizontal`; сцена — 1500×720. Проверяется по координатам игры:
    джойстик `(-590,-150)`, атака `(590,-150)`, «назад» `(400,230)`.
 3. **Размеры.** `size` объекта — доля (1.0 = 100%), аргумент `setSize` — проценты.
 4. **Порядок слоёв без `setLayer`** — порядок объявления в `objects.txt`; клоны
