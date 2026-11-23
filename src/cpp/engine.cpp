@@ -793,6 +793,19 @@ void Engine::play_sound(int handle, int sound_id)
     }
 }
 
+void Engine::click_sound(int handle)
+{
+    Sprite *sprite = find(handle);
+    if (sprite && sprite->def && !sprite->def->sounds.empty()) {
+        // у кнопки есть свой файл — играем именно его, как в оригинале
+        play_sound_name(sprite->def->sounds.front().path);
+        return;
+    }
+    // Своего файла нет (в оригинале звук лежал у соседних объектов) —
+    // щёлкаем тем же «Нажатием» из проекта.
+    play_sound_name("scenes/01_menyu/011_sily/sounds/0002_nazhatie.mp3");
+}
+
 void Engine::play_sound_name(const std::string &path)
 {
     play_sound(0, -1);

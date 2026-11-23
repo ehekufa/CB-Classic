@@ -120,6 +120,14 @@ else
   printf '   OK\n'
 fi
 
+step "звук: нажатие кнопки меню щёлкает звуком из проекта"
+printf 'f2: tap -400 40\n' > /tmp/cb_click.txt
+$BIN --frames 8 --scene 1 --script /tmp/cb_click.txt --out /tmp/cb_frames_click \
+     >/tmp/cb_click.log 2>&1
+check $?
+grep -Eq "прозвучало звуков: [1-9]" /tmp/cb_click.log
+check $?
+
 step "адаптация: суперсэмплинг сохраняет раскладку (2x кадр)"
 $BIN --frames 3 --scene 77 --pixel-scale 2 --out /tmp/cb_frames_x2 >/tmp/cb_x2.log 2>&1
 check $?

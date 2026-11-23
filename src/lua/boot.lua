@@ -251,6 +251,11 @@ local function fire_touch_triggers(x, y)
         end
       end
       if fired > 0 then
+        -- звук нажатия: настоящий MP3 проекта (у кнопки свой или общий
+        -- «Нажатие»). В игре и на загрузке не щёлкаем — там управление.
+        if active_scene ~= 26 and active_scene ~= 42 then
+          cb.click_sound(handle)
+        end
         return fired
       end
     end

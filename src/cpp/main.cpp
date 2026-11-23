@@ -155,12 +155,20 @@ bool App::init()
         options.height = engine.stage_height();
     }
     renderer = Renderer(options.width, options.height, options.pixel_scale);
-    // Настоящий шрифт: на десктопе лежит в third_party/fonts, в APK — в assets/fonts
-    // (MainActivity распаковывает его в filesDir/root/fonts).
-    renderer.load_font({
-        options.root + "/fonts/DejaVuSans.ttf",
-        options.root + "/third_party/fonts/DejaVuSans.ttf",
-    });
+    // Шрифт. В архиве Pocket Code шрифтов нет: оригинал рисовал текст системным
+    // шрифтом Android (Roboto), поэтому на телефоне берём его прямо с устройства.
+    // Запасной путь — DejaVu Sans, упакованный в APK (MainActivity кладёт его
+    // в filesDir/root/fonts): он же используется в headless-прогонах и тестах.
+    std::vector<std::string> font_candidates;
+#ifdef __ANDROID__
+    font_candidates.push_back("/system/fonts/Roboto-Regular.ttf");
+    font_candidates.push_back("/system/fonts/RobotoCondensed-Regular.ttf");
+    font_candidates.push_back("/system/fonts/NotoSans-Regular.ttf");
+    font_candidates.push_back("/system/fonts/DroidSans.ttf");
+#endif
+    font_candidates.push_back(options.root + "/fonts/DejaVuSans.ttf");
+    font_candidates.push_back(options.root + "/third_party/fonts/DejaVuSans.ttf");
+    renderer.load_font(font_candidates);
     // Звук: эффекты проекта (mp3). В headless-сборке
     // без SDL звук только попадает в журнал, но файлы всё равно декодируются.
     if (!options.no_sound) {

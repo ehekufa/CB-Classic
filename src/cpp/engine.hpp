@@ -238,6 +238,8 @@ public:
 
     // --- звук (в headless-режиме только журнал) ---
     void play_sound(int handle, int sound_id);
+    // Щелчок кнопки: звук, приложенный к объекту, иначе «Нажатие» из проекта.
+    void click_sound(int handle);
     void play_sound_name(const std::string &path);           // по имени файла
     void stop_sound_by_name(const std::string &path);
     // Звук отдаётся наружу (audio.cpp): движок не знает про SDL

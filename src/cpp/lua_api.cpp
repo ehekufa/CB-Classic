@@ -592,6 +592,14 @@ int l_text_create(lua_State *L)
     return 0;
 }
 
+int l_click_sound(lua_State *L)
+{
+    Eng *e = engine_of(L);
+    int handle = static_cast<int>(arg_num(L, 1));
+    e->click_sound(handle);
+    return 0;
+}
+
 int l_text_set(lua_State *L)
 {
     Eng *e = engine_of(L);
@@ -720,6 +728,7 @@ const luaL_Reg kApi[] = {
     {"bg_color", l_bg_color},
     {"exit", l_exit},
 
+    {"click_sound", l_click_sound},
     {"text_create", l_text_create},
     {"text_set", l_text_set},
     {"text_delete", l_text_delete},
