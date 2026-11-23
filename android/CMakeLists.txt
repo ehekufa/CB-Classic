@@ -32,6 +32,9 @@ target_include_directories(cb_core PUBLIC "${CB_ROOT}/src/c")
 # C++-часть + SDL2-бэкенд; имя библиотеки "main" требует SDLActivity
 file(GLOB CPP_SOURCES "${CB_ROOT}/src/cpp/*.cpp")
 add_library(main SHARED ${CPP_SOURCES})
-target_include_directories(main PRIVATE "${CB_ROOT}/src/c" "${CB_ROOT}/src/cpp")
+target_include_directories(main PRIVATE
+    "${CB_ROOT}/src/c" "${CB_ROOT}/src/cpp"
+    "${CB_ROOT}/third_party/stb"        # stb_truetype.h — шрифт с кириллицей
+    "${CB_ROOT}/third_party/minimp3")   # minimp3.h — звуки проекта
 target_compile_definitions(main PRIVATE CB_USE_SDL2)
 target_link_libraries(main cb_core lua54 SDL2main SDL2 log m)
