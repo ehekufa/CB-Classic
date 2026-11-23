@@ -26,27 +26,27 @@ Daemon will be stopped at the end of the build
 > Task :app:processDebugMainManifest
 > Task :app:processDebugManifest
 > Task :app:mergeDebugShaders
-> Task :app:processDebugManifestForPackage
 > Task :app:compileDebugShaders NO-SOURCE
 > Task :app:generateDebugAssets UP-TO-DATE
-> Task :app:processDebugResources
 > Task :app:mergeDebugAssets
+> Task :app:processDebugManifestForPackage
+> Task :app:compressDebugAssets
+> Task :app:processDebugResources
+> Task :app:desugarDebugFileDependencies
 
 > Task :app:compileDebugJavaWithJavac
 Note: Some input files use or override a deprecated API.
 Note: Recompile with -Xlint:deprecation for details.
 
-> Task :app:desugarDebugFileDependencies
-> Task :app:compressDebugAssets
 > Task :app:dexBuilderDebug
 > Task :app:processDebugJavaRes NO-SOURCE
-> Task :app:mergeDebugGlobalSynthetics
-> Task :app:checkDebugDuplicateClasses
 > Task :app:mergeDebugStartupProfile
-> Task :app:mergeExtDexDebug
+> Task :app:checkDebugDuplicateClasses
 > Task :app:preReleaseBuild UP-TO-DATE
-> Task :app:mergeLibDexDebug
+> Task :app:mergeDebugGlobalSynthetics
+> Task :app:mergeExtDexDebug
 > Task :app:mergeDebugJavaResource
+> Task :app:mergeLibDexDebug
 > Task :app:mergeProjectDexDebug
 > Task :app:configureCMakeRelease[arm64-v8a]
 > Task :app:buildCMakeRelease[arm64-v8a]
@@ -62,6 +62,6 @@ Note: Recompile with -Xlint:deprecation for details.
 > Task :app:createDebugApkListingFileRedirect
 > Task :app:assembleDebug
 
-BUILD SUCCESSFUL in 1m 3s
+BUILD SUCCESSFUL in 1m 21s
 39 actionable tasks: 39 executed
 код возврата gradle: 0
