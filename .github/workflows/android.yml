@@ -125,13 +125,21 @@ jobs:
           echo "  layout.lua:   $(unzip -Z1 "$APK" | grep -c '^assets/assets/layout.lua$')"
           echo
           echo "### манифест"
-          AAPT="$(ls "$ANDROID_HOME"/build-tools/*/aapt 2>/dev/null | tail -1)"
+          AAPT="$(ls "$ANDROID_HOME"/build-tools/*/aapt2 2>/dev/null | tail -1)"
           if [ -n "$AAPT" ]; then
-            "$AAPT" dump badging "$APK" 2>/dev/null | egrep \
+            "$AAPT" dump badging "$APK" 2>&1 | egrep \
               "^(package|launchable-activity|sdkVersion|targetSdkVersion|native-code|application-label)" || true
+            echo
+            echo "activity/action в манифесте:"
+            "$AAPT" dump xmltree --file AndroidManifest.xml "$APK" 2>&1 | \
+              grep -E "E: activity|android:name|android:action|MAIN|LAUNCHER" | head -12 || true
           else
-            echo "aapt недоступен"
+            echo "aapt2 недоступен"
           fi
+          echo
+          echo "подпись:"
+          SIGNER="$(ls "$ANDROID_HOME"/build-tools/*/apksigner 2>/dev/null | tail -1)"
+          [ -n "$SIGNER" ] && "$SIGNER" verify --print-certs "$APK" 2>&1 | head -5 || echo "apksigner недоступен"
           echo
           echo "### основные lua-модули"
           for f in $(unzip -Z1 "$APK" | grep '^assets/generated/lua/' | head -3); do

@@ -15,6 +15,7 @@
 | автоматически портированная логика (303 скрипта) | `generated/lua/` | 136 Lua-модулей |
 | движок и рантайм | `src/` | C11 + C++17 + Lua 5.4 |
 | тесты, сборка, документация | `tests/`, `Makefile`, `CMakeLists.txt`, `docs/` | проходят все проверки |
+| Android-проект и сборка APK | `android/`, `.github/workflows/android.yml` | **APK собирается**, [скачать](https://github.com/ehekufa/CB-Classic/releases/tag/apk-latest) |
 
 ## Как это устроено
 
@@ -56,7 +57,15 @@ make test            # все проверки (сборка, PNG, конвер�
   --script tests/scripts/joystick.txt --out out/igra
 ```
 
-Оконный режим (нужен `libsdl2-dev`):
+### Android
+
+Готовый APK лежит в релизе [`apk-latest`](https://github.com/ehekufa/CB-Classic/releases/tag/apk-latest)
+(`cb-classic-debug.apk`, ~32 МБ, arm64-v8a + armeabi-v7a, minSdk 21). Внутри те же
+167 PNG, 8 MP3 и 136 Lua-модулей — с собой ничего носить не нужно. Подробности сборки
+и структура `android/` — в [docs/BUILD-ANDROID.md](docs/BUILD-ANDROID.md), отчёт
+каждой сборки (sha256, содержимое, лог) — в [ops/apk-report.md](ops/apk-report.md).
+
+### Оконный режим (нужен `libsdl2-dev`):
 
 ```sh
 make SDL2=1
