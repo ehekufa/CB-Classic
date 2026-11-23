@@ -1,7 +1,7 @@
-name: asset-import
+name: asset-import (ручной)
+# Запускается вручную: сам скачивает 214 МБ из релиза и коммитит результат в ветку.
+# Автозапуск по push отключён, чтобы не качать архив на каждый коммит.
 on:
-  push:
-    branches: [arena/f69adc32-cb-classic]
   workflow_dispatch:
 permissions:
   contents: write
