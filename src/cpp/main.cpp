@@ -26,6 +26,9 @@ extern "C" {
 
 #ifdef CB_USE_SDL2
 #include <SDL2/SDL.h>
+#ifdef __ANDROID__
+#include <SDL2/SDL_system.h>
+#endif
 #endif
 
 namespace {
@@ -306,9 +309,24 @@ void App::shutdown() { close_lua(); }
 
 }  // namespace cb
 
+#ifdef __ANDROID__
+// На Android ассеты распаковываются Java-кодом в filesDir/root (см. MainActivity.java).
+static std::string android_asset_root()
+{
+    const char *base = SDL_AndroidGetInternalStoragePath();
+    return std::string(base ? base : ".") + "/root";
+}
+#endif
+
 int main(int argc, char **argv)
 {
     cb::AppOptions opts;
+#ifdef __ANDROID__
+    opts.root = android_asset_root();
+    opts.scene = 42;                 // старт с загрузочной сцены, как в оригинале
+    opts.headless = false;
+    opts.fps = 60.0;
+#endif
     std::vector<std::string> args(argv + 1, argv + argc);
 
     for (size_t i = 0; i < args.size(); ++i) {
@@ -409,6 +427,19 @@ int main(int argc, char **argv)
             while (SDL_PollEvent(&event)) {
                 if (event.type == SDL_QUIT) {
                     running = false;
+                } else if (event.type == SDL_FINGERDOWN) {
+                    // SDL отдаёт нормализованные координаты: переводим в сценические
+                    double x = (event.tfinger.x - 0.5) * app.options.width;
+                    double y = (0.5 - event.tfinger.y) * app.options.height;
+                    app.engine.push_touch_press(x, y);
+                } else if (event.type == SDL_FINGERMOTION) {
+                    if (app.engine.touch_down()) {
+                        double x = (event.tfinger.x - 0.5) * app.options.width;
+                        double y = (0.5 - event.tfinger.y) * app.options.height;
+                        app.engine.set_touch(true, x, y, 1);
+                    }
+                } else if (event.type == SDL_FINGERUP) {
+                    app.engine.set_touch(false, app.engine.touch_x(), app.engine.touch_y(), 0);
                 } else if (event.type == SDL_MOUSEBUTTONDOWN) {
                     double x = event.button.x - app.options.width / 2.0;
                     double y = app.options.height / 2.0 - event.button.y;
