@@ -14,8 +14,8 @@ Daemon will be stopped at the end of the build
 > Task :app:preDebugBuild UP-TO-DATE
 > Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
 > Task :app:javaPreCompileDebug
-> Task :app:checkDebugAarMetadata
 > Task :app:generateDebugResValues
+> Task :app:checkDebugAarMetadata
 > Task :app:mapDebugSourceSetPaths
 > Task :app:generateDebugResources
 > Task :app:packageDebugResources
@@ -27,8 +27,8 @@ Daemon will be stopped at the end of the build
 > Task :app:processDebugManifest
 > Task :app:mergeDebugShaders
 > Task :app:compileDebugShaders NO-SOURCE
-> Task :app:generateDebugAssets UP-TO-DATE
 > Task :app:processDebugManifestForPackage
+> Task :app:generateDebugAssets UP-TO-DATE
 > Task :app:processDebugResources
 > Task :app:mergeDebugAssets
 
@@ -40,9 +40,9 @@ Note: Recompile with -Xlint:deprecation for details.
 > Task :app:compressDebugAssets
 > Task :app:dexBuilderDebug
 > Task :app:processDebugJavaRes NO-SOURCE
+> Task :app:mergeDebugGlobalSynthetics
 > Task :app:checkDebugDuplicateClasses
 > Task :app:mergeDebugStartupProfile
-> Task :app:mergeDebugGlobalSynthetics
 > Task :app:mergeExtDexDebug
 > Task :app:preReleaseBuild UP-TO-DATE
 > Task :app:mergeLibDexDebug
@@ -62,6 +62,6 @@ Note: Recompile with -Xlint:deprecation for details.
 > Task :app:createDebugApkListingFileRedirect
 > Task :app:assembleDebug
 
-BUILD SUCCESSFUL in 1m 26s
+BUILD SUCCESSFUL in 1m 22s
 39 actionable tasks: 39 executed
 код возврата gradle: 0

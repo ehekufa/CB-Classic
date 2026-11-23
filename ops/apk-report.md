@@ -1,17 +1,17 @@
 # Отчёт сборки APK
 
-- дата: 2026-11-23T16:36:55Z
+- дата: 2026-11-23T16:55:32Z
 - SDL: release-2.30.9
 - NDK: 26.1.10909125
 - Gradle: 8.7
-- запуск: https://github.com/ehekufa/CB-Classic/actions/runs/45218045964
+- запуск: https://github.com/ehekufa/CB-Classic/actions/runs/45221427171
 - APK в запуске: артефакт `cb-classic-debug-apk`
 
 ## APK
 
 ```
--rw-r--r-- 1 runner runner 33224337 Nov 23 16:36 dist/cb-classic-debug.apk
-06bf1ddb7e941d7bb660559e8a2031fa3126f2d88114b710459a355c2a99e9e2  dist/cb-classic-debug.apk
+-rw-r--r-- 1 runner runner 33225262 Nov 23 16:55 dist/cb-classic-debug.apk
+6d0879ad03dcca2f5f3a42066047c66aa87e307afc4aad0450fbeef9c9f0011c  dist/cb-classic-debug.apk
      1056  1981-01-01 01:01   classes.dex
   1309008  1981-01-01 01:01   lib/arm64-v8a/libSDL2.so
   1330832  1981-01-01 01:01   lib/arm64-v8a/libc++_shared.so
@@ -35,7 +35,7 @@
 ...
     42537  1981-01-01 01:01   META-INF/MANIFEST.MF
 ---------                     -------
- 37774276                     339 files
+ 37776538                     339 files
 ```
 
 всего записей: 339
@@ -87,9 +87,9 @@ activity/action в манифесте:
 
 подпись:
 V2 Signer: certificate DN: C=US, O=Android, CN=Android Debug
-V2 Signer: certificate SHA-256 digest: 2fd76b86c04bc9be6eba3b647eba87c9cb1a89864cea43e52d9ecd76d68072c9
-V2 Signer: certificate SHA-1 digest: 7ac5f002ce6cd917183bded7c3b221da73b2b0b1
-V2 Signer: certificate MD5 digest: b719f948d8bcf23b4facd791453376db
+V2 Signer: certificate SHA-256 digest: e60a2c522162ffc17054c3df11c12a277e8791a6670a41a2b050a3531a62acb4
+V2 Signer: certificate SHA-1 digest: 818d4005e433787d0da05de0411f184cffd5f9cb
+V2 Signer: certificate MD5 digest: 7e19818308a387fa8da80a78752b6666
 WARNING: META-INF/com/android/build/gradle/app-metadata.properties not protected by signature. Unauthorized modifications to this JAR entry will not be detected. Delete or move the entry outside of META-INF/.
 
 ### основные lua-модули
@@ -117,8 +117,8 @@ Daemon will be stopped at the end of the build
 > Task :app:preDebugBuild UP-TO-DATE
 > Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
 > Task :app:javaPreCompileDebug
-> Task :app:checkDebugAarMetadata
 > Task :app:generateDebugResValues
+> Task :app:checkDebugAarMetadata
 > Task :app:mapDebugSourceSetPaths
 > Task :app:generateDebugResources
 > Task :app:packageDebugResources
@@ -130,8 +130,8 @@ Daemon will be stopped at the end of the build
 > Task :app:processDebugManifest
 > Task :app:mergeDebugShaders
 > Task :app:compileDebugShaders NO-SOURCE
-> Task :app:generateDebugAssets UP-TO-DATE
 > Task :app:processDebugManifestForPackage
+> Task :app:generateDebugAssets UP-TO-DATE
 > Task :app:processDebugResources
 > Task :app:mergeDebugAssets
 
@@ -143,9 +143,9 @@ Note: Recompile with -Xlint:deprecation for details.
 > Task :app:compressDebugAssets
 > Task :app:dexBuilderDebug
 > Task :app:processDebugJavaRes NO-SOURCE
+> Task :app:mergeDebugGlobalSynthetics
 > Task :app:checkDebugDuplicateClasses
 > Task :app:mergeDebugStartupProfile
-> Task :app:mergeDebugGlobalSynthetics
 > Task :app:mergeExtDexDebug
 > Task :app:preReleaseBuild UP-TO-DATE
 > Task :app:mergeLibDexDebug
@@ -165,7 +165,7 @@ Note: Recompile with -Xlint:deprecation for details.
 > Task :app:createDebugApkListingFileRedirect
 > Task :app:assembleDebug
 
-BUILD SUCCESSFUL in 1m 26s
+BUILD SUCCESSFUL in 1m 22s
 39 actionable tasks: 39 executed
 код возврата gradle: 0
 ```
