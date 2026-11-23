@@ -1,6 +1,6 @@
 # Отчёт сборки APK
 
-- дата: 2026-11-23T13:39:24Z
+- дата: 2026-11-23T13:43:32Z
 - SDL: release-2.30.9
 - NDK: 26.1.10909125
 - Gradle: 8.7
@@ -8,7 +8,7 @@
 ## APK
 
 ```
--rw-r--r-- 1 runner runner 31956745 Nov 23 13:38 dist/cb-classic-debug.apk
+-rw-r--r-- 1 runner runner 31956745 Nov 23 13:42 dist/cb-classic-debug.apk
 e4fd64e64c6bea43cc7d4a0806a3153ca74f12675395f5944a6bc335256a4230  dist/cb-classic-debug.apk
      1056  1981-01-01 01:01   classes.dex
   1309008  1981-01-01 01:01   lib/arm64-v8a/libSDL2.so
@@ -42,75 +42,71 @@ e4fd64e64c6bea43cc7d4a0806a3153ca74f12675395f5944a6bc335256a4230  dist/cb-classi
 ## Хвост лога сборки
 
 ```
-[66/309] Generating include/SDL2/SDL_mutex.h
+[61/309] Generating include/SDL2/SDL_metal.h
+[62/309] Generating include/SDL2/SDL_opengl_glext.h
+[63/309] Generating include/SDL2/SDL_misc.h
+[64/309] Generating include/SDL2/SDL_mouse.h
+[65/309] Generating include/SDL2/SDL_mutex.h
+[66/309] Generating include/SDL2/SDL_opengl.h
 [67/309] Generating include/SDL2/SDL_name.h
 [68/309] Generating include/SDL2/SDL_opengles2_gl2.h
-[69/309] Generating include/SDL2/SDL_opengles.h
-[70/309] Generating include/SDL2/SDL_opengl.h
-[71/309] Generating include/SDL2/SDL_opengles2.h
-[72/309] Linking C static library libcb_core.a
-[73/309] Generating include/SDL2/SDL_opengles2_gl2ext.h
-[74/309] Generating include/SDL2/SDL_opengles2_khrplatform.h
-[75/309] Generating include/SDL2/SDL_opengles2_gl2platform.h
-[76/309] Generating include/SDL2/SDL_test_assert.h
-[77/309] Building C object CMakeFiles/lua54.dir/home/runner/work/CB-Classic/CB-Classic/third_party/lua-5.4/lparser.c.o
-[78/309] Generating include/SDL2/SDL_pixels.h
-[79/309] Generating include/SDL2/SDL_platform.h
-[80/309] Generating include/SDL2/SDL_quit.h
-[81/309] Generating include/SDL2/SDL_rect.h
-[82/309] Generating include/SDL2/SDL_power.h
-[83/309] Generating include/SDL2/SDL_render.h
-[84/309] Generating include/SDL2/SDL_rwops.h
-[85/309] Generating include/SDL2/SDL_scancode.h
-[86/309] Generating include/SDL2/SDL_stdinc.h
-[87/309] Generating include/SDL2/SDL_sensor.h
-[88/309] Generating include/SDL2/SDL_shape.h
-[89/309] Generating include/SDL2/SDL_surface.h
-[90/309] Generating include/SDL2/SDL_system.h
-[91/309] Generating include/SDL2/SDL_syswm.h
-[92/309] Generating include/SDL2/SDL_test.h
-[93/309] Generating include/SDL2/SDL_test_common.h
-[94/309] Generating include/SDL2/SDL_test_compare.h
-[95/309] Generating include/SDL2/SDL_test_crc32.h
+[69/309] Generating include/SDL2/SDL_opengles2.h
+[70/309] Generating include/SDL2/SDL_opengles.h
+[71/309] Generating include/SDL2/SDL_opengles2_gl2ext.h
+[72/309] Generating include/SDL2/SDL_opengles2_gl2platform.h
+[73/309] Generating include/SDL2/SDL_opengles2_khrplatform.h
+[74/309] Generating include/SDL2/SDL_test_assert.h
+[75/309] Generating include/SDL2/SDL_platform.h
+[76/309] Generating include/SDL2/SDL_pixels.h
+[77/309] Generating include/SDL2/SDL_quit.h
+[78/309] Generating include/SDL2/SDL_power.h
+[79/309] Generating include/SDL2/SDL_rect.h
+[80/309] Generating include/SDL2/SDL_render.h
+[81/309] Generating include/SDL2/SDL_rwops.h
+[82/309] Generating include/SDL2/SDL_scancode.h
+[83/309] Generating include/SDL2/SDL_shape.h
+[84/309] Generating include/SDL2/SDL_sensor.h
+[85/309] Generating include/SDL2/SDL_stdinc.h
+[86/309] Generating include/SDL2/SDL_surface.h
+[87/309] Generating include/SDL2/SDL_syswm.h
+[88/309] Generating include/SDL2/SDL_system.h
+[89/309] Building C object CMakeFiles/lua54.dir/home/runner/work/CB-Classic/CB-Classic/third_party/lua-5.4/lparser.c.o
+[90/309] Generating include/SDL2/SDL_test.h
+[91/309] Generating include/SDL2/SDL_test_common.h
+[92/309] Generating include/SDL2/SDL_test_compare.h
+[93/309] Building C object CMakeFiles/cb_core.dir/home/runner/work/CB-Classic/CB-Classic/src/c/inflate.c.o
+[94/309] Generating include/SDL2/SDL_test_crc32.h
+[95/309] Generating include/SDL2/SDL_test_font.h
 [96/309] Generating include/SDL2/SDL_test_fuzzer.h
-[97/309] Generating include/SDL2/SDL_test_font.h
-[98/309] Generating include/SDL2/SDL_test_images.h
-[99/309] Generating include/SDL2/SDL_test_harness.h
-[100/309] Generating include/SDL2/SDL_test_memory.h
+[97/309] Generating include/SDL2/SDL_test_memory.h
+[98/309] Generating include/SDL2/SDL_test_harness.h
+[99/309] Generating include/SDL2/SDL_test_images.h
+[100/309] Generating include/SDL2/SDL_thread.h
 [101/309] Generating include/SDL2/SDL_test_log.h
-[102/309] Generating include/SDL2/SDL_test_random.h
+[102/309] Linking C static library libcb_core.a
 [103/309] Generating include/SDL2/SDL_test_md5.h
-[104/309] Generating include/SDL2/SDL_touch.h
-[105/309] Generating include/SDL2/SDL_types.h
-[106/309] Generating include/SDL2/SDL_thread.h
-[107/309] Generating include/SDL2/SDL_timer.h
+[104/309] Generating include/SDL2/SDL_test_random.h
+[105/309] Generating include/SDL2/SDL_timer.h
+[106/309] Generating include/SDL2/SDL_touch.h
+[107/309] Generating include/SDL2/SDL_types.h
 [108/309] Generating include/SDL2/SDL_version.h
-[109/309] Generating include/SDL2/SDL_vulkan.h
-[110/309] Generating include/SDL2/begin_code.h
-[111/309] Generating include/SDL2/SDL_video.h
-[112/309] Generating include/SDL2/close_code.h
+[109/309] Generating include/SDL2/SDL_video.h
+[110/309] Generating include/SDL2/SDL_vulkan.h
+[111/309] Generating include/SDL2/close_code.h
+[112/309] Generating include/SDL2/begin_code.h
 [113/309] Building C object sdl2/CMakeFiles/SDL2.dir/src/SDL_utils.c.o
 [114/309] Building C object CMakeFiles/lua54.dir/home/runner/work/CB-Classic/CB-Classic/third_party/lua-5.4/lvm.c.o
 [115/309] Linking C static library liblua54.a
-[116/309] Building CXX object CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/font.cpp.o
-FAILED: CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/font.cpp.o 
-/usr/local/lib/android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=aarch64-none-linux-android21 --sysroot=/usr/local/lib/android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DCB_USE_SDL2 -Dmain_EXPORTS -I/home/runner/work/CB-Classic/CB-Classic/src/c -I/home/runner/work/CB-Classic/CB-Classic/src/cpp -I/home/runner/work/CB-Classic/CB-Classic/third_party/lua-5.4 -I/home/runner/work/CB-Classic/CB-Classic/android/app/.cxx/Release/601fi4a6/arm64-v8a/sdl2/include -I/home/runner/work/CB-Classic/CB-Classic/android/app/.cxx/Release/601fi4a6/arm64-v8a/sdl2/include/SDL2 -I/home/runner/work/CB-Classic/CB-Classic/android/app/.cxx/Release/601fi4a6/arm64-v8a/sdl2/include-config-release/SDL2 -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -O3 -DNDEBUG  -fPIC -std=gnu++17 -MD -MT CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/font.cpp.o -MF CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/font.cpp.o.d -o CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/font.cpp.o -c /home/runner/work/CB-Classic/CB-Classic/src/cpp/font.cpp
-/home/runner/work/CB-Classic/CB-Classic/src/cpp/font.cpp:8:10: fatal error: 'stb_truetype.h' file not found
-#include "stb_truetype.h"
-         ^~~~~~~~~~~~~~~~
-1 error generated.
-[117/309] Building CXX object CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/audio.cpp.o
-FAILED: CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/audio.cpp.o 
-/usr/local/lib/android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=aarch64-none-linux-android21 --sysroot=/usr/local/lib/android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DCB_USE_SDL2 -Dmain_EXPORTS -I/home/runner/work/CB-Classic/CB-Classic/src/c -I/home/runner/work/CB-Classic/CB-Classic/src/cpp -I/home/runner/work/CB-Classic/CB-Classic/third_party/lua-5.4 -I/home/runner/work/CB-Classic/CB-Classic/android/app/.cxx/Release/601fi4a6/arm64-v8a/sdl2/include -I/home/runner/work/CB-Classic/CB-Classic/android/app/.cxx/Release/601fi4a6/arm64-v8a/sdl2/include/SDL2 -I/home/runner/work/CB-Classic/CB-Classic/android/app/.cxx/Release/601fi4a6/arm64-v8a/sdl2/include-config-release/SDL2 -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -O3 -DNDEBUG  -fPIC -std=gnu++17 -MD -MT CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/audio.cpp.o -MF CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/audio.cpp.o.d -o CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/audio.cpp.o -c /home/runner/work/CB-Classic/CB-Classic/src/cpp/audio.cpp
-/home/runner/work/CB-Classic/CB-Classic/src/cpp/audio.cpp:15:10: fatal error: 'minimp3.h' file not found
-#include "minimp3.h"
-         ^~~~~~~~~~~
-1 error generated.
+[116/309] Building CXX object CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/renderer.cpp.o
+[117/309] Building C object sdl2/CMakeFiles/SDL2main.dir/src/main/android/SDL_android_main.c.o
 [118/309] Building CXX object CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/lua_api.cpp.o
-[119/309] Building CXX object CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/renderer.cpp.o
-[120/309] Building CXX object CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/main.cpp.o
+[119/309] Building C object sdl2/CMakeFiles/SDL2.dir/src/SDL.c.o
+[120/309] Linking C static library sdl2/libSDL2main.a
+[121/309] Building C object sdl2/CMakeFiles/SDL2.dir/src/atomic/SDL_spinlock.c.o
+[122/309] Building C object sdl2/CMakeFiles/SDL2.dir/src/SDL_assert.c.o
+[123/309] Building CXX object CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/main.cpp.o
 FAILED: CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/main.cpp.o 
-/usr/local/lib/android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=aarch64-none-linux-android21 --sysroot=/usr/local/lib/android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DCB_USE_SDL2 -Dmain_EXPORTS -I/home/runner/work/CB-Classic/CB-Classic/src/c -I/home/runner/work/CB-Classic/CB-Classic/src/cpp -I/home/runner/work/CB-Classic/CB-Classic/third_party/lua-5.4 -I/home/runner/work/CB-Classic/CB-Classic/android/app/.cxx/Release/601fi4a6/arm64-v8a/sdl2/include -I/home/runner/work/CB-Classic/CB-Classic/android/app/.cxx/Release/601fi4a6/arm64-v8a/sdl2/include/SDL2 -I/home/runner/work/CB-Classic/CB-Classic/android/app/.cxx/Release/601fi4a6/arm64-v8a/sdl2/include-config-release/SDL2 -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -O3 -DNDEBUG  -fPIC -std=gnu++17 -MD -MT CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/main.cpp.o -MF CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/main.cpp.o.d -o CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/main.cpp.o -c /home/runner/work/CB-Classic/CB-Classic/src/cpp/main.cpp
+/usr/local/lib/android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=aarch64-none-linux-android21 --sysroot=/usr/local/lib/android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DCB_USE_SDL2 -Dmain_EXPORTS -I/home/runner/work/CB-Classic/CB-Classic/src/c -I/home/runner/work/CB-Classic/CB-Classic/src/cpp -I/home/runner/work/CB-Classic/CB-Classic/third_party/stb -I/home/runner/work/CB-Classic/CB-Classic/third_party/minimp3 -I/home/runner/work/CB-Classic/CB-Classic/third_party/lua-5.4 -I/home/runner/work/CB-Classic/CB-Classic/android/app/.cxx/Release/601fi4a6/arm64-v8a/sdl2/include -I/home/runner/work/CB-Classic/CB-Classic/android/app/.cxx/Release/601fi4a6/arm64-v8a/sdl2/include/SDL2 -I/home/runner/work/CB-Classic/CB-Classic/android/app/.cxx/Release/601fi4a6/arm64-v8a/sdl2/include-config-release/SDL2 -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -O3 -DNDEBUG  -fPIC -std=gnu++17 -MD -MT CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/main.cpp.o -MF CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/main.cpp.o.d -o CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/main.cpp.o -c /home/runner/work/CB-Classic/CB-Classic/src/cpp/main.cpp
 /home/runner/work/CB-Classic/CB-Classic/src/cpp/main.cpp:666:28: error: use of undeclared identifier 'Renderer'; did you mean 'cb::Renderer'?
             app.renderer = Renderer(app.options.width, app.options.height, pixel_scale);
                            ^
@@ -118,7 +114,11 @@ FAILED: CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/main.
 class Renderer {
       ^
 1 error generated.
-[121/309] Building CXX object CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/engine.cpp.o
+[124/309] Building C object sdl2/CMakeFiles/SDL2.dir/src/SDL_error.c.o
+[125/309] Building C object sdl2/CMakeFiles/SDL2.dir/src/SDL_dataqueue.c.o
+[126/309] Building CXX object CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/font.cpp.o
+[127/309] Building CXX object CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/audio.cpp.o
+[128/309] Building CXX object CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/engine.cpp.o
 ninja: build stopped: subcommand failed.
 
 C++ build system [build] failed while executing:
@@ -158,7 +158,7 @@ Caused by: org.gradle.process.internal.ExecException: Process 'command '/usr/loc
 	... 137 more
 
 
-BUILD FAILED in 53s
+BUILD FAILED in 52s
 29 actionable tasks: 29 executed
 код возврата gradle: 1
 СБОРКА НЕ УДАЛАСЬ
