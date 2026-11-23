@@ -24,8 +24,7 @@ return {
         end
         E.wait(E.num(0.6))
         E.set_bg_color("#43003E")
-        E.set_bg_color("#003046")
-        E.run_scene(77) return
+        E.run_scene(1) return
       end,
     },
     { -- скрипт 2: start

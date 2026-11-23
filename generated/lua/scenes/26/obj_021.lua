@@ -15,6 +15,8 @@ return {
         E.set_gv(68, false)
         E.set_gv(3, 1)
         E.add_body(o, "dynamic")
+        E.set_sensor(o, "off")
+        E.set_hitbox(o, 115, 115)
         if E.truthy(E.op_eq(E.image_number(o), 3)) then
           E.set_size(o, 120)
         end
@@ -24,23 +26,7 @@ return {
         end)
       end,
     },
-    { -- скрипт 2: function:2
-      trigger = "function:2",
-      body = function(o)
-        while E.truthy(E.touch_id_by_index(E.gv(7))) do
-          if E.truthy(E.op_eq(E.gv(47), 7)) then
-            E.go_steps(o, 80)
-            E.set_rot(o, E.gv(2))
-            E.wait(E.num(0.3))
-          else
-            E.go_steps(o, 8)
-            E.set_rot(o, E.gv(2))
-          end
-          E.frame()
-        end
-      end,
-    },
-    { -- скрипт 3: when_truth
+    { -- скрипт 2: when_truth
       trigger = "when_truth",
       cond = function(o) return E.truthy(E.touching_object(o, 22)) end,
       body = function(o)
@@ -55,88 +41,54 @@ return {
         end
       end,
     },
+    { -- скрипт 3: function:2
+      trigger = "function:2",
+      body = function(o)
+        while E.truthy(E.touch_id_by_index(E.gv(7))) do
+          E.go_steps(o, 7)
+          E.set_rot(o, E.gv(2))
+          E.frame()
+        end
+      end,
+    },
     { -- скрипт 4: function:8
       trigger = "function:8",
       body = function(o)
-        for _ = 1, math.floor(E.num(8)) do
-          E.go_steps(o, 27)
+        E.wait(E.num(0.35))
+        for _ = 1, math.floor(E.num(14)) do
+          E.go_steps(o, 25)
           if E.truthy(E.touching_object(o, 22)) then
             E.set_gv(68, true)
             E.add_gv(4, E.op_neg(1))
+            E.play_sound(o, 52)
+            E.clone(19)
+            E.set_gv(2, E.rot(o))
           end
           E.frame()
         end
-        E.go_steps(o, E.op_neg(210))
         E.set_gv(65, 0)
       end,
     },
     { -- скрипт 5: start
       trigger = "start",
       body = function(o)
-        E.wait(E.num(0.09))
-        if E.truthy(E.op_eq(E.image_number(o), 12)) then
-          E.particles_create(o, "Частицы", 884)
-          E.forever(function()
-            E.particles_move(o, "Частицы", E.pos_x(o), E.pos_y(o))
-          end)
-        end
-      end,
-    },
-    { -- скрипт 6: start
-      trigger = "start",
-      body = function(o)
-        E.wait(E.num(0.09))
-        if E.truthy(E.op_eq(E.image_number(o), 11)) then
-          E.particles_create(o, "Частицы", 884)
-          E.forever(function()
-            E.particles_move(o, "Частицы", E.pos_x(o), E.pos_y(o))
-          end)
-        end
-      end,
-    },
-    { -- скрипт 7: start
-      trigger = "start",
-      body = function(o)
-        E.wait(E.num(0.09))
-        if E.truthy(E.op_eq(E.image_number(o), 9)) then
-          E.particles_create(o, "Частицы", 506)
-          E.forever(function()
-            E.particles_move(o, "Частицы", E.pos_x(o), E.pos_y(o))
-          end)
-        end
-      end,
-    },
-    { -- скрипт 8: start
-      trigger = "start",
-      body = function(o)
         E.wait(E.num(0.05))
-        if E.truthy(E.op_eq(E.gv(47), 5)) then
-          E.set_image_by_id(o, 715)
-          E.set_size(o, 100)
-          E.set_hitbox(o, 150, 150)
+        if E.truthy(E.op_eq(E.gv(47), 6)) then
+          E.set_image_by_id(o, 985)
         end
       end,
     },
-    { -- скрипт 9: start
-      trigger = "start",
-      body = function(o)
-        E.wait(E.num(0.05))
-        if E.truthy(E.op_eq(E.gv(47), 5)) then
-          E.set_image_by_id(o, 715)
-          E.set_size(o, 100)
-          E.set_hitbox(o, 150, 150)
-        end
-      end,
-    },
-    { -- скрипт 10: function:5
+    { -- скрипт 6: function:5
       trigger = "function:5",
       body = function(o)
         E.set_gv(65, 1)
         E.set_sensor(o, "off")
-        for _ = 1, math.floor(E.num(95)) do
-          E.go_steps(o, 20)
+        E.broadcast_to_object(24, 15)
+        for _ = 1, math.floor(E.num(150)) do
+          E.go_steps(o, 3)
           if E.truthy(E.touching_object(o, 22)) then
-            E.add_gv(4, E.op_neg(0.3))
+            E.add_gv(4, 0.5)
+            E.clone(19)
           end
           E.frame()
         end
@@ -145,16 +97,26 @@ return {
         E.set_sensor(o, "on")
       end,
     },
-    { -- скрипт 11: start
+    { -- скрипт 7: start
       trigger = "start",
       body = function(o)
-        E.wait(E.num(0.09))
-        if E.truthy(E.op_eq(E.image_number(o), 9)) then
-          E.particles_create(o, "Частицы", 506)
-          E.forever(function()
-            E.particles_move(o, "Частицы", E.pos_x(o), E.pos_y(o))
-          end)
-        end
+        E.forever(function()
+          E.wait(E.num(E.random(7, 12)))
+          if E.truthy(E.op_eq(E.image_number(o), 7)) then
+            if E.truthy(E.op_eq(E.random(1, 2), 1)) then
+              E.play_sound(o, 58)
+            else
+              E.play_sound(o, 59)
+            end
+          end
+          if E.truthy(E.op_eq(E.gv(47), 1)) then
+            if E.truthy(E.op_eq(E.random(1, 2), 1)) then
+              E.play_sound(o, 60)
+            else
+              E.play_sound(o, 61)
+            end
+          end
+        end)
       end,
     },
   },

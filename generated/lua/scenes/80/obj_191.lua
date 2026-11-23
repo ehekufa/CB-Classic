@@ -19,10 +19,9 @@ return {
     { -- скрипт 2: touch_down
       trigger = "touch_down",
       body = function(o)
-        E.set_y(o, 0)
         while E.truthy(E.touch_active()) do
           E.set_y(o, E.touch_y())
-          E.set_gv(48, E.op_neg(E.op_div(E.pos_y(o), 30)))
+          E.set_gv(48, E.op_neg(E.op_div(E.pos_y(o), 25)))
           E.broadcast(2)
           E.frame()
         end
@@ -31,7 +30,7 @@ return {
     { -- скрипт 3: touch_up
       trigger = "touch_up",
       body = function(o)
-        -- (пусто)
+        E.set_y(o, 0)
       end,
     },
   },

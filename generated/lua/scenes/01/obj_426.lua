@@ -10,8 +10,7 @@ return {
     { -- скрипт 1: start
       trigger = "start",
       body = function(o)
-        E.set_pos(o, E.op_neg(400), E.op_sub(E.op_sub(E.op_sub(40, 95), 95), 95))
-        E.hide(o)
+        E.set_pos(o, E.op_neg(400), E.op_sub(40, 95))
       end,
     },
     { -- скрипт 2: touch_down

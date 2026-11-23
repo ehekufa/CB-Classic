@@ -1,1 +1,1 @@
-[["start",[],"on"],["readVariable",[["globalVariable",108]],"on"],["removeAdaptiveSizeDevice",[],"on"],["whenTheTruth",[[["globalVariable",108],["function","="],["text","ban"]]],"on"],["exitGame",[],"on"],["touchBack",[],"on"],["exitGame",[],"on"]]
+[["start",[],"on"],["removeAdaptiveSizeDevice",[],"on"],["touchBack",[],"on"],["exitGame",[],"on"]]

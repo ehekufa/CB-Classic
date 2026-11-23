@@ -15,32 +15,50 @@ return {
         E.set_size(o, 52)
       end,
     },
-    { -- скрипт 2: touch_down
+    { -- скрипт 2: function:16
+      trigger = "function:16",
+      body = function(o)
+        E.hide(o)
+        E.wait(E.num(3.05))
+        E.show(o)
+      end,
+    },
+    { -- скрипт 3: touch_down
       trigger = "touch_down",
       body = function(o)
         E.set_gv(8, true)
         E.set_bright(o, 85)
-      end,
-    },
-    { -- скрипт 3: touch_up
-      trigger = "touch_up",
-      body = function(o)
+        E.wait(E.num(0.08))
         E.set_gv(8, 0)
         E.set_bright(o, 100)
       end,
     },
     { -- скрипт 4: when_truth
       trigger = "when_truth",
-      cond = function(o) return E.truthy(E.op_lt(E.gv(4), 1)) end,
+      cond = function(o) return E.truthy(E.op_le(E.gv(4), 0)) end,
       body = function(o)
-        E.wait(E.num(0.03))
-        E.add_gv(24, 5)
-        E.store_var(o, E.gv(24), 24)
-        if E.truthy(E.op_ne(E.gv(60), 3)) then
-          E.load_var(o, 24)
-          E.fb_set(E.fb_key(E.gv(61), E.gv(62), "К"), E.gv(24), "https://cubic-battle-default-rtdb.firebaseio.com/")
+        for _ = 1, math.floor(E.num(5)) do
+          E.set_gv(4, 0)
+          E.frame()
         end
+        E.wait(E.num(0.03))
+        E.add_gv(24, 10)
+        if E.truthy(E.op_eq(E.gv(47), 6)) then
+          E.add_gv(80, 4)
+        else
+          E.add_gv(80, 2)
+        end
+        E.store_var(o, E.gv(24), 24)
+        E.store_var(o, E.gv(80), 80)
         E.run_scene(1) return
+      end,
+    },
+    { -- скрипт 5: function:8
+      trigger = "function:8",
+      body = function(o)
+        E.set_bright(o, 85)
+        E.wait(E.num(0.9))
+        E.set_bright(o, 100)
       end,
     },
   },

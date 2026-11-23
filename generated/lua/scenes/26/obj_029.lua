@@ -25,6 +25,7 @@ return {
       body = function(o)
         E.wait(E.num(0.04))
         E.set_bright(o, 100)
+        E.broadcast_to_object(538, 14)
         E.wait(E.num(0.06))
         E.run_scene(70) return
       end,

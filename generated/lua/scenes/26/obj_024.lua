@@ -13,6 +13,9 @@ return {
         E.set_pos(o, E.op_neg(590), E.op_neg(150))
         E.camera_off()
         E.set_rot(o, E.op_neg(90))
+        if E.truthy(E.op_eq(E.gv(12), 10)) then
+          E.set_image_by_id(o, 996)
+        end
       end,
     },
     { -- скрипт 2: touch_down
@@ -30,28 +33,30 @@ return {
         E.set_gv(79, 0)
       end,
     },
-    { -- скрипт 3: when_truth
-      trigger = "when_truth",
-      cond = function(o) return E.truthy(E.op_eq(E.gv(69), 0)) end,
+    { -- скрипт 3: function:16
+      trigger = "function:16",
       body = function(o)
+        E.hide(o)
+        E.wait(E.num(3.05))
         E.show(o)
       end,
     },
     { -- скрипт 4: when_truth
       trigger = "when_truth",
-      cond = function(o) return E.truthy(E.op_eq(E.gv(69), 1)) end,
-      body = function(o)
-        E.hide(o)
-      end,
-    },
-    { -- скрипт 5: when_truth
-      trigger = "when_truth",
       cond = function(o) return E.truthy(E.op_eq(E.gv(79), true)) end,
       body = function(o)
         while E.truthy(E.op_ne(E.gv(79), 0)) do
-          E.play_sound_wait(o, 14)
+          E.play_sound_wait(o, 50)
           E.frame()
         end
+      end,
+    },
+    { -- скрипт 5: function:15
+      trigger = "function:15",
+      body = function(o)
+        E.hide(o)
+        E.wait(E.num(0.7))
+        E.show(o)
       end,
     },
   },

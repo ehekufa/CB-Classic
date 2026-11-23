@@ -33,6 +33,7 @@ return {
       trigger = "when_truth",
       cond = function(o) return E.truthy(E.touching_object(o, 22)) end,
       body = function(o)
+        E.clone(19)
         E.wait(E.num(0.05))
         E.delete_clone(o) return
       end,

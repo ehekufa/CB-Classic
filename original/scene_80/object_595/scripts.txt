@@ -1,1 +1,0 @@
-[["start",[],"on"],["setPositionY",[[["number",2],["number",5]]],"on"],["setSize",[[["number",7],["number",9]]],"on"],["function",[["function",2]],"on"],["editPositionY",[[["globalVariable",48]]],"on"],["touchObject",[],"on"],["setVariable",[["globalVariable",47],[["number",7]]],"on"],["showToast",[[["text","Класс Изума экипирован:"]]],"on"]]

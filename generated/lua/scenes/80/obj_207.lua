@@ -10,8 +10,8 @@ return {
     { -- скрипт 1: start
       trigger = "start",
       body = function(o)
-        E.set_y(o, E.op_sub(E.op_sub(25, 95), 95))
-        if E.truthy(E.op_lt(E.gv(91), 150)) then
+        E.set_y(o, E.op_sub(25, 95))
+        if E.truthy(E.op_lt(E.gv(24), 100)) then
           E.set_bright(o, 60)
         end
       end,
@@ -29,7 +29,7 @@ return {
           E.set_gv(47, 2)
           E.toast("Класс титана экипирован:")
         else
-          E.toast("Он стоит 150🏆!")
+          E.toast("Он стоит 100🏆!")
         end
       end,
     },

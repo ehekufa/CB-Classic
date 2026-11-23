@@ -10,8 +10,8 @@ return {
     { -- скрипт 1: start
       trigger = "start",
       body = function(o)
-        E.set_y(o, E.op_sub(E.op_sub(E.op_sub(E.op_sub(25, 95), 95), 95), 95))
-        if E.truthy(E.op_lt(E.gv(91), 200)) then
+        E.set_y(o, E.op_sub(E.op_sub(25, 95), 95))
+        if E.truthy(E.op_lt(E.gv(24), 150)) then
           E.set_bright(o, 60)
         end
       end,
@@ -26,10 +26,10 @@ return {
       trigger = "touch_down",
       body = function(o)
         if E.truthy(E.op_eq(E.bright(o), 100)) then
-          E.set_gv(47, 4)
-          E.toast("Класс \"Насти\" экипирован:")
+          E.set_gv(47, 3)
+          E.toast("Класс Насти экипирован:")
         else
-          E.toast("Она стоит 200🏆!")
+          E.toast("Она стоит 150🏆!")
         end
       end,
     },

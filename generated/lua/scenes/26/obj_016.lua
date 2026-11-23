@@ -13,12 +13,9 @@ return {
         E.adaptive_off()
         E.set_gv(8, 0)
         E.set_gv(2, 0)
-        if E.truthy(E.op_eq(E.image_name(o), "Фон")) then
-          E.set_size(o, 105)
-        else
-          E.set_size(o, 150)
-          E.set_bright(o, 130)
-        end
+        E.set_gv(85, 0)
+        E.set_size(o, 105)
+        E.set_image_by_id(o, E.random(1, 2))
       end,
     },
     { -- скрипт 2: back

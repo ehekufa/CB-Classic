@@ -10,7 +10,7 @@ return {
     { -- скрипт 1: start
       trigger = "start",
       body = function(o)
-        E.set_y(o, E.op_sub(25, 95))
+        E.set_y(o, 25)
       end,
     },
     { -- скрипт 2: function:2

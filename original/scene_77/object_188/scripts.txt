@@ -1,1 +1,0 @@
-[["start",[],"on"],["setPositionY",[[["number",2],["number",1],["number",5]]],"on"],["setSize",[[["number",7],["number",5]]],"on"],["touchObject",[],"on"],["deleteTextField",[[["text","Имя"]]],"on"],["deleteTextField",[[["text","Пароль"]]],"on"],["setVariable",[["globalVariable",60],[["number",3]]],"on"],["runScene",[["scenes",1]],"on"]]

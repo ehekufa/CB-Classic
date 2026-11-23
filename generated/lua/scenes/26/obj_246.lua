@@ -20,6 +20,7 @@ return {
     { -- скрипт 2: start
       trigger = "start",
       body = function(o)
+        E.set_size(o, 115)
         E.forever(function()
           E.go_to(o, 21)
           E.set_rot(o, E.gv(2))

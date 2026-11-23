@@ -1,0 +1,1 @@
+[["Фон",585,{"rotation":0,"size":1}],["Яйцо",586,{"rotation":0,"path":"project_30/scene_105/object_586/image_1104.png","size":1.5}]]

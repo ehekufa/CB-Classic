@@ -10,18 +10,10 @@ return {
     { -- скрипт 1: start
       trigger = "start",
       body = function(o)
-        E.load_var(o, 108)
         E.adaptive_off()
       end,
     },
-    { -- скрипт 2: when_truth
-      trigger = "when_truth",
-      cond = function(o) return E.truthy(E.op_eq(E.gv(108), "ban")) end,
-      body = function(o)
-        E.exit_game()
-      end,
-    },
-    { -- скрипт 3: back
+    { -- скрипт 2: back
       trigger = "back",
       body = function(o)
         E.exit_game()

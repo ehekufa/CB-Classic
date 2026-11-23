@@ -1,1 +1,0 @@
-[["start",[],"on"],["setPosition",[[["number",57.699951171875]],[["number",179.8116070925]]],"on"],["touchObject",[],"on"],["nextImage",[],"on"],["if",[[["function","numberImage"],["function","="],["number",1]]],"on"],["broadcastFunction",[["function",22]],"on"],["else",[],"on"],["broadcastFunction",[["function",23]],"on"],["endIf",[],"on"]]

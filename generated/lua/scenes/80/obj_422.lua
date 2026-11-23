@@ -10,12 +10,9 @@ return {
     { -- скрипт 1: start
       trigger = "start",
       body = function(o)
-        E.set_y(o, E.op_sub(E.op_sub(E.op_sub(E.op_sub(E.op_sub(25, 160), 160), 160), 160), 160))
+        E.set_y(o, E.op_sub(E.op_sub(E.op_sub(E.op_sub(25, 160), 160), 160), 150))
         E.set_rot(o, E.op_neg(90))
         E.hide(o)
-        if E.truthy(E.op_eq(E.random(1, 100), 1)) then
-          E.show(o)
-        end
       end,
     },
     { -- скрипт 2: function:2
@@ -27,7 +24,7 @@ return {
     { -- скрипт 3: touch_down
       trigger = "touch_down",
       body = function(o)
-        E.set_gv(47, 5)
+        E.set_gv(47, 6)
       end,
     },
   },

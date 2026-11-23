@@ -21,7 +21,8 @@ return {
       body = function(o)
         E.forever(function()
           E.go_to(o, 21)
-          E.set_rot(o, E.op_sub(E.gv(2), 90))
+          E.set_rot(o, E.gv(2))
+          E.go_steps(o, 25)
         end)
       end,
     },
