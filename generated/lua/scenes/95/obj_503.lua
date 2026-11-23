@@ -27,7 +27,7 @@ return {
       trigger = "when_truth",
       cond = function(o) return E.truthy(E.op_eq(E.gv(83), "none")) end,
       body = function(o)
-        E.unsupported("hideVariable")
+        E.cb.text_set("var:83", "visible", 0)
       end,
     },
   },

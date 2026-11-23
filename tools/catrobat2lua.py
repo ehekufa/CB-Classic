@@ -55,6 +55,9 @@ SENSORS = {
     "touchDisplayX": "E.touch_x()",
     "touchDisplayY": "E.touch_y()",
     "touchDisplayId": "E.touch_id()",
+    "touchDisplay": "E.touch_active()",          # «экран нажат» (waitIfTrue2)
+    "displayActualWidth": "E.display_width()",   # ширина экрана устройства
+    "displayActualHeight": "E.display_height()", # высота экрана устройства
     "touchesFinger": "E.touch_active()",
     "loudness": "E.loudness()",
     "globalVolume": "E.volume()",
@@ -466,6 +469,36 @@ class BrickGen:
                 rest.append("0")
             return (f"E.text_show_var({varid}, {rest[0]}, {rest[1]}, {rest[2]}, "
                     f"{rest[3]}, {self.option(args[5]) if len(args) > 5 else chr(34)*2})")
+
+        if name in ("saveArray", "readArray", "deleteAllElementsArray"):
+            # массивы проекта: saveArray/readArray кладут массив в хранилище
+            # устройства и забирают обратно (в оригинале — достижения,
+            # введённые промокоды и подобное)
+            arg = args[0] if args else []
+            aid = arg[1] if isinstance(arg, list) and len(arg) > 1 else 0
+            fn = {"saveArray": "array_save", "readArray": "array_load",
+                  "deleteAllElementsArray": "array_clear"}[name]
+            return f"E.{fn}({aid})"
+
+        if name == "hideVariable":
+            arg = args[0] if args else []
+            gid = arg[1] if isinstance(arg, list) and len(arg) > 1 else 0
+            return f'E.cb.text_set("var:{gid}", "visible", 0)'
+
+        if name == "showVariable":
+            arg = args[0] if args else []
+            gid = arg[1] if isinstance(arg, list) and len(arg) > 1 else 0
+            return f'E.cb.text_set("var:{gid}", "visible", 1)'
+
+        if name == "setFontSizeTextField":
+            label = formula(args[0], self.unsup) if args else '""'
+            size = formula(args[1], self.unsup) if len(args) > 1 else "40"
+            return f"E.text_set({label}, 'size', {size})"
+
+        if name in ("createVideo", "deleteVideo"):
+            # запись видео с экрана из модифицированной Pocket Code: в порте
+            # не пишем видео, но и не считаем блок неподдержанным
+            return "E.noop()"
 
         if name == "createTextField":
             label = formula(args[0], self.unsup) if args else '""'

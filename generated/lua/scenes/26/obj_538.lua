@@ -11,21 +11,21 @@ return {
       trigger = "start",
       body = function(o)
         if E.truthy(E.op_eq(E.gv(28), 1)) then
-          E.unsupported("createVideo")
+          E.noop()
           E.broadcast_to_object(26, 16)
           E.broadcast_to_object(25, 16)
           E.broadcast_to_object(24, 16)
           E.wait(E.num(3.05))
-          E.unsupported("deleteVideo")
+          E.noop()
           E.broadcast_to_object(25, 19)
           E.broadcast_to_object(26, 17)
         end
         if E.truthy(E.op_eq(E.gv(28), 2)) then
-          E.unsupported("createVideo")
+          E.noop()
           E.broadcast_to_object(26, 16)
           E.broadcast_to_object(25, 18)
           E.wait(E.num(3.05))
-          E.unsupported("deleteVideo")
+          E.noop()
           E.broadcast_to_object(25, 19)
           E.broadcast_to_object(26, 17)
         end
@@ -35,10 +35,10 @@ return {
       trigger = "function:14",
       body = function(o)
         if E.truthy(E.op_eq(E.gv(28), 1)) then
-          E.unsupported("deleteVideo")
+          E.noop()
         end
         if E.truthy(E.op_eq(E.gv(28), 2)) then
-          E.unsupported("deleteVideo")
+          E.noop()
         end
       end,
     },

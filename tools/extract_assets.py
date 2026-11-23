@@ -169,6 +169,18 @@ def lua_str(text: str) -> str:
     return '"' + str(text).replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n") + '"'
 
 
+def var_entry(vid: int, vname: str, rest) -> str:
+    """Запись переменной: id, имя и значение по умолчанию (если оно есть).
+
+    В Pocket Code переменные стартуют со своих значений по умолчанию —
+    «Кубки» = 10009, «Скин» = 1 и т.д. Без них игра начинается с пустых
+    значений и ломает проверки вроде «кубки > 1».
+    """
+    if rest and rest[0] not in (None, ""):
+        return "{id=%d, name=%s, value=%s}" % (vid, lua_str(vname), lua_str(rest[0]))
+    return "{id=%d, name=%s}" % (vid, lua_str(vname))
+
+
 def lua_num(value) -> str:
     try:
         f = float(value)
@@ -311,7 +323,7 @@ def main() -> int:
         fh.write("  stage = { w = %d, h = %d },\n" % (project.stage_w, project.stage_h))
         fh.write("  orientation = %s,\n" % lua_str(project.orientation))
         fh.write("  variables = {%s},\n" % ",".join(
-            "{id=%d, name=%s}" % (vid, lua_str(vname)) for vid, vname, *_ in project.variables))
+            var_entry(vid, vname, rest) for vid, vname, *rest in project.variables))
         fh.write("  arrays = {%s},\n" % ",".join(
             "{id=%d, name=%s}" % (aid, lua_str(aname)) for aid, aname, *_ in project.arrays))
         fh.write("  scenes = {\n    %s\n  },\n" % ",\n    ".join(lua_scenes))

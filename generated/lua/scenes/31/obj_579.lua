@@ -29,8 +29,8 @@ return {
         E.store_var(o, E.gv(24), 24)
         E.store_var(o, E.gv(12), 12)
         E.store_var(o, E.gv(93), 93)
-        E.unsupported("saveArray")
-        E.unsupported("saveArray")
+        E.array_save(1)
+        E.array_save(2)
         E.toast("Прогресс созранён!")
       end,
     },

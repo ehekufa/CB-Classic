@@ -90,6 +90,10 @@ else
 fi
 
 echo "== assets =="
+# Старые спрайты/иконки удаляем: в новой версии сцены переименованы
+# (было 01_menyu/281_konfeta — стало 281_yayca), и без очистки в APK
+# уезжали картинки и звуки уже не существующих объектов.
+rm -rf "$ROOT/assets/scenes" "$ROOT/assets/icons"
 python3 "$ROOT/tools/extract_assets.py" --src "$ROOT/original" --out "$ROOT/assets"
 echo "== generated/lua =="
 python3 "$ROOT/tools/catrobat2lua.py" --src "$ROOT/original" --out "$ROOT/generated"

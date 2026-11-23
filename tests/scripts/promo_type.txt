@@ -1,0 +1,5 @@
+# «Больше» (31): только ввод в поле промокода (без нажатия «Ввести»).
+f2: press 400 -100
+f3: release
+f4: type MurderOfLove
+f5: key enter

@@ -107,6 +107,21 @@ bool App::init()
         return false;
     }
 
+    // 0) сеть включаем ДО первых скриптов: в новой версии сцена «Загрузка»
+    // сразу пишет в базу (ScreenWidth/ScreenHeight) и читает прогресс, так что
+    // включение после boot теряло самые первые записи.
+    if (!options.fb_offline) {
+        if (!options.fb_url.empty()) {
+            engine.fb_configure(options.fb_url);
+        }
+        if (!options.fb_url.empty() || options.fb_auto) {
+            if (engine.fb_base_url().empty()) {
+                engine.fb_configure(cb::FbNet::default_url());
+            }
+            engine.fb_network(true);
+        }
+    }
+
     // 1) грузим проект
     if (luaL_dostring(lua,
             "boot = require('boot')") != LUA_OK) {
@@ -152,16 +167,9 @@ bool App::init()
     // 2) сеть: адрес базы пришёл из игры (E.FB_URL), CLI может его перебить.
     // Включаем её на телефоне всегда, на десктопе — только по --fb-url/--fb-on,
     // иначе headless-тесты ходили бы в интернет.
-    if (!options.fb_offline) {
-        if (!options.fb_url.empty()) {
-            engine.fb_configure(options.fb_url);
-        }
-        if (!options.fb_url.empty() || options.fb_auto) {
-            if (engine.fb_base_url().empty()) {
-                engine.fb_configure(cb::FbNet::default_url());
-            }
-            engine.fb_network(true);
-        }
+    // адрес из CLI главнее адреса, который прописала игра (E.FB_URL)
+    if (!options.fb_offline && !options.fb_url.empty()) {
+        engine.fb_configure(options.fb_url);
     }
     engine.log(std::string("сеть: ") + (engine.fb_online() ? "включена, база " + engine.fb_base_url()
                                                            : std::string("выключена")));

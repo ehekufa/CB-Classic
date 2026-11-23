@@ -412,6 +412,17 @@ function E.camera_focus(x, y) cb.log("focusCamera: " .. str(x) .. "," .. str(y))
 function E.set_gravity(x, y) cb.log("gravity: " .. str(x) .. "," .. str(y)) end
 function E.add_body(o, kind) cb.log("addBody(" .. str(kind) .. ")") end
 function E.set_sensor(o, mode) cb.log("isSensor(" .. str(mode) .. ")") end
+-- Размер экрана устройства (в оригинале — displayActualWidth/Height).
+function E.display_width()
+  local w = cb.stage()
+  return w
+end
+
+function E.display_height()
+  local _, h = cb.stage()
+  return h
+end
+
 function E.set_hitbox(o, w, h) cb.log("hitbox " .. str(w) .. "x" .. str(h)) end
 function E.noop() end
 function E.unsupported(name)
@@ -463,6 +474,40 @@ function E.text_create(label, editable, w, h, varid)
   cb.text_set(name, "size", size)
   if is_edit and varid ~= nil then
     E.text_vars[name] = num(varid)
+  end
+end
+
+-- Массивы проекта (достижения, введённые промокоды): saveArray кладёт
+-- массив в локальное хранилище, readArray забирает обратно.
+local function array_values(id)
+  local list = E.array(id)
+  local parts = {}
+  for i = 1, #list do
+    parts[#parts + 1] = tostring(list[i])
+  end
+  return list, parts
+end
+
+function E.array_save(id)
+  local _, parts = array_values(id)
+  cb.store_set("arr:" .. str(id), table.concat(parts, "\n"))
+end
+
+function E.array_load(id)
+  local list = E.array(id)
+  for i = #list, 1, -1 do
+    list[i] = nil
+  end
+  local raw = cb.store_get("arr:" .. str(id)) or ""
+  for line in string.gmatch(raw, "[^\n]+") do
+    list[#list + 1] = line
+  end
+end
+
+function E.array_clear(id)
+  local list = E.array(id)
+  for i = #list, 1, -1 do
+    list[i] = nil
   end
 end
 

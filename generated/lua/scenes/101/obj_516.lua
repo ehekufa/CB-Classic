@@ -16,10 +16,10 @@ return {
         E.wait(E.num(2.8))
         E.show(o)
         E.wait(E.num(1.3))
-        E.wait_until(function() return E.truthy(E.unknown_expr("touchDisplay")) end, o)
+        E.wait_until(function() return E.truthy(E.touch_active()) end, o)
         E.set_image_by_id(o, 917)
         E.wait(E.num(1.3))
-        E.wait_until(function() return E.truthy(E.unknown_expr("touchDisplay")) end, o)
+        E.wait_until(function() return E.truthy(E.touch_active()) end, o)
         E.hide(o)
         E.wait(E.num(1.1))
         E.run_scene(102) return

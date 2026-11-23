@@ -29,7 +29,7 @@ check $?
 step "инструменты: извлечение ассетов идемпотентно"
 python3 tools/extract_assets.py --src original --out /tmp/cb_assets_check >/tmp/cb_extract.log 2>&1
 check $?
-grep -q "PNG: 153" /tmp/cb_extract.log
+grep -q "PNG: 122" /tmp/cb_extract.log
 check $?
 
 step "инструменты: конвертер покрывает все блоки"
@@ -51,19 +51,19 @@ check $?
 step "движок: меню (1) рисует спрайты"
 $BIN --frames 10 --scene 1 --out /tmp/cb_frames_1 --verbose >/tmp/cb_run1.log 2>&1
 check $?
-grep -q "спрайтов на сцене: 10" /tmp/cb_run1.log
+grep -q "спрайтов на сцене: 9" /tmp/cb_run1.log
 check $?
 
 step "движок: игра (26) с профилем и вводом джойстика"
 $BIN --frames 60 --scene 26 --script tests/scripts/joystick.txt \
-     --profile "61=Гость,62=123,60=3,3=100,4=6,12=1" --out /tmp/cb_frames_26 >/tmp/cb_run26.log 2>&1
+     --profile "3=100,4=6,12=1" --out /tmp/cb_frames_26 >/tmp/cb_run26.log 2>&1
 check $?
 grep -q "ошибок: 0" /tmp/cb_run26.log
 check $?
 
 step "управление: джойстик ведёт игрока вправо, а не вверх"
 $BIN --frames 40 --scene 26 --script tests/scripts/joystick_move.txt \
-     --profile "61=Гость,62=123,60=3,3=100,4=6,12=1" --out /tmp/cb_frames_joy --verbose \
+     --profile "3=100,4=6,12=1" --out /tmp/cb_frames_joy --verbose \
      >/tmp/cb_joy.log 2>&1
 check $?
 awk '/Игрок /{print $3}' /tmp/cb_joy.log | tail -1 | \
@@ -71,7 +71,7 @@ awk '/Игрок /{print $3}' /tmp/cb_joy.log | tail -1 | \
 check $?
 
 step "способности: кнопка «Супер атака» перезаряжается (своя пауза у всех классов)"
-$BIN --frames 520 --scene 26 --profile "61=Гость,62=123,60=3,3=100,4=600,12=1,47=2" \
+$BIN --frames 520 --scene 26 --profile "3=100,4=600,12=1,47=2" \
      --set-var "65=1@2" --script tests/scripts/super_attack.txt --trace 26 --bench 520 --no-sound \
      >/tmp/cb_cooldown.log 2>&1
 check $?
@@ -91,68 +91,58 @@ case "$LAST" in
   *) printf '   ПРОВАЛ: кнопка осталась серой\n'; FAILED=$((FAILED + 1)) ;;
 esac
 
-step "атака: прицел держится, пока палец на кнопке А, и гаснет после отпускания"
-$BIN --frames 60 --scene 26 --profile "61=Гость,62=123,60=3,3=100,4=6,12=1,47=4" \
-     --script tests/scripts/attack_hold.txt --trace 20 --no-sound \
+step "атака: кнопка А срабатывает на палец и не залипает"
+$BIN --frames 60 --scene 26 --profile "3=100,4=6,12=1,47=4" \
+     --script tests/scripts/attack_hold.txt --trace 25 --no-sound \
      >/tmp/cb_aim.log 2>&1
 check $?
-grep -q "trace   20 .*vis=1" /tmp/cb_aim.log
+# кнопка погасла — атака пошла
+grep -q "trace   11 .*ярк= 85.0" /tmp/cb_aim.log
 check $?
-grep -q "trace   50 .*vis=0" /tmp/cb_aim.log
+# через полсекунды кнопка снова яркая: атака не залипает
+grep -q "trace   25 .*ярк=100.0" /tmp/cb_aim.log
 check $?
 
-step "валентинки: счётчик поверх интерфейса и сохранение между сценами"
-rm -f saves/db.tsv
-$BIN --frames 12 --scene 26 --profile "61=Гость,62=123,60=3,3=100,4=6,12=1,47=4" \
-     --set-var "93=12@5" --out /tmp/cb_frames_val --no-sound >/tmp/cb_val1.log 2>&1
+step "изумруды: в меню счёт рядом с иконкой, белое число без подписи"
+$BIN --frames 8 --scene 1 --set-var "93=12@3" --verbose >/tmp/cb_em.log 2>&1
 check $?
-grep -q "var:93	12\|var:93 12" saves/db.tsv
+# счёт рисует сама сцена прямо у зелёного изумруда (205,105), подписи нет
+grep -q 'var:93 .*видно=1 значение="12"' /tmp/cb_em.log
 check $?
-$BIN --frames 6 --scene 1 --out /tmp/cb_frames_val2 --verbose >/tmp/cb_val2.log 2>&1
-check $?
-# в меню счётчик стоит там, где была белая точка у «Конфеты», и это просто
-# белое число без слова «Валентинки»
-grep -q 'hud:валентинки pos=560,-95' /tmp/cb_val2.log
-check $?
-grep -q 'hud:валентинки .*значение="12"' /tmp/cb_val2.log
-check $?
-if grep -q 'Валентинки:' /tmp/cb_val2.log; then
-  printf '   ПРОВАЛ: в счётчике осталась подпись «Валентинки:»\n'
+if grep -q 'изумруды: 12\|Изумруды: 12' /tmp/cb_em.log; then
+  printf '   ПРОВАЛ: у счётчика появилась подпись\n'
   FAILED=$((FAILED + 1))
 else
   printf '   OK\n'
 fi
-# надпись оригинала под «Конфетой» больше не показывается — счётчик один
-grep -q 'var:92 .*видно=0' /tmp/cb_val2.log
+
+step "изумруды: в игре счётчик висит поверх интерфейса"
+$BIN --frames 8 --scene 26 --set-var "93=12@3" --verbose >/tmp/cb_em2.log 2>&1
+check $?
+grep -q 'hud:изумруды pos=0,' /tmp/cb_em2.log
+check $?
+grep -q 'hud:изумруды .*значение="12"' /tmp/cb_em2.log
 check $?
 
-step "скины: выбор скина меняет картинку игрока"
-$BIN --frames 40 --scene 95 --script tests/scripts/skin_select.txt \
-     --out /tmp/cb_frames_skin --verbose >/tmp/cb_skin.log 2>&1
+step "скины: переменная «Скин» меняет картинку игрока"
+$BIN --frames 6 --scene 26 --profile "12=2" --out /tmp/cb_frames_skin --verbose \
+     >/tmp/cb_skin.log 2>&1
 check $?
-grep -q "Игрок 1 .*0931_" /tmp/cb_skin.log
+grep -q "Игрок .*0393_igrok_2.png" /tmp/cb_skin.log
 check $?
 
 step "кубки: победа даёт кубки, счёт сохраняется и виден в меню"
 rm -f saves/db.tsv
-$BIN --frames 30 --scene 26 --set-var "4=0@15" --out /tmp/cb_frames_cups --verbose \
-     >/tmp/cb_cups.log 2>&1
+$BIN --frames 40 --scene 26 --profile "3=100,4=6,12=1" --set-var "4=0@10" \
+     --out /tmp/cb_frames_cups --verbose >/tmp/cb_cups.log 2>&1
 check $?
-grep -q "toast: Победа! +5 кубков" /tmp/cb_cups.log
+# в новой версии кубки начисляет сам проект: +10 за победу и сохранение
+grep -q "var:24[[:space:]]*10019" saves/db.tsv
 check $?
-grep -q "cups.5" saves/db.tsv
+$BIN --frames 200 --scene 42 --verbose >/tmp/cb_cups2.log 2>&1
 check $?
-$BIN --frames 3 --scene 1 --out /tmp/cb_frames_cups2 --verbose >/tmp/cb_cups2.log 2>&1
-grep -q 'var:91 .*значение="5"' /tmp/cb_cups2.log
+grep -q 'var:24 .*значение="10019"' /tmp/cb_cups2.log
 check $?
-# счёт стоит в жёлтой полосе панели, отдельного HUD в углу больше нет
-grep -q "кубки-счёт" /tmp/cb_cups2.log && CUPS_HUD=1 || CUPS_HUD=0
-if [ "$CUPS_HUD" -eq 0 ]; then
-  printf '   OK\n'
-else
-  printf '   ПРОВАЛ: HUD кубков в углу остался\n'
-  FAILED=$((FAILED + 1))
-fi
 
 step "шрифт: используется Roboto из third_party/fonts"
 $BIN --frames 2 --scene 1 --out /tmp/cb_frames_font --verbose >/tmp/cb_font.log 2>&1
@@ -162,7 +152,7 @@ check $?
 
 step "звук: играют эффекты проекта, фоновой музыки нет"
 $BIN --frames 30 --scene 26 --script tests/scripts/joystick.txt \
-     --profile "61=Гость,62=123,60=3,3=100,4=6,12=1" --out /tmp/cb_frames_snd \
+     --profile "3=100,4=6,12=1" --out /tmp/cb_frames_snd \
      >/tmp/cb_snd.log 2>&1
 check $?
 grep -Eq "прозвучало звуков: [1-9]" /tmp/cb_snd.log
@@ -191,7 +181,7 @@ grep -Eq "прозвучало звуков: [1-9]" /tmp/cb_click.log
 check $?
 
 step "адаптация: суперсэмплинг сохраняет раскладку (2x кадр)"
-$BIN --frames 3 --scene 77 --pixel-scale 2 --out /tmp/cb_frames_x2 >/tmp/cb_x2.log 2>&1
+$BIN --frames 3 --scene 31 --pixel-scale 2 --out /tmp/cb_frames_x2 >/tmp/cb_x2.log 2>&1
 check $?
 python3 - <<'PYW'
 import struct, sys, glob
@@ -200,7 +190,7 @@ if not files:
     sys.exit(1)
 data = open(files[-1], "rb").read(33)
 w, h = struct.unpack(">II", data[16:24])
-sys.exit(0 if (w, h) == (2696, 1440) else 1)
+sys.exit(0 if (w, h) == (3000, 1440) else 1)
 PYW
 check $?
 
@@ -216,17 +206,6 @@ check $?
 grep -q "не получают нажатие: 0" /tmp/cb_buttons.log
 check $?
 
-step "ввод: текстовые поля регистрации (77) принимают ввод с клавиатуры"
-$BIN --frames 24 --scene 77 --script tests/scripts/input_registration.txt \
-     --out /tmp/cb_frames_77 --verbose >/tmp/cb_run77.log 2>&1
-check $?
-grep -q 'ввод подтверждён: Имя = \[Гость\]' /tmp/cb_run77.log
-check $?
-grep -q 'ввод подтверждён: Пароль = \[12345\]' /tmp/cb_run77.log
-check $?
-grep -q "сцена: 1 (Меню)" /tmp/cb_run77.log
-check $?
-
 step "ввод: кнопки меню переключают сцены"
 $BIN --frames 12 --scene 1 --script tests/scripts/menu_buttons.txt \
      --out /tmp/cb_frames_menu >/tmp/cb_menu.log 2>&1
@@ -235,7 +214,7 @@ grep -q "сцена: 70 (Режимы)" /tmp/cb_menu.log
 check $?
 
 step "ввод: блок «спросить» (ask) возвращает ответ"
-$BIN --frames 20 --scene 1 --script tests/scripts/ask_reset.txt \
+$BIN --frames 24 --scene 31 --profile "24=100,80=44" --script tests/scripts/ask_reset.txt \
      --out /tmp/cb_frames_ask --verbose >/tmp/cb_ask.log 2>&1
 check $?
 grep -q '= \[abc\]' /tmp/cb_ask.log
@@ -243,24 +222,31 @@ check $?
 
 step "ввод: два пальца одновременно (джойстик + кнопка) не ломают игру"
 $BIN --frames 30 --scene 26 --script tests/scripts/multitouch.txt \
-     --profile "61=Гость,62=123,60=3,3=100,4=6,12=1" --out /tmp/cb_frames_mt >/tmp/cb_mt.log 2>&1
+     --profile "3=100,4=6,12=1" --out /tmp/cb_frames_mt >/tmp/cb_mt.log 2>&1
 check $?
 grep -q "ошибок: 0" /tmp/cb_mt.log
 check $?
 
-step "промокоды: поле ввода на сцене «Больше» принимает текст и даёт валентинки"
-rm -f saves/db.tsv
-$BIN --frames 24 --scene 31 --profile "61=Гость,62=123" \
-     --script tests/scripts/promo_input.txt --out /tmp/cb_frames_promo --verbose \
+step "ввод: поле промокода на сцене «Больше» принимает текст с клавиатуры"
+$BIN --frames 8 --scene 31 --profile "24=100" \
+     --script tests/scripts/promo_type.txt --out /tmp/cb_frames_promo --verbose \
      >/tmp/cb_promo.log 2>&1
 check $?
 # ввод с клавиатуры попадает в поле, подсказки-слова «Промокод» в нём нет
-grep -q 'Промокод .*видно=1 значение="Lover"' /tmp/cb_promo.log
+grep -q 'Промокод .*значение="MurderOfLove"' /tmp/cb_promo.log
 check $?
 grep -q 'Промокод .*placeholder=""' /tmp/cb_promo.log
 check $?
-# кнопка «Ввести» начислила +20 валентинок
-grep -q 'hud:валентинки .*значение="20"' /tmp/cb_promo.log
+grep -q 'ввод подтверждён: Промокод = \[MurderOfLove\]' /tmp/cb_promo.log
+check $?
+
+step "промокоды: код «MurderOfLove» начисляет +45 кубков"
+$BIN --frames 26 --scene 31 --profile "24=100" \
+     --script tests/scripts/promo_input.txt --out /tmp/cb_frames_promo2 --verbose \
+     >/tmp/cb_promo2.log 2>&1
+check $?
+# нажали «Ввести» — кубки выросли со 100 до 145 и видны в меню
+grep -q 'var:24 .*значение="145"' /tmp/cb_promo2.log
 check $?
 
 step "сеть: без --fb-url сеть выключена (игра работает офлайн)"
@@ -272,7 +258,7 @@ check $?
 step "сеть: Firebase RTDB — чтение базы игрой (эмулятор базы)"
 FB_PORT=8899
 cat > /tmp/cb_fb_seed.json <<'EOF'
-{"Гость": {"123": {"К": 777, "В": 0}}, "world": {"X1": 42, "Y1": -7, "Ивент": "тест"}}
+{"world": {"X1": 42, "Y1": -7, "ROT1": 15, "Ивент": "тест"}}
 EOF
 rm -f /tmp/cb_fb_dump.json
 python3 tests/firebase_mock.py --port "$FB_PORT" --seed /tmp/cb_fb_seed.json \
@@ -280,19 +266,20 @@ python3 tests/firebase_mock.py --port "$FB_PORT" --seed /tmp/cb_fb_seed.json \
 FB_PID=$!
 sleep 1
 mv saves/db.tsv /tmp/cb_db_backup.tsv 2>/dev/null || true
-$BIN --scene 1 --frames 45 --fps 30 --realtime --out /tmp/cb_frames_fb \
-     --profile "61=Гость,62=123" --fb-url "http://127.0.0.1:$FB_PORT/" --verbose \
-     >/tmp/cb_fb_read.log 2>&1
+$BIN --scene 95 --frames 45 --fps 30 --realtime --out /tmp/cb_frames_fb \
+     --fb-url "http://127.0.0.1:$FB_PORT/" --verbose >/tmp/cb_fb_read.log 2>&1
 check $?
-grep -q "Гость/123/К=777" /tmp/cb_fb_read.log
+# игра прочитала из базы координаты кубов и название ивента
+grep -q "база: .*X1=42" /tmp/cb_fb_read.log
+check $?
+grep -q "X1=42 Y1=-7" /tmp/cb_fb_read.log
 check $?
 
-step "сеть: запись в базу (промокод «Lover» -> валентинки на сервере)"
-$BIN --scene 31 --frames 60 --fps 30 --realtime --out /tmp/cb_frames_fb31 \
-     --profile "61=Гость,62=123" --set-var "81=Lover@3" --script tests/scripts/fb_promo.txt \
+step "сеть: запись в базу (сцена «Загрузка» пишет размер экрана)"
+$BIN --scene 42 --frames 45 --fps 30 --realtime --out /tmp/cb_frames_fb42 \
      --fb-url "http://127.0.0.1:$FB_PORT/" >/tmp/cb_fb_write.log 2>&1
 check $?
-python3 tests/fb_check_write.py /tmp/cb_fb_dump.json "Гость/123/В" 20
+python3 tests/fb_check_write.py /tmp/cb_fb_dump.json "world/ScreenWidth" 1500
 check $?
 kill "$FB_PID" 2>/dev/null || true
 mv /tmp/cb_db_backup.tsv saves/db.tsv 2>/dev/null || true
@@ -306,7 +293,7 @@ for path in glob.glob("/tmp/cb_frames_1/*.png")[:3]:
     if data[:8] != b"\x89PNG\r\n\x1a\n":
         ok = False
     w, h = struct.unpack(">II", data[16:24])
-    if (w, h) != (1348, 720):
+    if (w, h) != (1500, 720):
         ok = False
         print("неверный размер кадра:", path, w, h)
 sys.exit(0 if ok else 1)

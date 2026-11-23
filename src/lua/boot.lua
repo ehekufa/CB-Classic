@@ -38,8 +38,7 @@ local truth_prev = {}       -- [ключ] = было ли условие ист�
 local touch_prev = false
 local back_pressed = false
 local var_texts = {}        -- ярлыки текстовых полей, показывающих переменные
-local trophies = require("runtime.trophies")
-local valentines = require("runtime.valentines")
+local emeralds = require("runtime.emeralds")
 local abilities = require("runtime.abilities")
 
 local function_scripts = {}   -- [object_id] = { [id функции] = { script =, handle = } }
@@ -138,8 +137,7 @@ local function activate(scene_id)
 
   local mods = load_scene_modules(scene_id)
   register_functions(scene_id, mods)
-  trophies.enter_scene(scene_id)
-  valentines.enter_scene(scene_id)
+  emeralds.enter_scene(scene_id)
   abilities.enter_scene(scene_id)
   for object_id, mod in pairs(mods) do
     local handle = cb.obj_by_id(object_id)
@@ -425,8 +423,7 @@ function M.frame(dt)
   poll_presses()
   poll_releases()
   poll_text_commits()
-  trophies.check_frame(active_scene)
-  valentines.check_frame(active_scene)
+  emeralds.check_frame(active_scene)
   abilities.check_frame(active_scene)
   style_promo_field(active_scene)
 

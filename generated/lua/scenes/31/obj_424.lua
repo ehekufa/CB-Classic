@@ -13,7 +13,7 @@ return {
         E.set_pos(o, 400, E.op_neg(230))
         E.text_create("Промокод", "off", 400, 100, 81)
         E.text_set("Промокод", 'pos', E.pos_x(o), E.op_add(E.pos_y(o), 130))
-        E.unsupported("setFontSizeTextField")
+        E.text_set("Промокод", 'size', 40)
       end,
     },
     { -- скрипт 2: touch_down

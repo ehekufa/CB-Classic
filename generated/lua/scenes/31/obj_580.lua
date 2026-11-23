@@ -36,13 +36,13 @@ return {
           E.set_gv(47, 0)
           E.set_gv(24, 0)
           E.set_gv(93, 0)
-          E.unsupported("deleteAllElementsArray")
-          E.unsupported("deleteAllElementsArray")
+          E.array_clear(1)
+          E.array_clear(2)
           E.store_var(o, E.gv(80), 80)
           E.store_var(o, E.gv(47), 47)
           E.store_var(o, E.gv(24), 24)
-          E.unsupported("saveArray")
-          E.unsupported("saveArray")
+          E.array_save(1)
+          E.array_save(2)
           E.toast("Прогресс сброшен!")
           E.run_scene(1) return
         end

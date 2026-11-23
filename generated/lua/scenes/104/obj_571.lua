@@ -47,7 +47,7 @@ return {
           E.toast("Вам выпал... Пасхальник!")
         end
         E.wait(E.num(0.7))
-        E.wait_until(function() return E.truthy(E.unknown_expr("touchDisplay")) end, o)
+        E.wait_until(function() return E.truthy(E.touch_active()) end, o)
         E.run_scene(89) return
       end,
     },

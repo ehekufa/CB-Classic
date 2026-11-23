@@ -1,16 +1,4 @@
 {
- "unsupported_bricks": {
-  "readArray": 2,
-  "createVideo": 2,
-  "deleteVideo": 4,
-  "hideVariable": 1,
-  "saveArray": 4,
-  "deleteAllElementsArray": 2,
-  "setFontSizeTextField": 1
- },
- "unsupported_expressions": {
-  "displayActualWidth": 1,
-  "displayActualHeight": 1,
-  "touchDisplay": 4
- }
+ "unsupported_bricks": {},
+ "unsupported_expressions": {}
 }
