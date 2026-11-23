@@ -6,12 +6,16 @@ import android.util.Log;
 
 import org.libsdl.app.SDLActivity;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Writer;
 import java.util.zip.ZipEntry;
 
 /**
@@ -23,6 +27,9 @@ import java.util.zip.ZipEntry;
  */
 public class MainActivity extends SDLActivity {
     private static final String TAG = "cbclassic";
+    // Версия распакованных ассетов: увеличивайте, когда меняются файлы внутри APK
+    // (новый шрифт, правленые картинки) — иначе старая установка их не подхватит.
+    private static final int ASSETS_VERSION = 7;
 
     @Override
     protected String[] getLibraries() {
@@ -58,14 +65,18 @@ public class MainActivity extends SDLActivity {
     }
 
     private void extractAssets() {
-        // маркер: и проект, и шрифт — иначе обновление не доедет до старой установки
-        File marker = new File(getFilesDir(), "root/assets/project.lua");
-        File font = new File(getFilesDir(), "root/fonts/DejaVuSans.ttf");
-        if (marker.exists() && font.exists()) {
-            Log.i(TAG, "ассеты уже распакованы");
+        // Маркеры: проект, шрифт Roboto и номер версии ассетов. Версия нужна,
+        // чтобы после обновления APK новые файлы (например, Roboto) доехали
+        // до уже установленного приложения, а не остались старые.
+        File root = new File(getFilesDir(), "root");
+        File marker = new File(root, "assets/project.lua");
+        File font = new File(root, "fonts/Roboto-Regular.ttf");
+        File version = new File(root, ".assets-version");
+        if (marker.exists() && font.exists() &&
+            Integer.toString(ASSETS_VERSION).equals(readText(version))) {
+            Log.i(TAG, "ассеты уже распакованы (версия " + ASSETS_VERSION + ")");
             return;
         }
-        File root = new File(getFilesDir(), "root");
         try {
             long started = System.currentTimeMillis();
             AssetManager am = getAssets();
@@ -73,9 +84,27 @@ public class MainActivity extends SDLActivity {
             copyTree(am, "src/lua", new File(root, "src/lua"));
             copyTree(am, "generated/lua", new File(root, "generated/lua"));
             copyTree(am, "fonts", new File(root, "fonts"));
+            writeText(version, Integer.toString(ASSETS_VERSION));
             Log.i(TAG, "ассеты распакованы за " + (System.currentTimeMillis() - started) + " мс");
         } catch (IOException e) {
             Log.e(TAG, "не удалось распаковать ассеты", e);
+        }
+    }
+
+    private static String readText(File file) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line = reader.readLine();
+            return line == null ? "" : line.trim();
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    private static void writeText(File file, String text) {
+        try (Writer writer = new FileWriter(file)) {
+            writer.write(text);
+        } catch (Exception e) {
+            Log.w(TAG, "не удалось записать " + file.getName(), e);
         }
     }
 

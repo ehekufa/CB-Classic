@@ -173,6 +173,8 @@ jobs:
             echo "- SDL: ${SDL_VERSION}"
             echo "- NDK: ${NDK_VERSION}"
             echo "- Gradle: ${GRADLE_VERSION}"
+            echo "- запуск: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo "- APK в запуске: артефакт \`cb-classic-debug-apk\`"
             echo
             if [ -f dist/cb-classic-debug.apk ]; then
               echo "## APK"
