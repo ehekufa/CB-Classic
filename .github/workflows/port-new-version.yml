@@ -1,0 +1,63 @@
+name: port-new-version (ручной)
+# Ручной запуск: качает архив новой версии из релиза GitHub, переносит проект
+# в порт (original/ -> assets/ + generated/lua), проверяет сборку и коммитит
+# результат в текущую ветку. Дальше push сам запускает сборку APK (android-apk).
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: тег релиза с архивом проекта
+        default: "No"
+        required: true
+      asset:
+        description: имя файла в релизе (пусто — первый zip)
+        default: "super.kortohka.zip"
+        required: false
+permissions:
+  contents: write
+jobs:
+  port:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Download release asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ inputs.tag }}
+          ASSET: ${{ inputs.asset }}
+        run: |
+          mkdir -p /tmp/dl
+          if [ -n "$ASSET" ]; then
+            gh release download "$TAG" --repo "$GITHUB_REPOSITORY" -p "$ASSET" -D /tmp/dl
+          else
+            gh release download "$TAG" --repo "$GITHUB_REPOSITORY" -p "*.zip" -D /tmp/dl
+          fi
+          ls -la /tmp/dl
+          du -sh /tmp/dl
+
+      - name: Port project (original -> assets + generated)
+        run: |
+          Z=$(ls /tmp/dl/*.zip | head -1)
+          tools/port_new_version.sh "$Z" --no-build
+          du -sh original assets generated
+          find original -type f | wc -l
+          find generated/lua -name '*.lua' | wc -l
+          cat ops/excluded-large-files.txt || true
+
+      - name: Build and self-tests (informational)
+        continue-on-error: true
+        run: |
+          make -s -j4
+          ./tests/run_tests.sh 2>&1 | tail -60
+
+      - name: Commit imported project
+        run: |
+          git config user.name "port-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add -A original assets generated ops android/app/src/main/java/org/cbclassic/MainActivity.java
+          git commit -m "feat: новая версия проекта из релиза ${GITHUB_REF_NAME}" || echo "нет изменений"
+          git pull --rebase origin "${GITHUB_REF_NAME}" || true
+          git push origin "HEAD:${GITHUB_REF_NAME}"
