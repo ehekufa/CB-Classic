@@ -238,6 +238,44 @@ check $?
 grep -q "ошибок: 0" /tmp/cb_mt.log
 check $?
 
+step "сеть: без --fb-url сеть выключена (игра работает офлайн)"
+$BIN --frames 5 --scene 1 --out /tmp/cb_frames_offline --verbose >/tmp/cb_offline.log 2>&1
+check $?
+grep -q "сеть: выключена" /tmp/cb_offline.log
+check $?
+
+step "сеть: Firebase RTDB — чтение базы игрой (эмулятор базы)"
+FB_PORT=8899
+cat > /tmp/cb_fb_seed.json <<'EOF'
+{"Гость": {"123": {"К": 777, "В": 0}}, "world": {"X1": 42, "Y1": -7, "Ивент": "тест"}}
+EOF
+rm -f /tmp/cb_fb_dump.json
+python3 tests/firebase_mock.py --port "$FB_PORT" --seed /tmp/cb_fb_seed.json \
+    --dump /tmp/cb_fb_dump.json >/tmp/cb_fb_mock.log 2>&1 &
+FB_PID=$!
+sleep 1
+mv saves/db.tsv /tmp/cb_db_backup.tsv 2>/dev/null || true
+$BIN --scene 1 --frames 45 --fps 30 --realtime --out /tmp/cb_frames_fb \
+     --profile "61=Гость,62=123" --fb-url "http://127.0.0.1:$FB_PORT/" --verbose \
+     >/tmp/cb_fb_read.log 2>&1
+check $?
+grep -q "Гость/123/К=777" /tmp/cb_fb_read.log
+check $?
+
+step "сеть: запись в базу (промокод «Lover» -> валентинки на сервере)"
+$BIN --scene 31 --frames 60 --fps 30 --realtime --out /tmp/cb_frames_fb31 \
+     --profile "61=Гость,62=123" --set-var "81=Lover@3" --script tests/scripts/fb_promo.txt \
+     --fb-url "http://127.0.0.1:$FB_PORT/" >/tmp/cb_fb_write.log 2>&1
+check $?
+python3 tests/fb_check_write.py /tmp/cb_fb_dump.json "Гость/123/В" 20
+check $?
+kill "$FB_PID" 2>/dev/null || true
+mv /tmp/cb_db_backup.tsv saves/db.tsv 2>/dev/null || true
+
+step "правила Firebase: firebase-rules.json разбирается и совпадает с документацией"
+python3 tests/check_fb_rules.py
+check $?
+
 step "движок: кадры — валидные PNG нужного размера"
 python3 - <<'PY'
 import struct, sys, glob

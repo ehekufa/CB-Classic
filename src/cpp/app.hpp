@@ -36,6 +36,11 @@ struct AppOptions {
     std::string screenshot;              // сохранить последний кадр окна в PNG
     bool no_sound = false;               // без звука вообще
     int trace_object = -1;               // --trace ID: печатать состояние объекта по кадрам
+    // Сеть (Firebase Realtime Database): адрес базы и режим.
+    std::string fb_url;                  // --fb-url URL (на десктопе включает сеть)
+    bool fb_offline = false;             // --fb-offline: без сети совсем
+    bool fb_auto = false;                // на телефоне сеть включена всегда
+    bool realtime = false;               // --realtime: идти в реальном времени (для сети)
     // --set-var "id=значение@кадр" — установить переменную на нужном кадре
     struct SetVar { int frame = 0; int id = 0; std::string value; };
     std::vector<SetVar> set_vars;

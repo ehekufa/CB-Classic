@@ -751,20 +751,92 @@ void Engine::pop_toast()
     }
 }
 
+namespace {
+
+// Ключ игры -> путь в базе. Глобальные ключи (X1, Y1, Ивент, скины…) живут в
+// узле world/, чтобы их можно было забрать одним запросом; ключи с игроком
+// ("Имя/Пароль" и "Имя/Пароль/К") — как есть.
+std::string fb_path_for_key(const std::string &key)
+{
+    std::string k = key;
+    while (!k.empty() && k.back() == '/') {
+        k.pop_back();
+    }
+    if (k.find('/') == std::string::npos) {
+        return "world/" + k;
+    }
+    return k;
+}
+
+// Путь -> узел, который имеет смысл опрашивать целиком.
+std::string fb_node_for_path(const std::string &path)
+{
+    if (path.rfind("world/", 0) == 0) {
+        return "world";
+    }
+    const size_t first = path.find('/');
+    if (first == std::string::npos) {
+        return path;
+    }
+    const size_t second = path.find('/', first + 1);
+    if (second == std::string::npos) {
+        return path;
+    }
+    return path.substr(0, second);
+}
+
+}  // namespace
+
 void Engine::fb_set(const std::string &key, const std::string &value)
 {
     fb_[key] = value;
+    if (net_.enabled()) {
+        net_.put(fb_path_for_key(key), fb_json_of(value));
+    }
     store_flush();
 }
 
 bool Engine::fb_get(const std::string &key, std::string *out) const
 {
+    // Первое чтение ключа подписывает нас на его узел: дальше сервер сам
+    // присылает новые значения, игра просто читает локальную копию.
+    if (net_.enabled()) {
+        const std::string node = fb_node_for_path(fb_path_for_key(key));
+        if (fb_watched_.insert(node).second) {
+            net_.watch(node);
+        }
+    }
     auto it = fb_.find(key);
     if (it == fb_.end()) {
         return false;
     }
     *out = it->second;
     return true;
+}
+
+// Разложить пришедшее с сервера по ключам игры (вызывается на каждом кадре).
+void Engine::fb_tick()
+{
+    FbUpdate update;
+    bool changed = false;
+    while (net_.pop(&update)) {
+        std::string key = update.path;
+        if (key.rfind("world/", 0) == 0) {
+            key = key.substr(6);
+        }
+        if (key.empty()) {
+            continue;
+        }
+        const std::string value = fb_text_of(update.json);
+        std::string &slot = fb_[key];
+        if (slot != value) {
+            slot = value;
+            changed = true;
+        }
+    }
+    if (changed) {
+        store_flush();
+    }
 }
 
 void Engine::store_set(const std::string &key, const std::string &value)

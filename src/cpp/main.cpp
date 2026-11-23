@@ -11,6 +11,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <thread>
 #include <string>
 #include <vector>
 
@@ -147,6 +148,23 @@ bool App::init()
     }
     bool ok = lua_toboolean(lua, -1) != 0;
     lua_pop(lua, 1);
+
+    // 2) сеть: адрес базы пришёл из игры (E.FB_URL), CLI может его перебить.
+    // Включаем её на телефоне всегда, на десктопе — только по --fb-url/--fb-on,
+    // иначе headless-тесты ходили бы в интернет.
+    if (!options.fb_offline) {
+        if (!options.fb_url.empty()) {
+            engine.fb_configure(options.fb_url);
+        }
+        if (!options.fb_url.empty() || options.fb_auto) {
+            if (engine.fb_base_url().empty()) {
+                engine.fb_configure(cb::FbNet::default_url());
+            }
+            engine.fb_network(true);
+        }
+    }
+    engine.log(std::string("сеть: ") + (engine.fb_online() ? "включена, база " + engine.fb_base_url()
+                                                           : std::string("выключена")));
 
     if (options.width <= 0) {
         options.width = engine.stage_width();
@@ -474,12 +492,22 @@ bool App::run()
             bench_draw_ms += draw_ms;
             bench_worst_ms = std::max(bench_worst_ms, step_ms + draw_ms);
         }
+        if (options.realtime) {
+            const auto deadline = t0 + std::chrono::duration_cast<Clock::duration>(
+                                               std::chrono::duration<double>(dt));
+            std::this_thread::sleep_until(deadline);
+        }
         if (options.verbose && frame < 8) {
             std::fprintf(stderr, "[кадр %d] сцена=%d журнал=%zu спрайтов=%zu\n", frame,
                          engine.current_scene_id(), engine.log_lines().size(),
                          engine.sprites_in_draw_order().size());
         }
         if (options.verbose && frame % 30 == 0) {
+            std::string fb;
+            for (const auto &pair : engine.fb_all()) {
+                fb += pair.first + "=" + pair.second + " ";
+            }
+            std::printf("  база: %s\n", fb.c_str());
             std::printf("кадр %d: сцена %d, спрайтов %d\n", frame,
                         engine.current_scene_id(), renderer.drawn_sprites());
         }
@@ -569,6 +597,7 @@ int main(int argc, char **argv)
     opts.scene = 42;                 // старт с загрузочной сцены, как в оригинале
     opts.headless = false;
     opts.fps = 60.0;
+    opts.fb_auto = true;             // на телефоне база нужна всегда
 #endif
     std::vector<std::string> args(argv + 1, argv + argc);
 
@@ -633,6 +662,14 @@ int main(int argc, char **argv)
             }
         } else if (a == "--profile") {
             opts.profile = next("");
+        } else if (a == "--fb-url") {
+            opts.fb_url = next("");
+        } else if (a == "--fb-on") {
+            opts.fb_auto = true;         // сеть на десктопе с адресом по умолчанию
+        } else if (a == "--fb-offline") {
+            opts.fb_offline = true;
+        } else if (a == "--realtime") {
+            opts.realtime = true;        // кадры идут по часам, а не максимально быстро
         } else if (a == "--trace") {
             opts.trace_object = std::atoi(next("-1").c_str());
         } else if (a == "--verbose") {
@@ -657,6 +694,10 @@ int main(int argc, char **argv)
                 "  --screenshot F сохранить кадр окна в PNG\n"
                 "  --check DIR    проверить синтаксис Lua-файлов в каталоге\n"
                 "  --trace ID     печатать состояние объекта (id) каждый кадр\n"
+                "  --fb-url URL   база Firebase для онлайна (на десктопе — http, для тестов)\n"
+                "  --fb-on        включить сеть с адресом по умолчанию\n"
+                "  --fb-offline   без сети совсем\n"
+                "  --realtime     идти в реальном времени (нужно сети в headless-прогоне)\n"
                 "  --verbose      подробный вывод\n");
             return 0;
         }

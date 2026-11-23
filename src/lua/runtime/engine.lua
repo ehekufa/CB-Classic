@@ -423,11 +423,18 @@ function E.unknown_expr(name)
 end
 
 -- «Firebase» эмулируется локальным хранилищем (см. engine.cpp: fb_*).
+-- Адрес базы: в оригинале он был разбросан по десятку скриптов (три разных проекта
+-- Firebase) — теперь один, здесь. Правила доступа к базе — в FIREBASE_RULES.md.
+E.FB_URL = "https://circlebattle1-default-rtdb.firebaseio.com/"
+-- сообщаем адрес движку: он ходит в базу сам (src/cpp/fbnet.cpp)
+if cb.firebase_url then
+  cb.firebase_url(E.FB_URL)
+end
 function E.fb_key(a, b, c)
   return str(a) .. "/" .. str(b) .. "/" .. str(c)
 end
 function E.fb_set(key, value, url)
-  cb.firebase_set(str(key), str(value))
+  cb.firebase_set(str(key), str(value), E.FB_URL)
 end
 function E.fb_get(key, url, callback)
   local value = cb.firebase_get(str(key))

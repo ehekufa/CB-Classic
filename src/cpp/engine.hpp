@@ -8,12 +8,14 @@
 #include <deque>
 #include <functional>
 #include <map>
+#include <set>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
 #include "../c/io.h"
 #include "../c/png.h"
+#include "fbnet.hpp"
 
 namespace cb {
 
@@ -202,6 +204,16 @@ public:
         measurer_ = std::move(fn);
     }
 
+    // --- сеть: Firebase Realtime Database (см. fbnet.cpp) ---
+    // Сеть работает в своём потоке: кадр её не ждёт, пришедшие значения
+    // подкладываются в fb_ на каждом кадре (fb_tick).
+    void fb_configure(const std::string &base) { net_.configure(base); }
+    std::string fb_base_url() const { return net_.base_url(); }
+    void fb_network(bool on) { net_.set_enabled(on); }
+    bool fb_online() const { return net_.enabled(); }
+    FbNet &fb_net() { return net_; }
+    void fb_tick();
+
     // --- прочее ---
     double time() const { return time_; }
     double dt() const { return dt_; }
@@ -211,6 +223,7 @@ public:
         dt_ = dt;
         tick_toasts(dt);
         particles_update(dt);
+        fb_tick();
     }
     int stage_width() const { return stage_w_; }
     int stage_height() const { return stage_h_; }
@@ -236,6 +249,7 @@ public:
     void store_set(const std::string &key, const std::string &value);
     bool store_get(const std::string &key, std::string *out) const;
     void store_flush();
+    const std::map<std::string, std::string> &fb_all() const { return fb_; }
     void store_load();
 
     // --- звук (в headless-режиме только журнал) ---
@@ -314,6 +328,8 @@ private:
 
     std::map<std::string, std::string> fb_;
     std::map<std::string, std::string> store_;
+    mutable FbNet net_;
+    mutable std::set<std::string> fb_watched_;   // узлы, на которые уже подписан
 
     std::function<void(const std::string &, bool loop)> sound_hook_;
     std::map<std::pair<int, std::string>, ParticleEmitter> emitters_;

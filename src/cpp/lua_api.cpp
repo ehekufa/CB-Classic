@@ -654,6 +654,13 @@ int l_text_delete(lua_State *L)
     return 0;
 }
 
+int l_firebase_url(lua_State *L)
+{
+    // Адрес базы задаёт игра (E.FB_URL в engine.lua), CLI может его перебить.
+    engine_of(L)->fb_configure(luaL_checkstring(L, 1));
+    return 0;
+}
+
 int l_firebase_set(lua_State *L)
 {
     engine_of(L)->fb_set(luaL_checkstring(L, 1), lua_tostring(L, 2) ? lua_tostring(L, 2) : "");
@@ -753,6 +760,7 @@ const luaL_Reg kApi[] = {
     {"text_create", l_text_create},
     {"text_set", l_text_set},
     {"text_delete", l_text_delete},
+    {"firebase_url", l_firebase_url},
     {"firebase_set", l_firebase_set},
     {"firebase_get", l_firebase_get},
     {"store_set", l_store_set},
