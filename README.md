@@ -60,6 +60,7 @@ make test            # все проверки (сборка, PNG, конвер�
 ### Android
 
 Готовый APK лежит в релизе [`apk-latest`](https://github.com/ehekufa/CB-Classic/releases/tag/apk-latest)
+и продублирован в ветке как [`dist/cb-classic-debug.apk`](dist/cb-classic-debug.apk)
 (`cb-classic-debug.apk`, ~32 МБ, arm64-v8a + armeabi-v7a, minSdk 21). Внутри те же
 167 PNG, 8 MP3 и 136 Lua-модулей — с собой ничего носить не нужно. Подробности сборки
 и структура `android/` — в [docs/BUILD-ANDROID.md](docs/BUILD-ANDROID.md), отчёт
