@@ -66,7 +66,8 @@ jobs:
           git config user.name "port-bot"
           git config user.email "bot@users.noreply.github.com"
           git rm -q --ignore-unmatch .port-request || true
-          git add -A original assets generated ops android/app/src/main/java/org/cbclassic/MainActivity.java .port-request
+          git add -A original assets generated ops .port-request
+          git add android/app/src/main/java/org/cbclassic/MainActivity.java
           git commit -m "feat: новая версия проекта из релиза ${GITHUB_REF_NAME}" || echo "нет изменений"
           git pull --rebase origin "${GITHUB_REF_NAME}" || true
           git push origin "HEAD:${GITHUB_REF_NAME}"
