@@ -1,15 +1,17 @@
 # Отчёт сборки APK
 
-- дата: 2026-11-23T14:49:26Z
+- дата: 2026-11-23T14:52:56Z
 - SDL: release-2.30.9
 - NDK: 26.1.10909125
 - Gradle: 8.7
+- запуск: https://github.com/ehekufa/CB-Classic/actions/runs/45198591980
+- APK в запуске: артефакт `cb-classic-debug-apk`
 
 ## APK
 
 ```
--rw-r--r-- 1 runner runner 33181032 Nov 23 14:49 dist/cb-classic-debug.apk
-9280242fd016ac16fccd88138b4a4cb54b1f6ab2b65e5041c83052e6d135f209  dist/cb-classic-debug.apk
+-rw-r--r-- 1 runner runner 33181658 Nov 23 14:52 dist/cb-classic-debug.apk
+a0494c0fa972820733cc32d7d752cadefcf331abc014818397cf330d81552e01  dist/cb-classic-debug.apk
      1056  1981-01-01 01:01   classes.dex
   1309008  1981-01-01 01:01   lib/arm64-v8a/libSDL2.so
   1330832  1981-01-01 01:01   lib/arm64-v8a/libc++_shared.so
@@ -33,7 +35,7 @@
 ...
     42320  1981-01-01 01:01   META-INF/MANIFEST.MF
 ---------                     -------
- 37680920                     337 files
+ 37682020                     337 files
 ```
 
 всего записей: 337
@@ -47,7 +49,7 @@ classes.dex: 1056 байт
   ссылок на org/cbclassic: 3
   ссылок на org/libsdl:    0
   MainActivity:            0
-classes2.dex: 4284 байт
+classes2.dex: 5384 байт
   ссылок на org/cbclassic: 2
   ссылок на org/libsdl:    1
   MainActivity:            3
@@ -85,9 +87,9 @@ activity/action в манифесте:
 
 подпись:
 V2 Signer: certificate DN: C=US, O=Android, CN=Android Debug
-V2 Signer: certificate SHA-256 digest: 1cdd9b9f285cd860fa7cf1d0a06292268f2a5be01c839882b3ea4b0478692418
-V2 Signer: certificate SHA-1 digest: d8fcd114838b1815c9ac72c8bf64f2e53e9e3dd1
-V2 Signer: certificate MD5 digest: 65048484c9c203a64fc4ec5c5cf0e075
+V2 Signer: certificate SHA-256 digest: 7bcc0cbf965ea021557618a69cc1f1501d91b841c87a3de24ad3e3413e5383de
+V2 Signer: certificate SHA-1 digest: 2ae7b14f5aa6eec2108190a44d129b2796353606
+V2 Signer: certificate MD5 digest: 948f8b24c18524f8789f1cf33c912870
 WARNING: META-INF/com/android/build/gradle/app-metadata.properties not protected by signature. Unauthorized modifications to this JAR entry will not be detected. Delete or move the entry outside of META-INF/.
 
 ### основные lua-модули
@@ -114,9 +116,9 @@ Daemon will be stopped at the end of the build
 > Task :app:preBuild UP-TO-DATE
 > Task :app:preDebugBuild UP-TO-DATE
 > Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
-> Task :app:checkDebugAarMetadata
 > Task :app:generateDebugResValues
 > Task :app:javaPreCompileDebug
+> Task :app:checkDebugAarMetadata
 > Task :app:mapDebugSourceSetPaths
 > Task :app:generateDebugResources
 > Task :app:packageDebugResources
@@ -141,15 +143,15 @@ Note: Recompile with -Xlint:deprecation for details.
 > Task :app:compressDebugAssets
 > Task :app:dexBuilderDebug
 > Task :app:processDebugJavaRes NO-SOURCE
-> Task :app:mergeDebugStartupProfile
-> Task :app:preReleaseBuild UP-TO-DATE
-> Task :app:checkDebugDuplicateClasses
 > Task :app:mergeDebugGlobalSynthetics
-> Task :app:mergeDebugJavaResource
-> Task :app:configureCMakeRelease[arm64-v8a]
+> Task :app:checkDebugDuplicateClasses
+> Task :app:mergeDebugStartupProfile
 > Task :app:mergeExtDexDebug
+> Task :app:preReleaseBuild UP-TO-DATE
 > Task :app:mergeLibDexDebug
+> Task :app:mergeDebugJavaResource
 > Task :app:mergeProjectDexDebug
+> Task :app:configureCMakeRelease[arm64-v8a]
 > Task :app:buildCMakeRelease[arm64-v8a]
 > Task :app:configureCMakeRelease[armeabi-v7a]
 > Task :app:buildCMakeRelease[armeabi-v7a]
@@ -163,7 +165,7 @@ Note: Recompile with -Xlint:deprecation for details.
 > Task :app:createDebugApkListingFileRedirect
 > Task :app:assembleDebug
 
-BUILD SUCCESSFUL in 1m 31s
+BUILD SUCCESSFUL in 1m 30s
 39 actionable tasks: 39 executed
 код возврата gradle: 0
 ```
