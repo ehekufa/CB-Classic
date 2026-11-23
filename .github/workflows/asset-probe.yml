@@ -1,0 +1,33 @@
+name: asset-probe
+on:
+  push:
+    branches: [arena/f69adc32-cb-classic]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download release asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p /tmp/dl
+          gh release download "YOU_DON'T_NEED_IT" --repo "$GITHUB_REPOSITORY" -D /tmp/dl
+          ls -la /tmp/dl
+          sha256sum /tmp/dl/*.zip
+      - name: Inspect archive
+        run: |
+          Z=$(ls /tmp/dl/*.zip | head -1)
+          echo "=== total entries ==="
+          unzip -l "$Z" | tail -3
+          echo "=== extensions histogram (by count) ==="
+          unzip -Z1 "$Z" | awk -F. 'NF>1{print tolower($NF)}' | sort | uniq -c | sort -rn | head -40
+          echo "=== top-level entries ==="
+          unzip -Z1 "$Z" | awk -F/ '{print $1}' | sort -u | head -60
+          echo "=== first 300 paths ==="
+          unzip -Z1 "$Z" | head -300
+          echo "=== 18 largest files ==="
+          unzip -l "$Z" | sort -k1 -n -r | head -20
