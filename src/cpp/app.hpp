@@ -53,6 +53,8 @@ public:
 
     // выполняет одну строку сценария ввода: press/release/back/scene
     void apply_input_command(const std::string &line);
+    // Открывает звуковое устройство (нужен уже инициализированный SDL)
+    bool open_audio();
     // Диагностика: для всех сцен печатает кнопки, до которых не доходит нажатие.
     bool check_buttons();
 

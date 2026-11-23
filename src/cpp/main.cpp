@@ -160,7 +160,6 @@ bool App::init()
     // Звук: эффекты проекта (mp3) и встроенная музыка. В headless-сборке
     // без SDL звук только попадает в журнал, но файлы всё равно декодируются.
     if (!options.no_sound) {
-        audio.open();
         engine.set_sound_hook([this](const std::string &name, bool loop) {
             if (name.empty()) {
                 return;
@@ -174,8 +173,6 @@ bool App::init()
                 audio.play(path, 0.9);
             }
         });
-        engine.log(std::string("звук: ") +
-                   (audio.ready() ? "устройство открыто" : "только журнал (нет SDL)"));
     }
     if (renderer.has_font()) {
         engine.log("шрифт: " + renderer.font_path());
@@ -185,6 +182,17 @@ bool App::init()
     } else {
         engine.log("шрифт не найден — встроенный 5x7");
     }
+    return ok;
+}
+
+bool App::open_audio()
+{
+    if (options.no_sound) {
+        return false;
+    }
+    bool ok = audio.open();
+    engine.log(std::string("звук: ") +
+               (ok ? "устройство открыто" : "только журнал (нет SDL)"));
     return ok;
 }
 
@@ -675,7 +683,9 @@ int main(int argc, char **argv)
         if (!renderer) {
             renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
         }
-        if (!app.options.no_sound && !app.options.no_music) {
+        // Звук: устройство открывается после SDL_Init, музыка — сразу за ним.
+        app.open_audio();
+        if (app.audio.ready() && !app.options.no_music) {
             app.audio.start_music(app.options.music_volume);   // фоновая тема
         }
         SDL_RenderSetLogicalSize(renderer, app.options.width, app.options.height);
