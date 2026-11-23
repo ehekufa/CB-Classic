@@ -3,6 +3,7 @@ name: port-new-version (ручной)
 # в порт (original/ -> assets/ + generated/lua), проверяет сборку и коммитит
 # результат в текущую ветку. Дальше push сам запускает сборку APK (android-apk).
 on:
+  # ручной запуск из вкладки Actions (работает, когда файл есть в main)
   workflow_dispatch:
     inputs:
       tag:
@@ -13,6 +14,10 @@ on:
         description: имя файла в релизе (пусто — первый zip)
         default: "super.kortohka.zip"
         required: false
+  # а это — запуск из рабочей ветки: достаточно запушить файл-заявку .port-request
+  push:
+    paths:
+      - ".port-request"
 permissions:
   contents: write
 jobs:
@@ -26,9 +31,12 @@ jobs:
       - name: Download release asset
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ inputs.tag }}
-          ASSET: ${{ inputs.asset }}
+          TAG_IN: ${{ inputs.tag }}
+          ASSET_IN: ${{ inputs.asset }}
         run: |
+          TAG="${TAG_IN:-No}"
+          ASSET="${ASSET_IN:-super.kortohka.zip}"
+          echo "релиз: $TAG, файл: $ASSET"
           mkdir -p /tmp/dl
           if [ -n "$ASSET" ]; then
             gh release download "$TAG" --repo "$GITHUB_REPOSITORY" -p "$ASSET" -D /tmp/dl
@@ -57,7 +65,8 @@ jobs:
         run: |
           git config user.name "port-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add -A original assets generated ops android/app/src/main/java/org/cbclassic/MainActivity.java
+          git rm -q --ignore-unmatch .port-request || true
+          git add -A original assets generated ops android/app/src/main/java/org/cbclassic/MainActivity.java .port-request
           git commit -m "feat: новая версия проекта из релиза ${GITHUB_REF_NAME}" || echo "нет изменений"
           git pull --rebase origin "${GITHUB_REF_NAME}" || true
           git push origin "HEAD:${GITHUB_REF_NAME}"
