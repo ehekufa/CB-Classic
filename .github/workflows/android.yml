@@ -211,6 +211,12 @@ jobs:
 
           git config user.name "apk-bot"
           git config user.email "bot@users.noreply.github.com"
+          # зеркало APK прямо в репозитории: release-ассеты отдают с
+          # objects.githubusercontent.com, который в РФ часто недоступен,
+          # а файл в ветке качается как обычный файл репозитория
+          if [ -f dist/cb-classic-debug.apk ]; then
+            git add -f dist/cb-classic-debug.apk
+          fi
           git add -f ops/apk-report.md
           git add -f android-build.log || true
           git commit -m "build(android): отчёт сборки APK" || echo "нечего коммитить"
