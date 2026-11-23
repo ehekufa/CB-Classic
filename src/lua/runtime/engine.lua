@@ -424,7 +424,7 @@ end
 
 -- «Firebase» эмулируется локальным хранилищем (см. engine.cpp: fb_*).
 -- Адрес базы: в оригинале он был разбросан по десятку скриптов (три разных проекта
--- Firebase) — теперь один, здесь. Правила доступа к базе — в FIREBASE_RULES.md.
+-- Firebase) — теперь один, здесь.
 E.FB_URL = "https://circlebattle1-default-rtdb.firebaseio.com/"
 -- сообщаем адрес движку: он ходит в базу сам (src/cpp/fbnet.cpp)
 if cb.firebase_url then

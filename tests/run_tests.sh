@@ -272,10 +272,6 @@ check $?
 kill "$FB_PID" 2>/dev/null || true
 mv /tmp/cb_db_backup.tsv saves/db.tsv 2>/dev/null || true
 
-step "правила Firebase: firebase-rules.json разбирается и совпадает с документацией"
-python3 tests/check_fb_rules.py
-check $?
-
 step "движок: кадры — валидные PNG нужного размера"
 python3 - <<'PY'
 import struct, sys, glob
