@@ -234,7 +234,7 @@ jobs:
           APKINFO="$( [ -f dist/cb-classic-debug.apk ] && ls -l dist/cb-classic-debug.apk && sha256sum dist/cb-classic-debug.apk || echo 'APK нет' )"
           echo "::warning title=APK::${APKINFO}"
 
-      - name: Сводка запуска: где скачать APK
+      - name: Сводка запуска — где скачать APK
         if: always()
         run: |
           APK=android/app/build/outputs/apk/debug/app-debug.apk
