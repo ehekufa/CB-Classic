@@ -439,7 +439,9 @@ void Renderer::draw_scene(Engine &engine)
             double left = field.x - w / 2.0;
             double top = field.y + h / 2.0;      // fill_rect рисует вниз от top
             // светлая подложка: текст читается на любом фоне
-            fill_rect(left, top, w, h, is_focused ? 0xffffffe6u : 0xffffffb4u);
+            // плашка почти белая: поле ввода должно читаться как «белое» и на
+            // тёмном фоне, и на светлом
+            fill_rect(left, top, w, h, is_focused ? 0xffffffeeu : 0xffffffdeu);
             fill_rect(left, top, w, 2.0, frame);                  // верх
             fill_rect(left, field.y - h / 2.0, w, 2.0, frame);    // низ
             fill_rect(left, field.y - h / 2.0, 2.0, h, frame);    // лево

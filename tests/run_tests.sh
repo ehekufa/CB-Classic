@@ -110,8 +110,18 @@ grep -q "var:93	12\|var:93 12" saves/db.tsv
 check $?
 $BIN --frames 6 --scene 1 --out /tmp/cb_frames_val2 --verbose >/tmp/cb_val2.log 2>&1
 check $?
-grep -q 'hud:валентинки .*значение="Валентинки: 12"' /tmp/cb_val2.log
+# в меню счётчик стоит там, где была белая точка у «Конфеты», и это просто
+# белое число без слова «Валентинки»
+grep -q 'hud:валентинки pos=560,-95' /tmp/cb_val2.log
 check $?
+grep -q 'hud:валентинки .*значение="12"' /tmp/cb_val2.log
+check $?
+if grep -q 'Валентинки:' /tmp/cb_val2.log; then
+  printf '   ПРОВАЛ: в счётчике осталась подпись «Валентинки:»\n'
+  FAILED=$((FAILED + 1))
+else
+  printf '   OK\n'
+fi
 # надпись оригинала под «Конфетой» больше не показывается — счётчик один
 grep -q 'var:92 .*видно=0' /tmp/cb_val2.log
 check $?
@@ -236,6 +246,21 @@ $BIN --frames 30 --scene 26 --script tests/scripts/multitouch.txt \
      --profile "61=Гость,62=123,60=3,3=100,4=6,12=1" --out /tmp/cb_frames_mt >/tmp/cb_mt.log 2>&1
 check $?
 grep -q "ошибок: 0" /tmp/cb_mt.log
+check $?
+
+step "промокоды: поле ввода на сцене «Больше» принимает текст и даёт валентинки"
+rm -f saves/db.tsv
+$BIN --frames 24 --scene 31 --profile "61=Гость,62=123" \
+     --script tests/scripts/promo_input.txt --out /tmp/cb_frames_promo --verbose \
+     >/tmp/cb_promo.log 2>&1
+check $?
+# ввод с клавиатуры попадает в поле, подсказки-слова «Промокод» в нём нет
+grep -q 'Промокод .*видно=1 значение="Lover"' /tmp/cb_promo.log
+check $?
+grep -q 'Промокод .*placeholder=""' /tmp/cb_promo.log
+check $?
+# кнопка «Ввести» начислила +20 валентинок
+grep -q 'hud:валентинки .*значение="20"' /tmp/cb_promo.log
 check $?
 
 step "сеть: без --fb-url сеть выключена (игра работает офлайн)"

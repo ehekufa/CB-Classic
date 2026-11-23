@@ -450,7 +450,10 @@ E.text_handlers = {}      -- [label] = function(value) — обработчик 
 
 function E.text_create(label, editable, w, h, varid)
   local name = str(label)
-  local is_edit = str(editable) == "on"
+  -- В порте любое текстовое поле вводится с клавиатуры: флаг «off» из
+  -- оригинала («Промокод» на сцене «Больше») означал не «только чтение»,
+  -- а поле без подсказки — без него промокод ввести было некуда.
+  local is_edit = true
   -- В Pocket Code EditText — тёмный текст в светлой рамке, размер подогнан
   -- под высоту поля (80 px -> примерно 35 px по высоте буквы).
   local height = num(h)

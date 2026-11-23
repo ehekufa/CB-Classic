@@ -21,10 +21,18 @@ local KEY = "var:93"          -- локальное хранилище: счёт
 local VAR_COUNT = 93          -- «Валентинка»
 local VAR_VISUAL = 92         -- «Валентинка (визуал)»
 local LABEL = "hud:валентинки"
+-- Тень рисуется раньше счётчика: текстовые поля движок выводит по именам
+-- (std::map), а «hud:00…» сортируется перед «hud:вал…».
+local SHADOW = "hud:00тень"
 local OLD_LABEL = "var:92"    -- надпись оригинала у «Конфеты» (прячем, чтобы не двоилось)
-local COLOR = "#e01b45"
-local SIZE = 120
-local TOP_MARGIN = 54
+local COLOR = "#ffffff"       -- белое число без подписи — как просили
+local SHADOW_COLOR = "#1b3c5a" -- тёмная тень: видно и на светлом снегу в игре
+local SIZE = 110
+local TOP_MARGIN = 20
+-- В меню счётчик стоит там, где была белая точка у «Конфеты» (560, −95);
+-- в остальных сценах — по центру сверху, чтобы не закрывать кнопки атаки.
+local MENU_SCENE = 1
+local MENU_X, MENU_Y = 560, -95
 -- до регистрации и на загрузке счётчик не нужен
 local HIDDEN_SCENES = { [42] = true, [77] = true }
 
@@ -68,21 +76,31 @@ function M.add(delta, silent)
   return M.set(count + (delta or 1), silent)
 end
 
--- Счётчик поверх интерфейса: белая цифра с подписью на красной плашке.
+-- Одна белая цифра (без слова «Валентинки») и её тень.
+local function draw_number(name, x, y, color)
+  E.cb.text_create(name, x, y, 0, 0, color, "center", 0)
+  E.cb.text_set(name, "pos", x, y)
+  E.cb.text_set(name, "size", SIZE)
+  E.cb.text_set(name, "color", color)
+  E.cb.text_set(name, "align", "center")
+  E.cb.text_set(name, "value", fmt(count))
+  E.cb.text_set(name, "visible", 1)
+end
+
+-- Счётчик поверх интерфейса: белое число, в меню — на месте белой точки.
 local function draw_hud(scene_id)
   if HIDDEN_SCENES[scene_id] then
     return
   end
   local _, stage_h = E.cb.stage()
-  local x = 0
-  local y = stage_h / 2 - TOP_MARGIN
-  E.cb.text_create(LABEL, x, y, 0, 0, COLOR, "center", 0)
-  E.cb.text_set(LABEL, "pos", x, y)
-  E.cb.text_set(LABEL, "size", SIZE)
-  E.cb.text_set(LABEL, "color", COLOR)
-  E.cb.text_set(LABEL, "align", "center")
-  E.cb.text_set(LABEL, "value", "Валентинки: " .. fmt(count))
-  E.cb.text_set(LABEL, "visible", 1)
+  local x, y
+  if scene_id == MENU_SCENE then
+    x, y = MENU_X, MENU_Y
+  else
+    x, y = 0, stage_h / 2 - TOP_MARGIN - SIZE / 2
+  end
+  draw_number(SHADOW, x + 3, y - 3, SHADOW_COLOR)
+  draw_number(LABEL, x, y, COLOR)
   -- надпись оригинала у «Конфеты» гасим: счётчик теперь один, поверх всего
   E.cb.text_set(OLD_LABEL, "visible", 0)
 end

@@ -399,6 +399,21 @@ function M.debug_set_var(id, value)
   E.set_gv(tonumber(id), value)
 end
 
+-- Сцена «Больше» (31): поле промокода — белая плашка без подсказки-слова
+-- («Промокод» не пишем), текст внутри тёмный, чтобы читался на белом.
+-- Поле создаёт скрипт объекта «Ввести», поэтому правим его каждый кадр:
+-- text_set по несуществующему полю молча ничего не делает.
+local function style_promo_field(scene_id)
+  if scene_id ~= 31 then
+    return
+  end
+  E.cb.text_set("Промокод", "visible", 1)
+  E.cb.text_set("Промокод", "placeholder", "")
+  E.cb.text_set("Промокод", "align", "center")
+  E.cb.text_set("Промокод", "size", 56)
+  E.cb.text_set("Промокод", "color", "#1b3c5a")
+end
+
 function M.frame(dt)
   stats.frames = stats.frames + 1
 
@@ -413,6 +428,7 @@ function M.frame(dt)
   trophies.check_frame(active_scene)
   valentines.check_frame(active_scene)
   abilities.check_frame(active_scene)
+  style_promo_field(active_scene)
 
   local pending = E.take_pending_scene and E.take_pending_scene()
   if pending and pending ~= active_scene then
