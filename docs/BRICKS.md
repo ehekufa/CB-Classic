@@ -48,8 +48,8 @@
 | `editSize` | 7 | E.add_size | готово |
 | `transitionPosition2` | 7 | E.transition (плавный ход) | готово |
 | `isSensor` | 7 | E.set_sensor (журнал) | заглушка: нет физики |
-| `showVariable2` | 6 | E.text_show_var | готово (шрифт латиницей) |
-| `ask` | 6 | E.ask | заглушка: нет ввода текста |
+| `showVariable2` | 6 | E.text_show_var | готово |
+| `ask` | 6 | E.ask | готово: поле ввода + ожидание ответа |
 | `setImageToId` | 6 | E.set_image_by_id | готово |
 | `exitGame` | 5 | E.exit_game | готово |
 | `editRotateRight` | 5 | E.add_rot | готово |
@@ -64,7 +64,7 @@
 | `setQuareWHHitbox` | 3 | E.set_hitbox (журнал) | заглушка: нет физики |
 | `setRotateToObject` | 3 | E.face | готово |
 | `playSound` | 3 | E.play_sound (журнал) | частично: без MP3-декодера |
-| `createTextField` | 3 | E.text_create | частично: без клавиатуры |
+| `createTextField` | 3 | E.text_create | готово: ввод с клавиатуры |
 | `setPositionTextField` | 3 | E.text_set('pos') | готово |
 | `broadcastFun>allObjects` | 2 | E.broadcast | готово (получателей нет) |
 | `setGravityAllObjects` | 2 | E.set_gravity (журнал) | заглушка: нет физики |

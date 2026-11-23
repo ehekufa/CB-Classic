@@ -27,6 +27,7 @@ struct AppOptions {
     std::string profile;                 // "id=значение,..." — стартовые значения переменных
     bool verbose = false;
     std::string check_dir;               // проверить синтаксис всех .lua в каталоге и выйти
+    bool check_buttons = false;          // проверить, что все кнопки получают нажатие
 };
 
 class App {
@@ -42,6 +43,8 @@ public:
 
     // выполняет одну строку сценария ввода: press/release/back/scene
     void apply_input_command(const std::string &line);
+    // Диагностика: для всех сцен печатает кнопки, до которых не доходит нажатие.
+    bool check_buttons();
 
     Engine engine;
     Renderer renderer;

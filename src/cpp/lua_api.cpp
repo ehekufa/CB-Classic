@@ -346,7 +346,7 @@ int l_hit(lua_State *L)
     Sprite *sprite = e->find(arg_num(L, 1));
     double x = luaL_optnumber(L, 2, 0);
     double y = luaL_optnumber(L, 3, 0);
-    lua_pushboolean(L, (sprite && sprite->visible && sprite_hit(*sprite, x, y)) ? 1 : 0);
+    lua_pushinteger(L, (sprite && sprite->visible && sprite_hit(*sprite, x, y)) ? 1 : 0);
     return 1;
 }
 
@@ -366,7 +366,7 @@ int l_hit_o(lua_State *L)
         touching = ra && rb && std::fabs(a->x - b->x) < (wa + wb) / 2.0 &&
                    std::fabs(a->y - b->y) < (ha + hb) / 2.0;
     }
-    lua_pushboolean(L, touching ? 1 : 0);
+    lua_pushinteger(L, touching ? 1 : 0);
     return 1;
 }
 
@@ -402,20 +402,120 @@ int l_touch_id(lua_State *L)
     return 1;
 }
 
-int l_touch_by_index(lua_State *L)
+// Блоки Pocket Code: touchXByIndex/touchYByIndex возвращают координату пальца,
+// touchIDByIndex — его идентификатор (0, если такого пальца нет).
+int l_touch_x_by_index(lua_State *L)
+{
+    double x = 0.0;
+    engine_of(L)->touch_at(arg_num(L, 1), &x, nullptr);
+    lua_pushnumber(L, x);
+    return 1;
+}
+
+int l_touch_y_by_index(lua_State *L)
+{
+    double y = 0.0;
+    engine_of(L)->touch_at(arg_num(L, 1), nullptr, &y);
+    lua_pushnumber(L, y);
+    return 1;
+}
+
+int l_touch_id_by_index(lua_State *L)
+{
+    double x = 0.0;
+    double y = 0.0;
+    bool exists = engine_of(L)->touch_at(arg_num(L, 1), &x, &y);
+    lua_pushinteger(L, exists ? 1 : 0);
+    return 1;
+}
+
+int l_poll_press(lua_State *L)
+{
+    double x = 0.0;
+    double y = 0.0;
+    if (!engine_of(L)->pop_press(&x, &y)) {
+        lua_pushnil(L);
+        return 1;
+    }
+    lua_pushnumber(L, x);
+    lua_pushnumber(L, y);
+    return 2;
+}
+
+// Спрайты под точкой, сверху вниз — чтобы нажатие доходило до кнопки,
+// даже если её прикрывает декоративный слой.
+int l_sprites_at(lua_State *L)
 {
     Eng *e = engine_of(L);
-    int index = arg_num(L, 1);
-    if (index <= 0 || index > e->touch_count()) {
-        lua_pushnumber(L, 0);
-        lua_pushnumber(L, 0);
-        lua_pushinteger(L, 0);
-        return 3;
+    double x = luaL_optnumber(L, 1, 0);
+    double y = luaL_optnumber(L, 2, 0);
+    auto hits = e->sprites_at(x, y);
+    lua_createtable(L, static_cast<int>(hits.size()), 0);
+    for (size_t i = 0; i < hits.size(); ++i) {
+        lua_pushinteger(L, hits[i]->handle);
+        lua_rawseti(L, -2, static_cast<lua_Integer>(i + 1));
     }
-    lua_pushnumber(L, e->touch_x());
-    lua_pushnumber(L, e->touch_y());
-    lua_pushinteger(L, 1);
-    return 3;
+    return 1;
+}
+
+// --- текстовый ввод --------------------------------------------------------
+
+int l_text_focus_at(lua_State *L)
+{
+    Eng *e = engine_of(L);
+    double x = luaL_optnumber(L, 1, 0);
+    double y = luaL_optnumber(L, 2, 0);
+    TextField *field = e->focus_text_at(x, y);
+    lua_pushinteger(L, field ? 1 : 0);
+    return 1;
+}
+
+int l_text_focus(lua_State *L)
+{
+    engine_of(L)->focus_text(luaL_checkstring(L, 1));
+    return 0;
+}
+
+int l_text_blur(lua_State *L)
+{
+    engine_of(L)->blur_text();
+    return 0;
+}
+
+int l_text_focused(lua_State *L)
+{
+    std::string label = engine_of(L)->focused_text();
+    if (label.empty()) {
+        lua_pushnil(L);
+    } else {
+        lua_pushstring(L, label.c_str());
+    }
+    return 1;
+}
+
+int l_poll_text_commit(lua_State *L)
+{
+    std::string label;
+    std::string value;
+    if (!engine_of(L)->pop_text_commit(&label, &value)) {
+        lua_pushnil(L);
+        return 1;
+    }
+    lua_pushstring(L, label.c_str());
+    lua_pushstring(L, value.c_str());
+    return 2;
+}
+
+int l_text_input(lua_State *L)
+{
+    lua_pushinteger(L, engine_of(L)->text_input(luaL_optstring(L, 1, "")) ? 1 : 0);
+    return 1;
+}
+
+int l_text_backspace(lua_State *L)
+{
+    lua_pushinteger(L, engine_of(L)->text_backspace() ? 1 : 0);
+    return 1;
 }
 
 int l_press(lua_State *L)
@@ -581,9 +681,21 @@ const luaL_Reg kApi[] = {
     {"touch_y", l_touch_y},
     {"touch_count", l_touch_count},
     {"touch_id", l_touch_id},
-    {"touch_x_by_index", l_touch_by_index},
-    {"touch_y_by_index", l_touch_by_index},
-    {"touch_id_by_index", l_touch_by_index},
+    {"touch_x_by_index", l_touch_x_by_index},
+    {"touch_y_by_index", l_touch_y_by_index},
+    {"touch_id_by_index", l_touch_id_by_index},
+    {"touch_x_by_id", l_touch_x_by_index},
+    {"touch_y_by_id", l_touch_y_by_index},
+    {"touch_id_by_id", l_touch_id_by_index},
+    {"poll_press", l_poll_press},
+    {"sprites_at", l_sprites_at},
+    {"text_focus_at", l_text_focus_at},
+    {"text_focus", l_text_focus},
+    {"text_blur", l_text_blur},
+    {"text_focused", l_text_focused},
+    {"poll_text_commit", l_poll_text_commit},
+    {"text_input", l_text_input},
+    {"text_backspace", l_text_backspace},
     {"press", l_press},
     {"release", l_release},
 

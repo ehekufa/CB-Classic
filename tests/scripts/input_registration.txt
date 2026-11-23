@@ -1,0 +1,14 @@
+# Сцена «Регистрация» (77): ввод имени и пароля с клавиатуры,
+# затем «Зарегистрироваться» -> «Подтвердить».
+f0: press 0 50
+f1: release
+f2: type Гость
+f3: key enter
+f4: press 0 -40
+f5: release
+f6: type 12345
+f7: key enter
+f8: press -380 -50
+f9: release
+f10: press 0 -200
+f11: release

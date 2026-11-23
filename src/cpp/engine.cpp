@@ -11,6 +11,44 @@ namespace {
 constexpr double kPi = 3.14159265358979323846;
 }
 
+size_t utf8_length(const std::string &text)
+{
+    size_t count = 0;
+    for (unsigned char c : text) {
+        if ((c & 0xc0) != 0x80) {
+            ++count;                    // байт-продолжение UTF-8 не считается
+        }
+    }
+    return count;
+}
+
+std::vector<unsigned> utf8_decode(const std::string &text)
+{
+    std::vector<unsigned> out;
+    size_t i = 0;
+    while (i < text.size()) {
+        unsigned char c = static_cast<unsigned char>(text[i]);
+        unsigned cp = c;
+        size_t extra = 0;
+        if (c >= 0xf0) {
+            cp = c & 0x07u;
+            extra = 3;
+        } else if (c >= 0xe0) {
+            cp = c & 0x0fu;
+            extra = 2;
+        } else if (c >= 0xc0) {
+            cp = c & 0x1fu;
+            extra = 1;
+        }
+        ++i;
+        for (size_t k = 0; k < extra && i < text.size(); ++k, ++i) {
+            cp = (cp << 6) | (static_cast<unsigned char>(text[i]) & 0x3fu);
+        }
+        out.push_back(cp);
+    }
+    return out;
+}
+
 const ImageRef *Sprite::current_image() const
 {
     if (!def || def->images.empty()) {
@@ -254,20 +292,273 @@ bool Engine::remove(int handle)
     return true;
 }
 
-void Engine::set_touch(bool down, double x, double y, int fingers)
+void Engine::touch_begin(int id, double x, double y)
 {
-    touch_down_ = down;
-    touch_x_ = x;
-    touch_y_ = y;
-    fingers_ = fingers;
-}
-
-void Engine::push_touch_press(double x, double y)
-{
+    for (auto &touch : touches_) {
+        if (touch.id == id) {           // повторное нажатие тем же «пальцем»
+            touch.x = x;
+            touch.y = y;
+            presses_.emplace_back(x, y);
+            touch_down_ = true;
+            touch_x_ = x;
+            touch_y_ = y;
+            return;
+        }
+    }
+    touches_.push_back(Touch{id, x, y});
+    presses_.emplace_back(x, y);
     touch_down_ = true;
     touch_x_ = x;
     touch_y_ = y;
-    fingers_ = std::max(1, fingers_);
+}
+
+void Engine::touch_move(int id, double x, double y)
+{
+    for (auto &touch : touches_) {
+        if (touch.id == id) {
+            touch.x = x;
+            touch.y = y;
+            touch_x_ = x;
+            touch_y_ = y;
+            return;
+        }
+    }
+}
+
+void Engine::touch_end(int id)
+{
+    touches_.erase(std::remove_if(touches_.begin(), touches_.end(),
+                                  [id](const Touch &t) { return t.id == id; }),
+                   touches_.end());
+    touch_down_ = !touches_.empty();
+    if (!touches_.empty()) {
+        touch_x_ = touches_.back().x;
+        touch_y_ = touches_.back().y;
+    }
+}
+
+void Engine::set_touch(bool down, double x, double y, int fingers)
+{
+    if (down) {
+        touch_begin(0, x, y);
+    } else {
+        touch_end(0);
+    }
+    (void)fingers;
+}
+
+bool Engine::touch_at(int index, double *x, double *y) const
+{
+    if (index < 1 || index > static_cast<int>(touches_.size())) {
+        return false;
+    }
+    const Touch &touch = touches_[static_cast<size_t>(index - 1)];
+    if (x) { *x = touch.x; }
+    if (y) { *y = touch.y; }
+    return true;
+}
+
+bool Engine::pop_press(double *x, double *y)
+{
+    if (presses_.empty()) {
+        return false;
+    }
+    if (x) { *x = presses_.front().first; }
+    if (y) { *y = presses_.front().second; }
+    presses_.pop_front();
+    return true;
+}
+
+void Engine::clear_touches()
+{
+    touches_.clear();
+    presses_.clear();
+    touch_down_ = false;
+}
+
+bool Engine::sprite_hit_pixel(Sprite &s, double x, double y)
+{
+    const ImageRef *ref = s.current_image();
+    if (!ref) {
+        return false;
+    }
+    double w = sprite_pixel_width(s);
+    double h = sprite_pixel_height(s);
+    if (w <= 0.0 || h <= 0.0) {
+        return false;
+    }
+    double dx = x - s.x;
+    double dy = y - s.y;
+    double rad = -s.rotation * kPi / 180.0;
+    double lx = dx * std::cos(rad) - dy * std::sin(rad);
+    double ly = dx * std::sin(rad) + dy * std::cos(rad);
+    if (std::fabs(lx) > w / 2.0 || std::fabs(ly) > h / 2.0) {
+        return false;
+    }
+    const ImageAsset *asset = image(ref->path);
+    if (!asset || !asset->loaded || asset->width <= 0 || asset->height <= 0) {
+        return true;                    // пикселей нет — остаётся проверка рамки
+    }
+    int px = static_cast<int>((lx + w / 2.0) / w * asset->width);
+    int py = static_cast<int>((h / 2.0 - ly) / h * asset->height);
+    px = std::min(std::max(px, 0), asset->width - 1);
+    py = std::min(std::max(py, 0), asset->height - 1);
+    unsigned alpha = asset->image.pixels[(static_cast<size_t>(py) * asset->width + px) * 4 + 3];
+    double effective = alpha * (s.alpha / 100.0);
+    return effective >= 16.0;           // полностью прозрачные места не ловят нажатия
+}
+
+std::vector<Sprite *> Engine::sprites_at(double x, double y)
+{
+    std::vector<Sprite *> order = sprites_in_draw_order();
+    std::vector<Sprite *> hits;
+    for (auto it = order.rbegin(); it != order.rend(); ++it) {   // сверху вниз
+        Sprite *sprite = *it;
+        if (!sprite->visible || sprite->alpha <= 1.0) {
+            continue;
+        }
+        if (sprite_hit_pixel(*sprite, x, y)) {
+            hits.push_back(sprite);
+        }
+    }
+    if (hits.empty()) {
+        // Ни у кого нет непрозрачного пикселя в точке (например, у кнопки
+        // прозрачный фон и попасть надо в букву) — берём всех, кто накрывает
+        // точку рамкой, сверху вниз. Спрайты во весь экран пропускаем:
+        // иначе прозрачная «подложка» съедала бы все нажатия.
+        double stage_area = static_cast<double>(stage_w_) * stage_h_;
+        for (auto it = order.rbegin(); it != order.rend(); ++it) {
+            Sprite *sprite = *it;
+            if (!sprite->visible || !sprite_hit(*sprite, x, y)) {
+                continue;
+            }
+            double area = sprite_pixel_width(*sprite) * sprite_pixel_height(*sprite);
+            if (stage_area > 0.0 && area > stage_area * 0.85) {
+                continue;
+            }
+            hits.push_back(sprite);
+        }
+    }
+    return hits;
+}
+
+double Engine::text_width(const TextField &field) const
+{
+    // та же метрика, что у рендерера: 6x8 «пикселей» на символ при size/24
+    double scale = std::max(1.0, field.size / 24.0);
+    return static_cast<double>(utf8_length(field.value.empty() ? field.placeholder : field.value)) *
+           6.0 * scale;
+}
+
+std::string utf8_encode(unsigned cp)
+{
+    std::string out;
+    if (cp < 0x80) {
+        out.push_back(static_cast<char>(cp));
+    } else if (cp < 0x800) {
+        out.push_back(static_cast<char>(0xc0 | (cp >> 6)));
+        out.push_back(static_cast<char>(0x80 | (cp & 0x3f)));
+    } else if (cp < 0x10000) {
+        out.push_back(static_cast<char>(0xe0 | (cp >> 12)));
+        out.push_back(static_cast<char>(0x80 | ((cp >> 6) & 0x3f)));
+        out.push_back(static_cast<char>(0x80 | (cp & 0x3f)));
+    } else {
+        out.push_back(static_cast<char>(0xf0 | (cp >> 18)));
+        out.push_back(static_cast<char>(0x80 | ((cp >> 12) & 0x3f)));
+        out.push_back(static_cast<char>(0x80 | ((cp >> 6) & 0x3f)));
+        out.push_back(static_cast<char>(0x80 | (cp & 0x3f)));
+    }
+    return out;
+}
+
+TextField *Engine::focus_text_at(double x, double y)
+{
+    TextField *best = nullptr;
+    for (auto &pair : texts_) {
+        TextField &field = pair.second;
+        if (!field.editable || !field.visible) {
+            continue;
+        }
+        double w = field.width > 0.0 ? field.width : std::max(60.0, text_width(field));
+        double h = field.height > 0.0 ? field.height : std::max(28.0, field.size * 1.6);
+        if (std::fabs(x - field.x) <= w / 2.0 + 4.0 &&
+            std::fabs(y - field.y) <= h / 2.0 + 4.0) {
+            best = &field;
+        }
+    }
+    if (best) {
+        focus_text(best->label);
+    }
+    return best;
+}
+
+void Engine::focus_text(const std::string &label)
+{
+    if (focus_ == label) {
+        return;
+    }
+    if (!focus_.empty()) {
+        blur_text();
+    }
+    TextField *field = text(label);
+    if (!field || !field->editable || !field->visible) {
+        return;
+    }
+    focus_ = label;
+    log("фокус ввода: " + label);
+}
+
+void Engine::blur_text()
+{
+    if (focus_.empty()) {
+        return;
+    }
+    TextField *field = text(focus_);
+    std::string label = focus_;
+    focus_.clear();
+    if (field) {
+        text_commits_.emplace_back(label, field->value);
+        log("ввод подтверждён: " + label + " = [" + field->value + "]");
+    }
+}
+
+bool Engine::text_input(const std::string &utf8)
+{
+    TextField *field = focus_.empty() ? nullptr : text(focus_);
+    if (!field || !field->editable || !field->visible || utf8.empty()) {
+        return false;
+    }
+    if (utf8_length(field->value) + utf8_length(utf8) >
+        static_cast<size_t>(std::max(1, field->max_length))) {
+        return false;
+    }
+    field->value += utf8;
+    return true;
+}
+
+bool Engine::text_backspace()
+{
+    TextField *field = focus_.empty() ? nullptr : text(focus_);
+    if (!field || field->value.empty()) {
+        return false;
+    }
+    size_t start = field->value.size() - 1;
+    while (start > 0 && (static_cast<unsigned char>(field->value[start]) & 0xc0) == 0x80) {
+        --start;                        // отступаем к началу UTF-8 последовательности
+    }
+    field->value.erase(start);
+    return true;
+}
+
+bool Engine::pop_text_commit(std::string *label, std::string *value)
+{
+    if (text_commits_.empty()) {
+        return false;
+    }
+    if (label) { *label = text_commits_.front().first; }
+    if (value) { *value = text_commits_.front().second; }
+    text_commits_.pop_front();
+    return true;
 }
 
 void Engine::set_background(const std::string &hex)
@@ -290,6 +581,9 @@ TextField &Engine::text_ensure(const std::string &label)
 
 void Engine::text_remove(const std::string &label)
 {
+    if (focus_ == label) {
+        blur_text();
+    }
     texts_.erase(label);
 }
 

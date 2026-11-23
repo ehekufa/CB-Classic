@@ -190,6 +190,39 @@ void App::apply_input_command(const std::string &line)
         double x = 0, y = 0;
         in >> x >> y;
         engine.set_touch(engine.touch_down(), x, y, engine.touch_count());
+    } else if (cmd == "type") {
+        std::string text = line.substr(line.find(cmd) + cmd.size());
+        size_t start = text.find_first_not_of(' ');
+        std::string payload = start == std::string::npos ? "" : text.substr(start);
+        engine.text_input(payload);
+    } else if (cmd == "key") {
+        std::string key;
+        in >> key;
+        if (key == "backspace") {
+            engine.text_backspace();
+        } else if (key == "enter") {
+            engine.blur_text();
+        } else if (key == "esc") {
+            if (engine.focused_text().empty()) {
+                apply_input_command("back");
+            } else {
+                engine.blur_text();
+            }
+        }
+    } else if (cmd == "touch") {
+        int id = 0;
+        double x = 0, y = 0;
+        in >> id >> x >> y;
+        engine.touch_begin(id, x, y);
+    } else if (cmd == "lift") {
+        int id = 0;
+        in >> id;
+        engine.touch_end(id);
+    } else if (cmd == "tap") {
+        double x = 0, y = 0;
+        in >> x >> y;
+        engine.touch_begin(0, x, y);
+        engine.touch_end(0);
     } else if (cmd == "back") {
         lua_getglobal(lua, "boot");
         lua_getfield(lua, -1, "back");
@@ -204,6 +237,66 @@ void App::apply_input_command(const std::string &line)
         lua_pcall(lua, 1, 0, 0);
         lua_pop(lua, 1);
     }
+}
+
+bool App::check_buttons()
+{
+    int total = 0;
+    int broken = 0;
+    int hidden = 0;
+    for (const cb::SceneDef &scene : engine.scenes()) {
+        lua_getglobal(lua, "boot");
+        lua_getfield(lua, -1, "run_scene");
+        lua_pushinteger(lua, scene.id);
+        if (lua_pcall(lua, 1, 0, 0) != LUA_OK) {
+            std::fprintf(stderr, "сцена %d: %s\n", scene.id, lua_tostring(lua, -1));
+            lua_pop(lua, 2);
+            continue;
+        }
+        lua_pop(lua, 1);                        // остаётся таблица boot
+        for (int i = 0; i < 3; ++i) {           // дать отработать start-скриптам
+            step(1.0 / 60.0);
+        }
+        lua_getglobal(lua, "boot");
+        lua_getfield(lua, -1, "check_buttons");
+        if (lua_pcall(lua, 0, 1, 0) != LUA_OK) {
+            std::fprintf(stderr, "сцена %d: %s\n", scene.id, lua_tostring(lua, -1));
+            lua_pop(lua, 2);
+            continue;
+        }
+        lua_getfield(lua, -1, "buttons");
+        lua_Integer count = luaL_len(lua, -1);
+        std::printf("\nсцена %d «%s»: кнопок %d\n", scene.id, scene.name.c_str(),
+                    static_cast<int>(count));
+        for (lua_Integer i = 1; i <= count; ++i) {
+            lua_rawgeti(lua, -1, i);
+            lua_getfield(lua, -1, "name");
+            lua_getfield(lua, -2, "reached");
+            lua_getfield(lua, -3, "blocker");
+            lua_getfield(lua, -4, "invisible");
+            const char *name = lua_tostring(lua, -4);
+            bool reached = lua_toboolean(lua, -3) != 0;
+            const char *blocker = lua_tostring(lua, -2);
+            bool invisible = lua_toboolean(lua, -1) != 0;
+            total++;
+            if (invisible) {
+                hidden++;
+                std::printf("  ---  %-28s нет картинки (невидим и в оригинале)\n",
+                            name ? name : "?");
+            } else if (reached) {
+                std::printf("  ok   %-28s\n", name ? name : "?");
+            } else {
+                broken++;
+                std::printf("  НЕТ  %-28s перекрыт: %s\n", name ? name : "?",
+                            blocker ? blocker : "прозрачность/рамка");
+            }
+            lua_pop(lua, 5);                    // entry, name, reached, blocker, invisible
+        }
+        lua_pop(lua, 3);                    // buttons, результат, boot
+    }
+    std::printf("\nвсего кнопок: %d, не получают нажатие: %d, без картинки: %d\n",
+                total, broken, hidden);
+    return broken == 0;
 }
 
 bool App::run()
@@ -353,6 +446,8 @@ int main(int argc, char **argv)
                 opts.width = std::atoi(s.substr(0, x).c_str());
                 opts.height = std::atoi(s.substr(x + 1).c_str());
             }
+        } else if (a == "--check-buttons") {
+            opts.check_buttons = true;
         } else if (a == "--check") {
             opts.check_dir = next("generated/lua");
         } else if (a == "--profile") {
@@ -406,6 +501,10 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    if (opts.check_buttons) {
+        return app.check_buttons() ? 0 : 1;
+    }
+
 #ifdef CB_USE_SDL2
     if (!opts.headless) {
         // Оконный режим: тот же движок, кадры отдаются в SDL-текстуру.
@@ -422,38 +521,71 @@ int main(int argc, char **argv)
                                                  app.options.width, app.options.height);
         bool running = true;
         Uint32 last = SDL_GetTicks();
+        std::string last_focus;
+        auto sync_text_input = [&]() {
+            std::string focus = app.engine.focused_text();
+            if (focus == last_focus) {
+                return;
+            }
+            last_focus = focus;
+            if (focus.empty()) {
+                SDL_StopTextInput();       // на Android скрывает экранную клавиатуру
+            } else {
+                SDL_StartTextInput();
+            }
+        };
         while (running) {
             SDL_Event event;
             while (SDL_PollEvent(&event)) {
                 if (event.type == SDL_QUIT) {
                     running = false;
                 } else if (event.type == SDL_FINGERDOWN) {
-                    // SDL отдаёт нормализованные координаты: переводим в сценические
+                    // каждый палец — отдельное касание: джойстик и кнопки
+                    // работают одновременно
                     double x = (event.tfinger.x - 0.5) * app.options.width;
                     double y = (0.5 - event.tfinger.y) * app.options.height;
-                    app.engine.push_touch_press(x, y);
+                    app.engine.touch_begin(static_cast<int>(event.tfinger.fingerId) + 1, x, y);
                 } else if (event.type == SDL_FINGERMOTION) {
-                    if (app.engine.touch_down()) {
-                        double x = (event.tfinger.x - 0.5) * app.options.width;
-                        double y = (0.5 - event.tfinger.y) * app.options.height;
-                        app.engine.set_touch(true, x, y, 1);
-                    }
+                    double x = (event.tfinger.x - 0.5) * app.options.width;
+                    double y = (0.5 - event.tfinger.y) * app.options.height;
+                    app.engine.touch_move(static_cast<int>(event.tfinger.fingerId) + 1, x, y);
                 } else if (event.type == SDL_FINGERUP) {
-                    app.engine.set_touch(false, app.engine.touch_x(), app.engine.touch_y(), 0);
+                    app.engine.touch_end(static_cast<int>(event.tfinger.fingerId) + 1);
                 } else if (event.type == SDL_MOUSEBUTTONDOWN) {
                     double x = event.button.x - app.options.width / 2.0;
                     double y = app.options.height / 2.0 - event.button.y;
-                    app.engine.push_touch_press(x, y);
+                    app.engine.touch_begin(0, x, y);
                 } else if (event.type == SDL_MOUSEBUTTONUP) {
-                    app.engine.set_touch(false, app.engine.touch_x(), app.engine.touch_y(), 0);
+                    app.engine.touch_end(0);
                 } else if (event.type == SDL_MOUSEMOTION) {
                     if (app.engine.touch_down()) {
                         double x = event.motion.x - app.options.width / 2.0;
                         double y = app.options.height / 2.0 - event.motion.y;
-                        app.engine.set_touch(true, x, y, 1);
+                        app.engine.touch_move(0, x, y);
                     }
-                } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
-                    app.apply_input_command("back");
+                } else if (event.type == SDL_TEXTINPUT) {
+                    app.engine.text_input(event.text.text);
+                } else if (event.type == SDL_KEYDOWN) {
+                    switch (event.key.keysym.sym) {
+                        case SDLK_BACKSPACE:
+                            app.engine.text_backspace();
+                            break;
+                        case SDLK_RETURN:
+                        case SDLK_KP_ENTER:
+                            if (!app.engine.focused_text().empty()) {
+                                app.engine.blur_text();
+                            }
+                            break;
+                        case SDLK_ESCAPE:
+                            if (!app.engine.focused_text().empty()) {
+                                app.engine.blur_text();
+                            } else {
+                                app.apply_input_command("back");
+                            }
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
             Uint32 now = SDL_GetTicks();
@@ -463,6 +595,7 @@ int main(int argc, char **argv)
                 dt = 1.0 / 60.0;
             }
             app.step(dt);
+            sync_text_input();
             app.renderer.draw_scene(app.engine);
             SDL_UpdateTexture(texture, nullptr, app.renderer.pixels(), app.options.width * 4);
             SDL_RenderClear(renderer);

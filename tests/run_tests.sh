@@ -61,6 +61,37 @@ check $?
 grep -q "ошибок: 0" /tmp/cb_run26.log
 check $?
 
+step "ввод: все кнопки проекта получают нажатие"
+$BIN --check-buttons >/tmp/cb_buttons.log 2>&1
+check $?
+grep -q "не получают нажатие: 0" /tmp/cb_buttons.log
+check $?
+
+step "ввод: текстовые поля регистрации (77) принимают ввод с клавиатуры"
+$BIN --frames 24 --scene 77 --script tests/scripts/input_registration.txt \
+     --out /tmp/cb_frames_77 --verbose >/tmp/cb_run77.log 2>&1
+check $?
+grep -q 'ввод подтверждён: Имя = \[Гость\]' /tmp/cb_run77.log
+check $?
+grep -q 'ввод подтверждён: Пароль = \[12345\]' /tmp/cb_run77.log
+check $?
+grep -q "сцена: 1 (Меню)" /tmp/cb_run77.log
+check $?
+
+step "ввод: кнопки меню переключают сцены"
+$BIN --frames 12 --scene 1 --script tests/scripts/menu_buttons.txt \
+     --out /tmp/cb_frames_menu >/tmp/cb_menu.log 2>&1
+check $?
+grep -q "сцена: 70 (Режимы)" /tmp/cb_menu.log
+check $?
+
+step "ввод: блок «спросить» (ask) возвращает ответ"
+$BIN --frames 20 --scene 1 --script tests/scripts/ask_reset.txt \
+     --out /tmp/cb_frames_ask --verbose >/tmp/cb_ask.log 2>&1
+check $?
+grep -q '= \[abc\]' /tmp/cb_ask.log
+check $?
+
 step "движок: кадры — валидные PNG нужного размера"
 python3 - <<'PY'
 import struct, sys, glob

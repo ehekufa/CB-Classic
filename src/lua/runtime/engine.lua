@@ -402,10 +402,65 @@ function E.fb_get(key, url, callback)
 end
 
 -- текстовые поля / показ переменных
+-- Текстовые поля: EditText из Pocket Code. Если поле редактируемое и ему
+-- передана переменная, подтверждённый ввод пишется в эту переменную.
+E.text_vars = {}          -- [label] = id переменной
+E.text_handlers = {}      -- [label] = function(value) — обработчик E.ask
+
 function E.text_create(label, editable, w, h, varid)
-  cb.text_create(str(label), 0, 0, num(w), num(h), "#FFFFFF", "left",
-                 str(editable) == "on" and 1 or 0)
-  cb.text_set(str(label), "value", str(E.gv(varid)))
+  local name = str(label)
+  local is_edit = str(editable) == "on"
+  -- В Pocket Code EditText — тёмный текст в светлой рамке, размер подогнан
+  -- под высоту поля (80 px -> примерно 35 px по высоте буквы).
+  local height = num(h)
+  local size = height > 0 and height * 1.5 or 40
+  cb.text_create(name, 0, 0, num(w), height, "#000000", "left", is_edit and 1 or 0)
+  cb.text_set(name, "value", str(E.gv(varid)))
+  cb.text_set(name, "size", size)
+  if is_edit and varid ~= nil then
+    E.text_vars[name] = num(varid)
+  end
+end
+
+-- Вызывается из boot.lua, когда пользователь закончил ввод (Enter или
+-- нажатие мимо поля).
+function E.on_text_commit(label, value)
+  local varid = E.text_vars[label]
+  if varid then
+    E.set_gv(varid, value)
+  end
+  local handler = E.text_handlers[label]
+  if handler then
+    E.text_handlers[label] = nil
+    E.text_vars[label] = nil
+    handler(value)
+  end
+end
+
+function E.text_pending(label)
+  return E.text_handlers[label] ~= nil
+end
+
+-- Блок AskBrick: показывает поле ввода и ждёт ответа, не блокируя остальные
+-- скрипты (ждём через E.frame()).
+local ask_counter = 0
+function E.ask(o, prompt, callback)
+  ask_counter = ask_counter + 1
+  local label = "Вопрос:" .. tostring(prompt) .. ":" .. tostring(ask_counter)
+  cb.text_create(label, 0, 0, 620, 80, "#000000", "center", 1)
+  cb.text_set(label, "size", 120)
+  cb.text_set(label, "placeholder", str(prompt))
+  cb.text_set(label, "value", "")
+  E.text_handlers[label] = function(value)
+    cb.text_delete(label)
+    if callback then
+      callback(value)
+    end
+  end
+  cb.text_focus(label)
+  while E.text_pending(label) do
+    E.frame()
+  end
 end
 function E.text_delete(label) cb.text_delete(str(label)) end
 function E.text_set(label, field, a, b)

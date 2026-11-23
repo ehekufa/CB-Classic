@@ -75,6 +75,65 @@ const Glyph kFont[] = {
     {'>', ".#... ..#.. ...#. ....# ...#. ..#.. .#..."},
 };
 
+
+// Кириллица: 5x7 «пикселей» на букву, как и латиница. Строчные показываются
+// заглавными (шрифт без полноценной гарнитуры, но текст читается по-русски).
+struct CyrGlyph {
+    unsigned cp;
+    const char *rows;
+};
+
+const CyrGlyph kCyr[] = {
+    {0x410, "..#.. .#.#. #...# #...# ##### #...# #...#"},   // А
+    {0x411, "####. #.... #.... ###.. #...# #...# ###.."},   // Б
+    {0x412, "####. #...# #...# ####. #...# #...# ####."},   // В
+    {0x413, "##### #.... #.... #.... #.... #.... #...."},   // Г
+    {0x414, "..##. .#.#. .#.#. .#.#. .#.#. ##### #...#"},   // Д
+    {0x415, "##### #.... ####. #.... #.... #.... #####"},   // Е
+    {0x401, "##### #.... ####. #.... #.... #.... #####"},   // Ё
+    {0x416, "#.#.# .#.#. ##### .#.#. .#.#. .#.#. #.#.#"},   // Ж
+    {0x417, "###. #...# ....# ..##. ....# #...# .###."},    // З
+    {0x418, "#...# #...# #..## #.#.# ##..# #...# #...#"},   // И
+    {0x419, "..#.. #...# #..## #.#.# ##..# #...# #...#"},   // Й
+    {0x41a, "#...# #..#. ###.. #..#. #...# #...# #...#"},   // К
+    {0x41b, "..### ..#.# .#..# .#..# .#..# #...# #...#"},   // Л
+    {0x41c, "#...# ##.## #.#.# #...# #...# #...# #...#"},   // М
+    {0x41d, "#...# #...# ##### #...# #...# #...# #...#"},   // Н
+    {0x41e, ".###. #...# #...# #...# #...# #...# .###."},   // О
+    {0x41f, "##### #...# #...# #...# #...# #...# #...#"},   // П
+    {0x420, "####. #...# ####. #.... #.... #.... #...."},   // Р
+    {0x421, ".#### #.... #.... #.... #.... #.... .####"},   // С
+    {0x422, "##### ..#.. ..#.. ..#.. ..#.. ..#.. ..#.."},   // Т
+    {0x423, "#...# #...# #...# .#### ....# #...# .###."},   // У
+    {0x424, "..#.. .###. #.#.# #.#.# .###. ..#.. ..#.."},   // Ф
+    {0x425, "#...# #...# .#.#. ..#.. .#.#. #...# #...#"},   // Х
+    {0x426, "#..#. #..#. #..#. #..#. #..#. ##### ....#"},   // Ц
+    {0x427, "#...# #...# #...# .#### ....# ....# ....#"},   // Ч
+    {0x428, "#.#.# #.#.# #.#.# #.#.# #.#.# #.#.# #####"},   // Ш
+    {0x429, "#.#.# #.#.# #.#.# #.#.# #.#.# ##### ....#"},   // Щ
+    {0x42a, "##... .#... .#... .###. .#..# .#..# .###."},   // Ъ
+    {0x42b, "#...# #...# #...# ###.# #..## #..## ###.#"},   // Ы
+    {0x42c, "#.... #.... #.... ###.. #...# #...# ###.."},   // Ь
+    {0x42d, ".###. #...# ....# ..### ....# #...# .###."},   // Э
+    {0x42e, "#..#. #.#.# #.#.# ###.# #.#.# #.#.# #..#."},   // Ю
+    {0x42f, ".###. #...# #...# .#### ...#. ..#.. .#..#"},   // Я
+};
+
+const char *find_cyr(unsigned cp)
+{
+    if (cp >= 0x430 && cp <= 0x44f) {
+        cp -= 0x20;                     // строчная -> заглавная
+    } else if (cp == 0x451) {
+        cp = 0x401;                     // ё -> Ё
+    }
+    for (const auto &g : kCyr) {
+        if (g.cp == cp) {
+            return g.rows;
+        }
+    }
+    return nullptr;
+}
+
 const Glyph *find_glyph(char ch)
 {
     for (const auto &g : kFont) {
@@ -282,17 +341,54 @@ void Renderer::draw_scene(Engine &engine)
         draw_sprite(engine, *sprite);
     }
     auto &fields = engine.texts();
+    const std::string focused = engine.focused_text();
+    // мигающая каретка: 0.5 с видна, 0.5 с нет
+    bool caret_visible = std::fmod(engine.time(), 1.0) < 0.6;
     for (auto &pair : fields) {
         TextField &field = pair.second;
         if (!field.visible) {
             continue;
         }
+        bool is_focused = field.editable && focused == field.label;
         std::string text = field.value.empty() ? field.placeholder : field.value;
-        if (text.empty()) {
+        unsigned color = parse_hex_color(field.color, 0xffffffffu);
+
+        if (field.editable) {
+            // рамка редактируемого поля: видно, куда нажимать
+            double w = field.width > 0.0 ? field.width : std::max(60.0, engine.text_width(field));
+            double h = field.height > 0.0 ? field.height : std::max(28.0, field.size * 1.6);
+            unsigned frame = is_focused ? 0x3a90d0ffu : 0x9aa0a880u;
+            double left = field.x - w / 2.0;
+            double top = field.y + h / 2.0;
+            // светлая подложка: текст читается на любом фоне
+            fill_rect(left, field.y - h / 2.0, w, h, is_focused ? 0xffffffe6 : 0xffffffb4);
+            fill_rect(left, top - 2.0, w, 2.0, frame);            // верх
+            fill_rect(left, field.y - h / 2.0, w, 2.0, frame);    // низ
+            fill_rect(left, field.y - h / 2.0, 2.0, h, frame);    // лево
+            fill_rect(left + w - 2.0, field.y - h / 2.0, 2.0, h, frame);
+        }
+        if (text.empty() && !is_focused) {
             continue;
         }
-        draw_text(text, field.x, field.y, field.size,
-                  parse_hex_color(field.color, 0xffffffffu), field.align);
+        if (field.value.empty()) {
+            color = (color & 0xffffff00u) | 0x88u;                // placeholder — бледнее
+        }
+        if (!text.empty()) {
+            draw_text(text, field.x, field.y, field.size, color, field.align);
+        }
+        if (is_focused && caret_visible) {
+            double scale = std::max(1.0, field.size / 24.0);
+            double glyph_w = 6.0 * scale;
+            double total = static_cast<double>(utf8_length(field.value)) * glyph_w;
+            double sx = field.x;
+            if (field.align == "center") {
+                sx -= total / 2.0;
+            } else if (field.align == "right") {
+                sx -= total;
+            }
+            fill_rect(sx + total + 2.0, field.y + 3.5 * scale, 2.0, 7.0 * scale,
+                      (color & 0x00ffffffu) | 0xff000000u);
+        }
     }
     draw_toasts(engine);
 }
@@ -311,25 +407,44 @@ void Renderer::fill_rect(double x, double y, double w, double h, unsigned rgba)
 void Renderer::draw_text(const std::string &text, double x, double y, double size,
                          unsigned rgba, const std::string &align)
 {
-    std::string converted = transliterate(text);
+    // Символы без глифа (редкая экзотика) транслитерируются в латиницу.
+    std::vector<const char *> cells;
+    for (unsigned cp : utf8_decode(text)) {
+        if (cp < 0x80) {
+            int upper = std::toupper(static_cast<int>(cp));
+            const Glyph *glyph = find_glyph(static_cast<char>(upper));
+            cells.push_back(glyph ? glyph->rows : nullptr);
+            continue;
+        }
+        const char *rows = find_cyr(cp);
+        if (rows) {
+            cells.push_back(rows);
+            continue;
+        }
+        std::string latin = transliterate(utf8_encode(cp));
+        for (char ch : latin) {
+            const Glyph *glyph = find_glyph(static_cast<char>(
+                std::toupper(static_cast<unsigned char>(ch))));
+            cells.push_back(glyph ? glyph->rows : nullptr);
+        }
+    }
     // размер текста в Pocket Code задаётся в «пунктах»: 24 пункта ≈ высота строки
     double scale = std::max(1.0, size / 24.0);
     double glyph_w = 6.0 * scale;
     double glyph_h = 8.0 * scale;
-    double total = static_cast<double>(converted.size()) * glyph_w;
+    double total = static_cast<double>(cells.size()) * glyph_w;
     double sx = x + static_cast<double>(width_) / 2.0;
-    double sy = static_cast<double>(height_) / 2.0 - y;
+    // верх глифа: строка текста центрируется по вертикали вокруг y
+    double sy = static_cast<double>(height_) / 2.0 - y - 3.5 * scale;
     if (align == "center") {
         sx -= total / 2.0;
     } else if (align == "right") {
         sx -= total;
     }
 
-    for (size_t i = 0; i < converted.size(); ++i) {
-        const Glyph *glyph = find_glyph(static_cast<char>(std::toupper(
-            static_cast<unsigned char>(converted[i]))));
-        if (glyph && glyph->ch != ' ') {
-            const char *rows = glyph->rows;
+    for (size_t i = 0; i < cells.size(); ++i) {
+        const char *rows = cells[i];
+        if (rows) {
             for (int row = 0; row < 7; ++row) {
                 for (int col = 0; col < 5; ++col) {
                     if (rows[row * 6 + col] != '#') {
@@ -337,7 +452,7 @@ void Renderer::draw_text(const std::string &text, double x, double y, double siz
                     }
                     double px = sx + static_cast<double>(i) * glyph_w +
                                 static_cast<double>(col) * scale;
-                    double py = sy - static_cast<double>(row) * scale;
+                    double py = sy + static_cast<double>(row) * scale;
                     for (int yy = 0; yy < static_cast<int>(std::ceil(scale)); ++yy) {
                         for (int xx = 0; xx < static_cast<int>(std::ceil(scale)); ++xx) {
                             blend(static_cast<int>(px) + xx, static_cast<int>(py) + yy, rgba);

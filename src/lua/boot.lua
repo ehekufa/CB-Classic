@@ -119,6 +119,9 @@ local function activate(scene_id)
       end
     end
   end
+  -- первый проход: start-скрипты успевают выставить позиции/поля,
+  -- поэтому первое же нажатие попадает туда, куда целился игрок
+  sched:update(0)
   cb.log("сцена " .. tostring(scene_id) .. " " .. tostring(scene_index[scene_id] and
     scene_index[scene_id].name or "?"))
 end
@@ -195,38 +198,62 @@ function M.start(opts)
   return true
 end
 
-local function topmost_at(x, y)
-  local best_handle, best_layer = 0, -1e9
-  local handles = cb.handles()
+-- Нажатие достаётся самому верхнему спрайту, у которого есть непрозрачный
+-- пиксель в этой точке (прозрачные подложки больше не «съедают» кнопки).
+-- Если у него нет ни одного скрипта на нажатие, ищем ниже — так работают
+-- кнопки, прикрытые декоративным слоем.
+local function fire_touch_triggers(x, y)
+  local handles = cb.sprites_at(x, y)
   for _, handle in ipairs(handles) do
-    if cb.get(handle, "visible") == 1 and cb.hit(handle, x, y) == 1 then
-      local layer = cb.get(handle, "layer")
-      if layer >= best_layer then
-        best_layer = layer
-        best_handle = handle
+    local object_id = cb.get(handle, "object_id")
+    local mod = modules[active_scene] and modules[active_scene][object_id]
+    if mod then
+      local fired = 0
+      for _, script in ipairs(mod.scripts or {}) do
+        if script.trigger == "tap" or script.trigger == "touch_down" then
+          spawn(script, handle, script.trigger)
+          fired = fired + 1
+        end
+      end
+      if fired > 0 then
+        return fired
       end
     end
   end
-  return best_handle
+  return 0
 end
 
-local function fire_touch_triggers(x, y)
-  local handle = topmost_at(x, y)
-  if handle == 0 then
+-- Нажатие: сначала текстовые поля (они всегда поверх спрайтов),
+-- потом скрипты объектов.
+local function handle_press(x, y)
+  if cb.text_focus_at(x, y) == 1 then
     return
   end
-  local object_id = cb.get(handle, "object_id")
-  local mod = modules[active_scene] and modules[active_scene][object_id]
-  if not mod then
-    return
-  end
-  for _, script in ipairs(mod.scripts or {}) do
-    if script.trigger == "tap" or script.trigger == "touch_down" then
-      spawn(script, handle, script.trigger)
+  cb.text_blur()
+  fire_touch_triggers(x, y)
+end
+
+local function poll_presses()
+  while true do
+    local x, y = cb.poll_press()
+    if x == nil then
+      break
     end
+    handle_press(x, y)
   end
 end
 
+-- Подтверждённый ввод из текстового поля: пишем в переменную и/или
+-- вызываем обработчик E.ask.
+local function poll_text_commits()
+  while true do
+    local label, value = cb.poll_text_commit()
+    if label == nil then
+      break
+    end
+    E.on_text_commit(label, value)
+  end
+end
 local function fire_back()
   back_pressed = true
 end
@@ -288,16 +315,13 @@ end
 function M.frame(dt)
   stats.frames = stats.frames + 1
 
-  local down = cb.touch_down() == 1
-  if down and not touch_prev then
-    fire_touch_triggers(cb.touch_x(), cb.touch_y())
-  end
-  touch_prev = down
-
   poll_truths()
   poll_back()
   sched:update(dt)
   update_var_texts()
+
+  poll_presses()
+  poll_text_commits()
 
   local pending = E.take_pending_scene and E.take_pending_scene()
   if pending and pending ~= active_scene then
@@ -305,6 +329,86 @@ function M.frame(dt)
       activate(pending)
     end
   end
+end
+
+-- Диагностика кнопок: нажатие в центр объекта должно доходить до него самого,
+-- а не до декоративного слоя сверху.
+local function has_tap_scripts(scene_modules, object_id)
+  local mod = scene_modules and scene_modules[object_id]
+  if not mod then
+    return false
+  end
+  for _, script in ipairs(mod.scripts or {}) do
+    if script.trigger == "tap" or script.trigger == "touch_down" then
+      return true
+    end
+  end
+  return false
+end
+
+function M.check_buttons()
+  local mods = modules[active_scene] or {}
+  local report = {}
+  for object_id, mod in pairs(mods) do
+    local handle = cb.obj_by_id(object_id)
+    if handle ~= 0 and cb.get(handle, "visible") == 1 and has_tap_scripts(mods, object_id) then
+      local x = cb.get(handle, "x")
+      local y = cb.get(handle, "y")
+      -- Кнопка может быть перекрыта другой кнопкой честно (например, полоска
+      -- поверх большой панели), поэтому ищем по площади рамки: есть ли хоть
+      -- одна точка, где нажатие достаётся именно ей.
+      local w = cb.get(handle, "width")
+      local h = cb.get(handle, "height")
+      if w <= 0 or h <= 0 then
+        -- объект без картинки: в Pocket Code он тоже невидим, нажимать некуда
+        report[#report + 1] = {
+          name = mod.name,
+          object_id = object_id,
+          x = x,
+          y = y,
+          reached = true,
+          invisible = true,
+          hits = 0,
+          samples = 0,
+          blocker = "нет картинки",
+        }
+        goto continue
+      end
+      local samples = 0
+      local hits = 0
+      local blocker = nil
+      local steps = 7
+      for ix = 0, steps - 1 do
+        for iy = 0, steps - 1 do
+          local px = x - w / 2 + (w * (ix + 0.5) / steps)
+          local py = y - h / 2 + (h * (iy + 0.5) / steps)
+          samples = samples + 1
+          for _, other in ipairs(cb.sprites_at(px, py)) do
+            if other == handle then
+              hits = hits + 1
+              break
+            end
+            if has_tap_scripts(mods, cb.get(other, "object_id")) then
+              blocker = blocker or cb.get(other, "name")
+              break
+            end
+          end
+        end
+      end
+      report[#report + 1] = {
+        name = mod.name,
+        object_id = object_id,
+        x = x,
+        y = y,
+        reached = hits > 0,
+        hits = hits,
+        samples = samples,
+        blocker = blocker,
+      }
+      ::continue::
+    end
+  end
+  return { scene = active_scene, buttons = report }
 end
 
 -- API для тестов/фронтенда

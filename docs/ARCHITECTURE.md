@@ -51,11 +51,13 @@
 App::run → step(dt):
     engine.advance(dt)                 # время
     boot.frame(dt):
-        касание (press) → topmost_at() → скрипты trigger="tap"/"touch_down"
         whenTheTruth: условие по фронту → новый поток
         back: кнопка «назад»
         scheduler:update(dt)           # корутины: wait/frame
         обновление текстовых полей (showVariable2)
+        очередь нажатий (cb.poll_press): поле ввода получает фокус,
+            иначе — скрипты trigger="tap"/"touch_down" сверху вниз
+        подтверждённый ввод (cb.poll_text_commit) → переменная / E.ask
         отложенная смена сцены (E.run_scene → pending → activate)
     renderer.draw_scene(engine)        # программный рендер
     renderer.save_png(...)             # headless — в файл; SDL2 — в текстуру
@@ -80,14 +82,38 @@ App::run → step(dt):
 | проект | `scene_define`, `object_define`, `finalize`, `stage` |
 | сцены | `scene_run`, `scene_name`, `scene_current`, `scene_count`, `scene_at` |
 | спрайты | `obj_by_id`, `handles`, `get`, `set`, `set_image_id`, `next_image`, `go_steps`, `clone`, `delete`, `hit`, `hit_o` |
-| ввод | `touch_down`, `touch_x/y`, `touch_count`, `touch_id`, `press`, `release` |
-| текст/звук | `text_create`, `text_set`, `text_delete`, `play_sound`, `toast`, `bg_color` |
+| ввод | `touch_down`, `touch_x/y`, `touch_count`, `touch_x/y_by_index`, `touch_id_by_index`, `poll_press`, `sprites_at` |
+| текст | `text_create`, `text_set`, `text_delete`, `text_focus_at`, `text_focus`, `text_blur`, `text_focused`, `text_input`, `text_backspace`, `poll_text_commit` |
+| звук | `play_sound`, `toast`, `bg_color` |
 | хранилище | `firebase_set/get`, `store_set/get` (локальная эмуляция Firebase) |
 | прочее | `log`, `time`, `dt`, `unsupported`, `exit` |
 
 Свойства спрайта (`cb.get/handle, "поле"`): `x`, `y`, `rotation`, `size`, `alpha`,
 `brightness`, `visible`, `layer`, `image_index`, `image_count`, `image_name`,
 `sound_count`, `name`, `object_id`, `is_clone`, `width`, `height`.
+
+## Ввод: нажатия и текст
+
+```
+SDL_FINGERDOWN(id) ──► Engine::touch_begin(id, x, y) ──► touches_ + очередь presses_
+                                                            │
+boot.frame ─► cb.poll_press() ─► cb.text_focus_at(x, y)==1 ? фокус поля
+                                    : fire_touch_triggers(x, y)
+                                          cb.sprites_at(x, y)  # сверху вниз
+                                          первый спрайт со скриптами нажатия
+```
+
+* `Engine::sprites_at` проверяет **альфу пикселя картинки**: прозрачные места не ловят
+  нажатие; если ни у кого нет непрозрачного пикселя в точке — работает проверка рамки
+  (спрайты во весь экран пропускаются, иначе подложка съедала бы все нажатия).
+* Касания хранятся списком: у каждого свой id от системы ввода и индекс 1..N в порядке
+  нажатия — это то, что ожидают блоки `touchXByIndex` и `touchIDByIndex`.
+* Фокус текстового поля: `SDL_START_TEXTINPUT` включает ввод (на Android открывается
+  экранная клавиатура), `SDL_TEXTINPUT` добавляет UTF-8 символы, `Backspace` стирает
+  последний кодпоинт, `Enter`/клик мимо подтверждает ввод: `Engine` складывает
+  пару (метка, значение) в `text_commits_`, а `boot.lua` передаёт её в
+  `E.on_text_commit` — тот пишет переменную (если поле к ней привязано) и вызывает
+  обработчик `E.ask`.
 
 ## Рантайм блоков (`src/lua/runtime/engine.lua`)
 

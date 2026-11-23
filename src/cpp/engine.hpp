@@ -67,6 +67,15 @@ struct TextField {
     std::string placeholder;
     bool visible = true;
     bool editable = false;
+    int max_length = 32;        // как EditText в Pocket Code
+};
+
+// Активное касание: id — идентификатор пальца от системы ввода,
+// порядок в списке — порядок нажатия (1-й палец, 2-й палец, ...).
+struct Touch {
+    int id = 0;
+    double x = 0.0;
+    double y = 0.0;
 };
 
 class Engine;
@@ -114,13 +123,35 @@ public:
     int clone(int handle);
     bool remove(int handle);
 
-    // --- ввод ---
+    // --- ввод: несколько пальцев одновременно ---
+    void touch_begin(int id, double x, double y);   // палец коснулся экрана
+    void touch_move(int id, double x, double y);    // палец поехал
+    void touch_end(int id);                         // палец отпущен
     void set_touch(bool down, double x, double y, int fingers);
     bool touch_down() const { return touch_down_; }
     double touch_x() const { return touch_x_; }
     double touch_y() const { return touch_y_; }
-    int touch_count() const { return fingers_; }
-    void push_touch_press(double x, double y);
+    int touch_count() const { return static_cast<int>(touches_.size()); }
+    // index — 1..N в порядке нажатия (так его понимают блоки touchXByIndex/touchXByID)
+    bool touch_at(int index, double *x, double *y) const;
+    // нажатия, которые ещё не разобраны Lua-рантаймом (по одному на палец)
+    bool pop_press(double *x, double *y);
+    void clear_touches();
+    void push_touch_press(double x, double y) { touch_begin(0, x, y); }
+
+    // --- попадания по спрайтам ---
+    bool sprite_hit_pixel(Sprite &s, double x, double y);        // с учётом альфы картинки
+    std::vector<Sprite *> sprites_at(double x, double y);        // сверху вниз
+
+    // --- текстовые поля: фокус и ввод с клавиатуры ---
+    TextField *focus_text_at(double x, double y);
+    void focus_text(const std::string &label);
+    void blur_text();                                            // подтверждает ввод
+    std::string focused_text() const { return focus_; }
+    bool text_input(const std::string &utf8);
+    bool text_backspace();
+    bool pop_text_commit(std::string *label, std::string *value);
+    double text_width(const TextField &field) const;
 
     // --- прочее ---
     double time() const { return time_; }
@@ -183,7 +214,11 @@ private:
     bool touch_down_ = false;
     double touch_x_ = 0.0;
     double touch_y_ = 0.0;
-    int fingers_ = 0;
+    std::vector<Touch> touches_;
+    std::deque<std::pair<double, double>> presses_;
+
+    std::string focus_;
+    std::deque<std::pair<std::string, std::string>> text_commits_;
 
     double time_ = 0.0;
     double dt_ = 0.0;
@@ -205,6 +240,9 @@ private:
 double sprite_pixel_width(const Sprite &s);
 double sprite_pixel_height(const Sprite &s);
 bool sprite_hit(const Sprite &s, double px, double py);
+size_t utf8_length(const std::string &text);
+std::vector<unsigned> utf8_decode(const std::string &text);
+std::string utf8_encode(unsigned cp);
 unsigned parse_hex_color(const std::string &hex, unsigned fallback);
 
 }  // namespace cb
