@@ -63,11 +63,22 @@ jobs:
 
       - name: Commit imported project
         run: |
+          set -e
           git config user.name "port-bot"
           git config user.email "bot@users.noreply.github.com"
           git rm -q --ignore-unmatch .port-request || true
           git add -A original assets generated ops .port-request
           git add android/app/src/main/java/org/cbclassic/MainActivity.java
-          git commit -m "feat: новая версия проекта из релиза ${GITHUB_REF_NAME}" || echo "нет изменений"
-          git pull --rebase origin "${GITHUB_REF_NAME}" || true
-          git push origin "HEAD:${GITHUB_REF_NAME}"
+          git commit -m "feat: новая версия проекта из релиза" || echo "нет изменений"
+          # сборка APK тоже коммитит в эту ветку (отчёт), поэтому push повторяем
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || git rebase --abort || true
+            if git push origin "HEAD:${GITHUB_REF_NAME}"; then
+              echo "запушено с попытки $attempt"
+              exit 0
+            fi
+            echo "::warning title=git push::попытка $attempt не удалась, повтор"
+            sleep 15
+          done
+          echo "::error title=git push::не удалось запушить перенос"
+          exit 1
