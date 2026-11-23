@@ -576,7 +576,9 @@ int main(int argc, char **argv)
                                 app.engine.blur_text();
                             }
                             break;
+                        case SDLK_AC_BACK:
                         case SDLK_ESCAPE:
+                            // на Android системная «назад» приходит как SDLK_AC_BACK
                             if (!app.engine.focused_text().empty()) {
                                 app.engine.blur_text();
                             } else {

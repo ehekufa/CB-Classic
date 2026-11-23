@@ -92,6 +92,13 @@ check $?
 grep -q '= \[abc\]' /tmp/cb_ask.log
 check $?
 
+step "ввод: два пальца одновременно (джойстик + кнопка) не ломают игру"
+$BIN --frames 30 --scene 26 --script tests/scripts/multitouch.txt \
+     --profile "61=Гость,62=123,60=3,3=100,4=6,12=1" --out /tmp/cb_frames_mt >/tmp/cb_mt.log 2>&1
+check $?
+grep -q "ошибок: 0" /tmp/cb_mt.log
+check $?
+
 step "движок: кадры — валидные PNG нужного размера"
 python3 - <<'PY'
 import struct, sys, glob
