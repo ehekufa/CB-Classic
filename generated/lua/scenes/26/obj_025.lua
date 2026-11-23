@@ -22,8 +22,8 @@ return {
         E.set_bright(o, 85)
       end,
     },
-    { -- скрипт 3: tap
-      trigger = "tap",
+    { -- скрипт 3: touch_up
+      trigger = "touch_up",
       body = function(o)
         E.set_gv(8, 0)
         E.set_bright(o, 100)

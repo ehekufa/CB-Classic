@@ -28,8 +28,8 @@ return {
         end
       end,
     },
-    { -- скрипт 3: tap
-      trigger = "tap",
+    { -- скрипт 3: touch_up
+      trigger = "touch_up",
       body = function(o)
         -- (пусто)
       end,

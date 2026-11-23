@@ -53,8 +53,8 @@ return {
         E.ask(o, "Что написать??", function(answer) E.set_gv(83, answer) end)
       end,
     },
-    { -- скрипт 7: tap
-      trigger = "tap",
+    { -- скрипт 7: touch_up
+      trigger = "touch_up",
       body = function(o)
         E.set_bright(o, 120)
         E.broadcast(22)

@@ -454,6 +454,26 @@ int l_poll_press(lua_State *L)
     return 2;
 }
 
+// Отпускание пальца: точка и объекты под ней (по handle, сверху вниз).
+int l_poll_release(lua_State *L)
+{
+    double x = 0.0;
+    double y = 0.0;
+    std::vector<int> handles;
+    if (!engine_of(L)->pop_release(&x, &y, &handles)) {
+        lua_pushnil(L);
+        return 1;
+    }
+    lua_pushnumber(L, x);
+    lua_pushnumber(L, y);
+    lua_createtable(L, static_cast<int>(handles.size()), 0);
+    for (size_t i = 0; i < handles.size(); ++i) {
+        lua_pushinteger(L, handles[i]);
+        lua_rawseti(L, -2, static_cast<lua_Integer>(i + 1));
+    }
+    return 3;
+}
+
 // Спрайты под точкой, сверху вниз — чтобы нажатие доходило до кнопки,
 // даже если её прикрывает декоративный слой.
 int l_sprites_at(lua_State *L)
@@ -711,6 +731,7 @@ const luaL_Reg kApi[] = {
     {"touch_y_by_id", l_touch_y_by_index},
     {"touch_id_by_id", l_touch_id_by_index},
     {"poll_press", l_poll_press},
+    {"poll_release", l_poll_release},
     {"sprites_at", l_sprites_at},
     {"text_focus_at", l_text_focus_at},
     {"text_focus", l_text_focus},

@@ -32,8 +32,8 @@ return {
         E.set_bright(o, 120)
       end,
     },
-    { -- скрипт 5: tap
-      trigger = "tap",
+    { -- скрипт 5: touch_up
+      trigger = "touch_up",
       body = function(o)
         E.set_bright(o, 100)
         if E.truthy(E.op_eq(E.gv(72), "2")) then

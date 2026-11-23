@@ -192,7 +192,12 @@ def formula(value: Any, unsup: Unsupported) -> str:
 TRIGGERS = {
     "start": "start",
     "whenTheTruth": "when_truth",
-    "onTouchObject": "tap",
+    # В выгрузке Pocket Code пара brick'ов «кнопка» выглядит так:
+    #   touchObject   — палец коснулся (подсветить кнопку)
+    #   onTouchObject — палец отпущен (само нажатие: звук, переход, выстрел)
+    # Если запускать оба на касание, прицел в игре гас сразу же, а попадание
+    # считалось в момент нажатия, а не отпускания.
+    "onTouchObject": "touch_up",
     "touchObject": "touch_down",
     "startClone": "clone",
     "touchBack": "back",
@@ -274,10 +279,19 @@ class BrickGen:
                 continue
 
             if name == "cycleForever":
-                # «повторять всегда» уходит в отдельный поток: иначе блоки,
-                # стоящие после него в том же скрипте, никогда не выполнились бы
-                # (в выгрузке Pocket Code так и есть — на этом ломался джойстик)
                 body, _, nxt = self._split_block(bricks, i + 1)
+                # «повторять всегда { установить яркость N }» — не цикл, а способ
+                # автора «держать» кнопку серой. Такой вечный поток перебивал
+                # возврат яркости, и кнопка способности не перезаряжалась,
+                # поэтому сворачиваем его в одну установку.
+                if self._only_brightness(body):
+                    lines.append(f"{pad}E.set_bright(o, {self._brightness_value(body[0])})")
+                    i = nxt
+                    continue
+                # остальные «повторять всегда» уходят в отдельный поток: иначе
+                # блоки, стоящие после него в том же скрипте, никогда не
+                # выполнились бы (в выгрузке Pocket Code так и есть — на этом
+                # ломался джойстик)
                 lines.append(f"{pad}E.forever(function()")
                 lines.extend(self.block(body, depth + 1))
                 lines.append(f"{pad}end)")
@@ -304,6 +318,15 @@ class BrickGen:
                 lines.append(pad + stmt)
             i += 1
         return lines or [f"{pad}-- (пусто)"]
+
+    @staticmethod
+    def _only_brightness(body: list[dict]) -> bool:
+        """Цикл «повторять всегда» из одних «установить яркость»."""
+        return bool(body) and all(b.get("name") == "setBrightness" for b in body)
+
+    def _brightness_value(self, brick: dict) -> str:
+        args = brick.get("args") or []
+        return formula(args[0], self.unsup) if args else "100"
 
     def _split_block(self, bricks: list[dict], start: int):
         """Возвращает (тело, тело_else|None, индекс_после_закрывающего_блока)."""

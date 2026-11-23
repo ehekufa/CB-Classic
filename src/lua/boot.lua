@@ -3,7 +3,8 @@
 -- Соответствие событиям Pocket Code:
 --   start          — при старте сцены
 --   when_truth     — каждый кадр проверяется условие, скрипт стартует по фронту
---   tap/touch_down — нажатие на объект
+--   touch_down    — палец коснулся объекта
+--   touch_up      — палец отпущен над объектом (в Pocket Code это onTouchObject)
 --   clone          — старт у клона
 --   back           — кнопка «назад»
 
@@ -244,18 +245,45 @@ local function fire_touch_triggers(x, y)
     local mod = modules[active_scene] and modules[active_scene][object_id]
     if mod then
       local fired = 0
+      local will_release = false
       for _, script in ipairs(mod.scripts or {}) do
         if script.trigger == "tap" or script.trigger == "touch_down" then
           spawn(script, handle, script.trigger)
           fired = fired + 1
+        elseif script.trigger == "touch_up" then
+          will_release = true
         end
       end
-      if fired > 0 then
+      if fired > 0 or will_release then
         -- звук нажатия: настоящий MP3 проекта (у кнопки свой или общий
         -- «Нажатие»). В игре и на загрузке не щёлкаем — там управление.
         if active_scene ~= 26 and active_scene ~= 42 then
           cb.click_sound(handle)
         end
+        return fired
+      end
+    end
+  end
+  return 0
+end
+
+-- Отпускание пальца: срабатывают скрипты «onTouchObject» (touch_up) того
+-- объекта, над которым палец отпустили. Именно так в оригинале устроены
+-- кнопки меню (подсветка на touch_down, переход на отпускании) и атака в игре
+-- (прицел держится, пока палец на кнопке, урон — при отпускании).
+local function fire_release_triggers(handles)
+  for _, handle in ipairs(handles) do
+    local object_id = cb.get(handle, "object_id")
+    local mod = modules[active_scene] and modules[active_scene][object_id]
+    if mod then
+      local fired = 0
+      for _, script in ipairs(mod.scripts or {}) do
+        if script.trigger == "touch_up" then
+          spawn(script, handle, script.trigger)
+          fired = fired + 1
+        end
+      end
+      if fired > 0 then
         return fired
       end
     end
@@ -285,6 +313,16 @@ end
 
 -- Подтверждённый ввод из текстового поля: пишем в переменную и/или
 -- вызываем обработчик E.ask.
+local function poll_releases()
+  while true do
+    local x, y, handles = cb.poll_release()
+    if x == nil then
+      break
+    end
+    fire_release_triggers(handles)
+  end
+end
+
 local function poll_text_commits()
   while true do
     local label, value = cb.poll_text_commit()
@@ -366,6 +404,7 @@ function M.frame(dt)
   update_var_texts()
 
   poll_presses()
+  poll_releases()
   poll_text_commits()
   trophies.check_frame(active_scene)
 
@@ -385,7 +424,8 @@ local function has_tap_scripts(scene_modules, object_id)
     return false
   end
   for _, script in ipairs(mod.scripts or {}) do
-    if script.trigger == "tap" or script.trigger == "touch_down" then
+    if script.trigger == "tap" or script.trigger == "touch_down" or
+        script.trigger == "touch_up" then
       return true
     end
   end

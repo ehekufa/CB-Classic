@@ -38,8 +38,8 @@ return {
         E.ask(o, "какой админ (1/3)", function(answer) E.set_gv(90, answer) end)
       end,
     },
-    { -- скрипт 5: tap
-      trigger = "tap",
+    { -- скрипт 5: touch_up
+      trigger = "touch_up",
       body = function(o)
         E.set_bright(o, 120)
       end,

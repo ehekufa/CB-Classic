@@ -35,6 +35,7 @@ struct AppOptions {
     int window_frames = 0;               // оконный режим: выйти после N кадров (0 = бесконечно)
     std::string screenshot;              // сохранить последний кадр окна в PNG
     bool no_sound = false;               // без звука вообще
+    int trace_object = -1;               // --trace ID: печатать состояние объекта по кадрам
     // --set-var "id=значение@кадр" — установить переменную на нужном кадре
     struct SetVar { int frame = 0; int id = 0; std::string value; };
     std::vector<SetVar> set_vars;
@@ -48,6 +49,7 @@ public:
     bool init();
     void step(double dt);
     void render_to_disk(const std::string &path);
+    void trace_object(int object_id, int frame);
     bool run();
     void shutdown();
 

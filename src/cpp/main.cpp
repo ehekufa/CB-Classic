@@ -244,6 +244,21 @@ void App::step(double dt)
     lua_pop(lua, 1);
 }
 
+// --trace ID: печатает состояние одного объекта (по object_id) каждый кадр —
+// помогает разбирать баги «кнопка не отжалась», «объект остался серым» и т.п.
+void App::trace_object(int object_id, int frame)
+{
+    cb::Sprite *sprite = engine.find_by_object(object_id);
+    if (!sprite) {
+        return;
+    }
+    std::printf("trace %4d сцена=%2d id=%-3d x=%7.1f y=%7.1f vis=%d ярк=%5.1f "
+                "прозр=%5.1f размер=%5.1f картинка=%s\n",
+                frame, engine.current_scene_id(), object_id, sprite->x, sprite->y,
+                sprite->visible ? 1 : 0, sprite->brightness, sprite->alpha, sprite->size,
+                sprite->current_image() ? sprite->current_image()->path.c_str() : "-");
+}
+
 void App::render_to_disk(const std::string &path)
 {
     renderer.draw_scene(engine);
@@ -440,6 +455,9 @@ bool App::run()
         }
         auto t0 = Clock::now();
         step(dt);
+        if (options.trace_object >= 0) {
+            trace_object(options.trace_object, frame);
+        }
         auto t1 = Clock::now();
         if (options.bench > 0) {
             renderer.draw_scene(engine);
@@ -503,13 +521,14 @@ bool App::run()
     if (options.verbose) {
         std::printf("фон: #%08X, размер сцены: %dx%d\n", engine.background_rgba(),
                     engine.stage_width(), engine.stage_height());
-        std::printf("\n%-6s %-22s %8s %8s %7s %7s %4s %-30s\n",
-                    "handle", "имя", "x", "y", "size", "alpha", "vis", "картинка");
+        std::printf("\n%-6s %-22s %8s %8s %7s %7s %6s %4s %-30s\n",
+                    "handle", "имя", "x", "y", "size", "alpha", "ярк", "vis", "картинка");
         for (cb::Sprite *sprite : engine.sprites_in_draw_order()) {
             const cb::ImageRef *ref = sprite->current_image();
-            std::printf("%-6d %-22s %8.1f %8.1f %7.1f %7.1f %4d %s (%dx%d)\n",
+            std::printf("%-6d %-22s %8.1f %8.1f %7.1f %7.1f %6.1f %4d %s (%dx%d)\n",
                         sprite->handle, sprite->name.c_str(), sprite->x, sprite->y,
-                        sprite->size, sprite->alpha, sprite->visible ? 1 : 0,
+                        sprite->size, sprite->alpha, sprite->brightness,
+                        sprite->visible ? 1 : 0,
                         ref ? ref->path.c_str() : "-", ref ? ref->width : 0,
                         ref ? ref->height : 0);
         }
@@ -614,6 +633,8 @@ int main(int argc, char **argv)
             }
         } else if (a == "--profile") {
             opts.profile = next("");
+        } else if (a == "--trace") {
+            opts.trace_object = std::atoi(next("-1").c_str());
         } else if (a == "--verbose") {
             opts.verbose = true;
         } else if (a == "--help" || a == "-h") {
@@ -635,6 +656,7 @@ int main(int argc, char **argv)
                 "  --window-frames N  оконный режим: выйти после N кадров\n"
                 "  --screenshot F сохранить кадр окна в PNG\n"
                 "  --check DIR    проверить синтаксис Lua-файлов в каталоге\n"
+                "  --trace ID     печатать состояние объекта (id) каждый кадр\n"
                 "  --verbose      подробный вывод\n");
             return 0;
         }

@@ -19,8 +19,8 @@ return {
         end)
       end,
     },
-    { -- скрипт 2: tap
-      trigger = "tap",
+    { -- скрипт 2: touch_up
+      trigger = "touch_up",
       body = function(o)
         E.broadcast(23)
       end,

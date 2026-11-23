@@ -175,6 +175,8 @@ public:
     bool touch_at(int index, double *x, double *y) const;
     // нажатия, которые ещё не разобраны Lua-рантаймом (по одному на палец)
     bool pop_press(double *x, double *y);
+    // отпускание: точка + объекты под пальцем в момент отпускания
+    bool pop_release(double *x, double *y, std::vector<int> *handles);
     void clear_touches();
     void push_touch_press(double x, double y) { touch_begin(0, x, y); }
 
@@ -289,6 +291,14 @@ private:
     double touch_y_ = 0.0;
     std::vector<Touch> touches_;
     std::deque<std::pair<double, double>> presses_;
+    // отпускания пальца: точка и объекты под ней (сверху вниз) на момент
+    // отпускания — на них срабатывают скрипты «onTouchObject» (touch_up)
+    struct ReleaseEvent {
+        double x = 0.0;
+        double y = 0.0;
+        std::vector<int> handles;
+    };
+    std::deque<ReleaseEvent> releases_;
 
     std::function<double(const std::string &, double)> measurer_;
     std::string focus_;

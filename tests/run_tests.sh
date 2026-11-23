@@ -70,6 +70,39 @@ awk '/Игрок /{print $3}' /tmp/cb_joy.log | tail -1 | \
   python3 -c "import sys; sys.exit(0 if float(sys.stdin.read().strip() or 0) > 100 else 1)"
 check $?
 
+step "способности: кнопка «Супер атака» перезаряжается и не сбивается спамом"
+$BIN --frames 100 --scene 26 --profile "61=Гость,62=123,60=3,3=100,4=6,12=1,47=4" \
+     --script tests/scripts/super_attack.txt --trace 26 --no-sound \
+     >/tmp/cb_cooldown.log 2>&1
+check $?
+# нажатие гасит кнопку (85), через перезарядку она снова 100
+grep -q "ярк= 85.0" /tmp/cb_cooldown.log
+check $?
+# ровно 60 «серых» кадров: нажатия во время перезарядки её не продлевают
+DIM=$(grep -c "ярк= 85.0" /tmp/cb_cooldown.log || true)
+if [ "$DIM" -eq 60 ]; then
+  printf '   OK (серых кадров %s)\n' "$DIM"
+else
+  printf '   ПРОВАЛ: серых кадров %s вместо 60\n' "$DIM"
+  FAILED=$((FAILED + 1))
+fi
+# и после перезарядки яркость вернулась к 100 (кнопка снова активна)
+LAST=$(grep "сцена=" /tmp/cb_cooldown.log | grep "id=26" | tail -1)
+case "$LAST" in
+  *"ярк=100.0"*) printf '   OK кнопка снова яркая\n' ;;
+  *) printf '   ПРОВАЛ: кнопка осталась серой\n'; FAILED=$((FAILED + 1)) ;;
+esac
+
+step "атака: прицел держится, пока палец на кнопке А, и гаснет после отпускания"
+$BIN --frames 60 --scene 26 --profile "61=Гость,62=123,60=3,3=100,4=6,12=1,47=4" \
+     --script tests/scripts/attack_hold.txt --trace 20 --no-sound \
+     >/tmp/cb_aim.log 2>&1
+check $?
+grep -q "trace   20 .*vis=1" /tmp/cb_aim.log
+check $?
+grep -q "trace   50 .*vis=0" /tmp/cb_aim.log
+check $?
+
 step "скины: выбор скина меняет картинку игрока"
 $BIN --frames 40 --scene 95 --script tests/scripts/skin_select.txt \
      --out /tmp/cb_frames_skin --verbose >/tmp/cb_skin.log 2>&1

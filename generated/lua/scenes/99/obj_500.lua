@@ -59,8 +59,8 @@ return {
         E.ask(o, "Какой ивент??", function(answer) E.set_gv(84, answer) end)
       end,
     },
-    { -- скрипт 6: tap
-      trigger = "tap",
+    { -- скрипт 6: touch_up
+      trigger = "touch_up",
       body = function(o)
         E.set_bright(o, 120)
       end,

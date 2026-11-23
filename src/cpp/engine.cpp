@@ -371,6 +371,23 @@ void Engine::touch_move(int id, double x, double y)
 
 void Engine::touch_end(int id)
 {
+    // запоминаем, где и над чем палец отпустили: на этим занимаются скрипты
+    // «onTouchObject» (в Pocket Code это именно отпускание)
+    for (const Touch &touch : touches_) {
+        if (touch.id != id) {
+            continue;
+        }
+        ReleaseEvent event;
+        event.x = touch.x;
+        event.y = touch.y;
+        for (Sprite *sprite : sprites_at(event.x, event.y)) {
+            event.handles.push_back(sprite->handle);
+        }
+        if (releases_.size() < 64) {
+            releases_.push_back(std::move(event));
+        }
+        break;
+    }
     touches_.erase(std::remove_if(touches_.begin(), touches_.end(),
                                   [id](const Touch &t) { return t.id == id; }),
                    touches_.end());
@@ -399,6 +416,18 @@ bool Engine::touch_at(int index, double *x, double *y) const
     const Touch &touch = touches_[static_cast<size_t>(index - 1)];
     if (x) { *x = touch.x; }
     if (y) { *y = touch.y; }
+    return true;
+}
+
+bool Engine::pop_release(double *x, double *y, std::vector<int> *handles)
+{
+    if (releases_.empty()) {
+        return false;
+    }
+    if (x) { *x = releases_.front().x; }
+    if (y) { *y = releases_.front().y; }
+    if (handles) { *handles = releases_.front().handles; }
+    releases_.pop_front();
     return true;
 }
 

@@ -27,8 +27,8 @@ return {
         end
       end,
     },
-    { -- скрипт 3: tap
-      trigger = "tap",
+    { -- скрипт 3: touch_up
+      trigger = "touch_up",
       body = function(o)
         E.set_y(o, 0)
       end,
