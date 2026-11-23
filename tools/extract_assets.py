@@ -24,7 +24,9 @@ import hashlib
 import json
 import os
 import shutil
+import struct
 import sys
+import zlib
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from catrobat import load_project  # noqa: E402
@@ -36,6 +38,106 @@ TRANSLIT = {
     "ф": "f", "х": "h", "ц": "c", "ч": "ch", "ш": "sh", "щ": "sch", "ъ": "",
     "ы": "y", "ь": "", "э": "e", "ю": "yu", "я": "ya",
 }
+
+# --- правки картинок после извлечения -------------------------------------
+#
+# Оригинал нарисован так, что часть интерфейса «запечена» в PNG. Счётчик кубков
+# рисует движок (белым, в жёлтой полосе панели «Путь к богатству»), поэтому
+# нарисованный в оригинале кубок в этой полосе закрашиваем цветом полосы.
+IMAGE_PATCHES = {
+    "scenes/01_menyu/008_put_k_bogatstvu/images/0006_put_k_bogatstvu.png":
+        ((296, 132, 371, 200), (0xF0, 0xA6, 0x06, 0xFF)),
+}
+
+
+def _png_to_rgba(path: str):
+    """Прочитать PNG 8-bit RGBA без интерлейса: (w, h, bytearray)."""
+    data = open(path, "rb").read()
+    if data[:8] != b"\x89PNG\r\n\x1a\n":
+        return None
+    pos = 8
+    width = height = 0
+    idat = bytearray()
+    while pos + 8 <= len(data):
+        length = struct.unpack(">I", data[pos:pos + 4])[0]
+        kind = data[pos + 4:pos + 8]
+        body = data[pos + 8:pos + 8 + length]
+        if kind == b"IHDR":
+            width, height, depth, color, _, _, interlace = struct.unpack(">IIBBBBB", body)
+            if depth != 8 or color != 6 or interlace != 0:
+                return None
+        elif kind == b"IDAT":
+            idat += body
+        elif kind == b"IEND":
+            break
+        pos += 12 + length
+    if width <= 0 or height <= 0:
+        return None
+    raw = zlib.decompress(bytes(idat))
+    stride = width * 4
+    out = bytearray(stride * height)
+    prev = bytearray(stride)
+    src = 0
+    for row in range(height):
+        ftype = raw[src]
+        src += 1
+        line = bytearray(raw[src:src + stride])
+        src += stride
+        for i in range(stride):
+            a = line[i - 4] if i >= 4 else 0
+            b = prev[i]
+            c = prev[i - 4] if i >= 4 else 0
+            if ftype == 1:
+                line[i] = (line[i] + a) & 0xFF
+            elif ftype == 2:
+                line[i] = (line[i] + b) & 0xFF
+            elif ftype == 3:
+                line[i] = (line[i] + ((a + b) >> 1)) & 0xFF
+            elif ftype == 4:
+                p = a + b - c
+                pa, pb, pc = abs(p - a), abs(p - b), abs(p - c)
+                pred = a if (pa <= pb and pa <= pc) else (b if pb <= pc else c)
+                line[i] = (line[i] + pred) & 0xFF
+        out[row * stride:(row + 1) * stride] = line
+        prev = line
+    return width, height, out
+
+
+def _rgba_to_png(path: str, width: int, height: int, pixels: bytearray) -> None:
+    stride = width * 4
+    raw = bytearray()
+    for row in range(height):
+        raw.append(0)                        # filter: none
+        raw += pixels[row * stride:(row + 1) * stride]
+
+    def chunk(kind: bytes, body: bytes) -> bytes:
+        return (struct.pack(">I", len(body)) + kind + body +
+                struct.pack(">I", zlib.crc32(kind + body) & 0xFFFFFFFF))
+
+    ihdr = struct.pack(">IIBBBBB", width, height, 8, 6, 0, 0, 0)
+    data = (b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", ihdr) +
+            chunk(b"IDAT", zlib.compress(bytes(raw), 9)) + chunk(b"IEND", b""))
+    with open(path, "wb") as fh:
+        fh.write(data)
+
+
+def patch_image(path: str, rel: str) -> None:
+    """Закрасить часть картинки, которую в порте рисует движок."""
+    patch = IMAGE_PATCHES.get(rel)
+    if not patch:
+        return
+    rect, color = patch
+    decoded = _png_to_rgba(path)
+    if not decoded:
+        print(f"предупреждение: {rel} — правка пропущена (не RGBA8)", file=sys.stderr)
+        return
+    width, height, pixels = decoded
+    x0, y0, x1, y1 = rect
+    for y in range(max(0, y0), min(height - 1, y1) + 1):
+        for x in range(max(0, x0), min(width - 1, x1) + 1):
+            off = (y * width + x) * 4
+            pixels[off:off + 4] = bytes(color)
+    _rgba_to_png(path, width, height, pixels)
 
 
 def slug(text: str, fallback: str = "item") -> str:
@@ -137,6 +239,7 @@ def main() -> int:
                 dst = os.path.join(img_dir, dst_name)
                 shutil.copyfile(src, dst)
                 rel = os.path.relpath(dst, out).replace(os.sep, "/")
+                patch_image(dst, rel)
                 size = os.path.getsize(dst)
                 total_png += 1
                 bytes_png += size

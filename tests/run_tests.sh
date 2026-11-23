@@ -87,27 +87,38 @@ check $?
 grep -q "cups.5" saves/db.tsv
 check $?
 $BIN --frames 3 --scene 1 --out /tmp/cb_frames_cups2 --verbose >/tmp/cb_cups2.log 2>&1
-grep -q "Кубки: 5" /tmp/cb_cups2.log
+grep -q 'var:91 .*значение="5"' /tmp/cb_cups2.log
 check $?
+# счёт стоит в жёлтой полосе панели, отдельного HUD в углу больше нет
+grep -q "кубки-счёт" /tmp/cb_cups2.log && CUPS_HUD=1 || CUPS_HUD=0
+if [ "$CUPS_HUD" -eq 0 ]; then
+  printf '   OK\n'
+else
+  printf '   ПРОВАЛ: HUD кубков в углу остался\n'
+  FAILED=$((FAILED + 1))
+fi
 
-step "звук: эффекты проекта звучат, музыка синтезируется"
+step "звук: играют эффекты проекта, фоновой музыки нет"
 $BIN --frames 30 --scene 26 --script tests/scripts/joystick.txt \
      --profile "61=Гость,62=123,60=3,3=100,4=6,12=1" --out /tmp/cb_frames_snd \
      >/tmp/cb_snd.log 2>&1
 check $?
 grep -Eq "прозвучало звуков: [1-9]" /tmp/cb_snd.log
 check $?
-$BIN --export-music /tmp/cb_theme.wav >/tmp/cb_music.log 2>&1
-check $?
-python3 - <<'PYW'
-import sys, wave
-try:
-    w = wave.open("/tmp/cb_theme.wav")
-except Exception:
-    sys.exit(1)
-sys.exit(0 if w.getnframes() > 44100 * 10 else 1)
-PYW
-check $?
+# музыки быть не должно: ни синтезатора в коде, ни флагов в CLI
+if grep -rq "build_music\|start_music\|export_music" src/cpp; then
+  printf '   ПРОВАЛ: в коде осталась музыка\n'
+  FAILED=$((FAILED + 1))
+else
+  printf '   OK\n'
+fi
+$BIN --help >/tmp/cb_help.log 2>&1
+if grep -q -- "--export-music" /tmp/cb_help.log; then
+  printf '   ПРОВАЛ: флаг музыки остался в CLI\n'
+  FAILED=$((FAILED + 1))
+else
+  printf '   OK\n'
+fi
 
 step "адаптация: суперсэмплинг сохраняет раскладку (2x кадр)"
 $BIN --frames 3 --scene 77 --pixel-scale 2 --out /tmp/cb_frames_x2 >/tmp/cb_x2.log 2>&1

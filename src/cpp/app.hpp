@@ -35,9 +35,6 @@ struct AppOptions {
     int window_frames = 0;               // оконный режим: выйти после N кадров (0 = бесконечно)
     std::string screenshot;              // сохранить последний кадр окна в PNG
     bool no_sound = false;               // без звука вообще
-    bool no_music = false;               // эффекты есть, музыки нет
-    double music_volume = 0.30;          // громкость встроенной темы
-    std::string export_music;            // сохранить тему в WAV и выйти
     // --set-var "id=значение@кадр" — установить переменную на нужном кадре
     struct SetVar { int frame = 0; int id = 0; std::string value; };
     std::vector<SetVar> set_vars;

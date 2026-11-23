@@ -161,7 +161,7 @@ bool App::init()
         options.root + "/fonts/DejaVuSans.ttf",
         options.root + "/third_party/fonts/DejaVuSans.ttf",
     });
-    // Звук: эффекты проекта (mp3) и встроенная музыка. В headless-сборке
+    // Звук: эффекты проекта (mp3). В headless-сборке
     // без SDL звук только попадает в журнал, но файлы всё равно декодируются.
     if (!options.no_sound) {
         engine.set_sound_hook([this](const std::string &name, bool loop) {
@@ -568,13 +568,6 @@ int main(int argc, char **argv)
             }
         } else if (a == "--no-sound") {
             opts.no_sound = true;
-        } else if (a == "--no-music") {
-            opts.no_music = true;
-        } else if (a == "--music-volume") {
-            opts.music_volume = std::atof(next("0.3").c_str());
-            opts.no_music = false;
-        } else if (a == "--export-music") {
-            opts.export_music = next("music.wav");
         } else if (a == "--window") {
             opts.headless = false;
         } else if (a == "--window-frames") {
@@ -625,9 +618,6 @@ int main(int argc, char **argv)
                 "  --profile P    стартовые переменные: \"61=Гость,62=123,60=3\"\n"
                 "  --set-var S    выставить переменную на кадре: \"4=0@20\"\n"
                 "  --no-sound     без звука\n"
-                "  --no-music     без фоновой музыки\n"
-                "  --music-volume V громкость музыки (0..1)\n"
-                "  --export-music F сохранить встроенную тему в WAV и выйти\n"
                 "  --pixel-scale N рисовать кадр в N раз крупнее (адаптация экрана)\n"
                 "  --bench N      замерить время кадра (без записи PNG)\n"
                 "  --window       открыть окно SDL2 (нужна сборка make SDL2=1)\n"
@@ -667,13 +657,6 @@ int main(int argc, char **argv)
     if (!app.init()) {
         std::fprintf(stderr, "инициализация не удалась\n");
         return 1;
-    }
-
-    if (!opts.export_music.empty()) {
-        bool ok = app.audio.export_music(opts.export_music);
-        std::printf("музыка: %s (%s)\n", ok ? "сохранена" : "ошибка записи",
-                    opts.export_music.c_str());
-        return ok ? 0 : 1;
     }
 
     if (opts.check_buttons) {
@@ -756,11 +739,8 @@ int main(int argc, char **argv)
                 vsync = (info.flags & SDL_RENDERER_PRESENTVSYNC) != 0;
             }
         }
-        // Звук: устройство открывается после SDL_Init, музыка — сразу за ним.
+        // Звук: устройство открывается после SDL_Init (музыки в оригинале нет).
         app.open_audio();
-        if (app.audio.ready() && !app.options.no_music) {
-            app.audio.start_music(app.options.music_volume);   // фоновая тема
-        }
         // Кадр рисуется SDL-текстурами (GPU). Программный app.renderer остаётся
         // источником размеров/шрифта — по нему же снимаются PNG в headless.
         cb::SdlView view(renderer, app.renderer);
@@ -842,12 +822,6 @@ int main(int argc, char **argv)
                         case SDLK_KP_ENTER:
                             if (!app.engine.focused_text().empty()) {
                                 app.engine.blur_text();
-                            }
-                            break;
-                        case SDLK_m:
-                            // звук: клавиша M включает/выключает музыку
-                            if (!app.options.no_sound) {
-                                app.audio.set_music_enabled(!app.audio.music_enabled());
                             }
                             break;
                         case SDLK_AC_BACK:

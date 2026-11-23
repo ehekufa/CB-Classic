@@ -4,16 +4,27 @@
 -- читается; без сети он не сохранялся и нигде не показывался, поэтому победа
 -- «ничего не давала». Здесь кубки лежат в локальном хранилище порта:
 --   * победа над врагом в сцене «Игра» = +5 кубков (как в исходных скриптах);
---   * счёт сразу пишется в переменную 24 (её проверяют достижения);
---   * в меню и в достижениях показывается строка «Кубки: N».
+--   * счёт пишется в переменную 24 (её проверяют достижения) и в переменную
+--     91 «Кубки (визуал)»;
+--   * в меню число стоит прямо в жёлтой полосе панели «Путь к богатству»
+--     (поле var:91 самой сцены), белым и без иконки кубка — иконку из
+--     картинки панели убрал tools/extract_assets.py, отдельного HUD в углу нет.
 local E = require("runtime.engine")
 
 local M = {}
 
 local KEY = "cups"          -- ключ локального хранилища
 local PER_WIN = 5           -- столько даёт одна победа (как add_gv(24, 5))
-local HUD_LABEL = "кубки-счёт"
-local HUD_SCENES = { [1] = true, [96] = true, [31] = true, [89] = true }
+
+-- Панель «Путь к богатству»: спрайт 374x204 в точке (495, 180), жёлтая полоса
+-- занимает нижние 70 px. Счёт рисует текстовое поле сцены (var:91), которое
+-- движок обновляет из переменной 91 каждый кадр.
+local PANEL_SCENE = 1
+local PANEL_LABEL = "var:91"
+local PANEL_X = 495
+local PANEL_Y = 115
+local PANEL_SIZE = 140
+local PANEL_COLOR = "#ffffff"
 
 local win_awarded = false   -- чтобы одна победа не засчиталась дважды
 local baseline = 0          -- счёт кубков на входе в сцену (переменная 24)
@@ -46,11 +57,22 @@ function M.toast(text, seconds)
   E.toast(text)
 end
 
+-- Счёт в жёлтой полосе панели: белым, по центру полосы, без иконки.
+-- Поле пересоздают стартовые скрипты сцены, поэтому стиль выставляем каждый
+-- кадр — это пять дешёвых вызовов, зато оформление не «слетает».
+function M.show_panel()
+  E.cb.text_set(PANEL_LABEL, "color", PANEL_COLOR)
+  E.cb.text_set(PANEL_LABEL, "size", PANEL_SIZE)
+  E.cb.text_set(PANEL_LABEL, "pos", PANEL_X, PANEL_Y)
+  E.cb.text_set(PANEL_LABEL, "align", "center")
+  E.cb.text_set(PANEL_LABEL, "visible", 1)
+end
+
 function M.set(value, silent)
   local total = math.max(0, math.floor(value))
   E.cb.store_set(KEY, tostring(total))
   E.set_gv(24, total)                     -- переменная «К» из оригинала
-  M.update_hud()
+  E.set_gv(91, total)                     -- «Кубки (визуал)» — панель в меню
   if not silent then
     M.toast("Кубки: " .. fmt(total))
   end
@@ -65,30 +87,15 @@ function M.add(delta, silent)
   return total
 end
 
-function M.update_hud()
-  local text = "Кубки: " .. fmt(M.cups())
-  -- поле пересоздаётся после каждой смены сцены (тексты сцены живут отдельно)
-  E.cb.text_create(HUD_LABEL, -590, -320, 340, 60, "#2b2b2b", "left", 0)
-  E.cb.text_set(HUD_LABEL, "size", 44)
-  E.cb.text_set(HUD_LABEL, "value", text)
-end
-
-function M.hud_visible(flag)
-  E.cb.text_set(HUD_LABEL, "visible", flag and 1 or 0)
-end
-
--- Вызывается при входе в сцену: подтянуть локальный счёт и показать его там,
--- где ему место (меню/достижения/магазин), не трогая кнопки.
+-- Вызывается при входе в сцену: подтянуть локальный счёт в переменные.
 function M.enter_scene(scene_id)
   win_awarded = false
   baseline = M.cups()
   low_hp_frames = 0
   E.set_gv(24, baseline)
-  if HUD_SCENES[scene_id] then
-    M.update_hud()
-    M.hud_visible(true)
-  else
-    M.hud_visible(false)
+  E.set_gv(91, baseline)
+  if scene_id == PANEL_SCENE then
+    M.show_panel()
   end
 end
 
@@ -96,6 +103,13 @@ end
 -- Кубки начисляет исходный скрипт (add_gv(24, 5)); мы не начисляем второй раз,
 -- а сохраняем его прибавку и показываем игроку, сколько стало.
 function M.check_frame(scene_id)
+  if scene_id == PANEL_SCENE then
+    -- сцена рисует значение переменной 91 сама: держим его равным счёту
+    if tonumber(E.gv(91)) ~= M.cups() then
+      E.set_gv(91, M.cups())
+    end
+    M.show_panel()
+  end
   if scene_id ~= 26 or win_awarded then
     return
   end
@@ -123,6 +137,7 @@ end
 function M.reset()                 -- для тестов
   E.cb.store_set(KEY, "0")
   E.set_gv(24, 0)
+  E.set_gv(91, 0)
 end
 
 return M

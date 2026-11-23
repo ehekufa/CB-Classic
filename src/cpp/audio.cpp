@@ -1,11 +1,10 @@
 // audio.cpp — декодирование звуков проекта и миксер.
 //
 // MP3: minimp3 (один заголовок, CC0). WAV: RIFF/PCM 8/16 бит.
-// Свой синтезатор музыки: короткая чиптюн-тема, чтобы музыка была без
-// внешних файлов (в оригинальном проекте музыкальных файлов нет).
+// Играют только звуки из самого проекта (8 MP3): фоновой музыки в оригинале
+// не было, поэтому синтезированную тему убрали.
 #include "audio.hpp"
 
-#include <cmath>
 #include <cstdio>
 #include <algorithm>
 #include <cstring>
@@ -23,14 +22,8 @@ namespace cb {
 namespace {
 
 constexpr int kRate = 44100;
-constexpr double kPi = 3.14159265358979323846;
 constexpr int kChannels = 2;
 constexpr size_t kMaxVoices = 12;
-
-double note_hz(int semitones_from_a4) // 0 = A4 440 Гц
-{
-    return 440.0 * std::pow(2.0, semitones_from_a4 / 12.0);
-}
 
 bool read_file(const std::string &path, std::vector<unsigned char> *out)
 {
@@ -164,18 +157,6 @@ bool decode_mp3(const std::vector<unsigned char> &raw, SoundClip *out)
     return true;
 }
 
-void write_le16(std::vector<unsigned char> *out, unsigned value)
-{
-    out->push_back(static_cast<unsigned char>(value & 0xff));
-    out->push_back(static_cast<unsigned char>((value >> 8) & 0xff));
-}
-
-void write_le32(std::vector<unsigned char> *out, unsigned value)
-{
-    write_le16(out, value & 0xffff);
-    write_le16(out, (value >> 16) & 0xffff);
-}
-
 }  // namespace
 
 Audio::~Audio()
@@ -271,7 +252,6 @@ void Audio::play(const std::string &path, double volume)
         voice.pos = 0;
         voice.loop = false;
         voice.volume = volume;
-        voice.music = false;
         voice.active = true;
         return;
     }
@@ -299,7 +279,6 @@ void Audio::play_looped(const std::string &path, double volume)
         voice.pos = 0;
         voice.loop = true;
         voice.volume = volume;
-        voice.music = false;
         voice.active = true;
         return;
     }
@@ -309,60 +288,7 @@ void Audio::stop_all()
 {
     std::lock_guard<std::mutex> lock(mutex_);
     for (auto &voice : voices_) {
-        if (!voice.music) {
-            voice.active = false;
-        }
-    }
-}
-
-void Audio::start_music(double volume)
-{
-    music_on_ = true;
-    music_volume_ = volume;
-    if (!music_) {
-        music_.reset(new SoundClip());
-        build_music(music_.get());
-    }
-    if (!ready_) {
-        return;
-    }
-    std::lock_guard<std::mutex> lock(mutex_);
-    for (auto &voice : voices_) {
-        if (voice.music) {
-            voice.active = false;
-        }
-    }
-    for (auto &voice : voices_) {
-        if (voice.active) {
-            continue;
-        }
-        voice.clip = music_.get();
-        voice.pos = 0;
-        voice.loop = true;
-        voice.volume = volume;
-        voice.music = true;
-        voice.active = true;
-        return;
-    }
-}
-
-void Audio::stop_music()
-{
-    music_on_ = false;
-    std::lock_guard<std::mutex> lock(mutex_);
-    for (auto &voice : voices_) {
-        if (voice.music) {
-            voice.active = false;
-        }
-    }
-}
-
-void Audio::set_music_enabled(bool on)
-{
-    if (on) {
-        start_music(music_volume_);
-    } else {
-        stop_music();
+        voice.active = false;
     }
 }
 
@@ -410,129 +336,6 @@ void Audio::mix_callback(void *user, unsigned char *stream, int len)
         if (value < -0.98f) value = -0.98f;
         out[i] = static_cast<short>(value * 32767.0f);
     }
-}
-
-void Audio::build_music(SoundClip *out)
-{
-    // Чиптюн: Am–F–C–G, бас + арпеджио + «перкуссия».
-    constexpr int kBar = 4;                        // долей в такте
-    const double bpm = 104.0;
-    const double beat = 60.0 / bpm;
-    const int bars = 8;
-    const int total_seconds = static_cast<int>(bars * kBar * beat) + 1;
-    size_t total_frames = static_cast<size_t>(total_seconds * kRate);
-    out->pcm.assign(total_frames * kChannels, 0.0f);
-
-    // Аккорды: основной тон и трезвучие (полутоны от A4).
-    struct Chord { int root; int third; int fifth; };
-    const Chord chords[bars] = {
-        {-12, -9, -5},   // Am
-        {-16, -12, -9},  // F
-        {-21, -17, -12}, // C
-        {-14, -10, -7},  // G
-        {-12, -9, -5},   // Am
-        {-16, -12, -9},  // F
-        {-21, -17, -12}, // C
-        {-14, -10, -7},  // G
-    };
-
-    auto add = [&](size_t frame, double sample) {
-        if (frame * 2 + 1 >= out->pcm.size()) {
-            return;
-        }
-        out->pcm[frame * 2] += static_cast<float>(sample);
-        out->pcm[frame * 2 + 1] += static_cast<float>(sample);
-    };
-
-    for (int bar = 0; bar < bars; ++bar) {
-        const Chord &chord = chords[bar];
-        int tones[3] = {chord.root, chord.third, chord.fifth};
-        double bar_start = bar * kBar * beat;
-        // Арпеджио шестнадцатыми по трезвучию.
-        for (int step = 0; step < kBar * 4; ++step) {
-            double start = bar_start + step * beat / 4.0;
-            int tone = tones[step % 3] + 12;
-            double freq = note_hz(tone);
-            double duration = beat / 4.0 * 0.9;
-            size_t first = static_cast<size_t>(start * kRate);
-            size_t count = static_cast<size_t>(duration * kRate);
-            for (size_t i = 0; i < count && first + i < total_frames; ++i) {
-                double t = static_cast<double>(i) / kRate;
-                double env = std::exp(-t * 12.0);
-                double phase = std::fmod(t * freq, 1.0);
-                double wave = phase < 0.25 ? 1.0 : -0.25;   // квадрат 25%
-                add(first + i, wave * env * 0.10);
-            }
-        }
-        // Бас на каждую долю.
-        for (int beat_index = 0; beat_index < kBar; ++beat_index) {
-            double start = bar_start + beat_index * beat;
-            double freq = note_hz(chord.root - 12);
-            size_t first = static_cast<size_t>(start * kRate);
-            size_t count = static_cast<size_t>(beat * 0.95 * kRate);
-            for (size_t i = 0; i < count && first + i < total_frames; ++i) {
-                double t = static_cast<double>(i) / kRate;
-                double env = std::exp(-t * 3.0);
-                double phase = std::fmod(t * freq, 1.0);
-                double wave = 1.0 - 4.0 * std::fabs(phase - 0.5);   // треугольник
-                add(first + i, wave * env * 0.16);
-            }
-        }
-        // «Бочка» на 1 и 3 доле.
-        for (int beat_index = 0; beat_index < kBar; beat_index += 2) {
-            double start = bar_start + beat_index * beat;
-            size_t first = static_cast<size_t>(start * kRate);
-            size_t count = static_cast<size_t>(0.12 * kRate);
-            for (size_t i = 0; i < count && first + i < total_frames; ++i) {
-                double t = static_cast<double>(i) / kRate;
-                double freq = 120.0 * std::exp(-t * 22.0) + 45.0;
-                double env = std::exp(-t * 18.0);
-                add(first + i, std::sin(2.0 * kPi * freq * t) * env * 0.28);
-            }
-        }
-    }
-    // Плавное затухание в конце и в начале, чтобы петля не щёлкала.
-    size_t fade = static_cast<size_t>(0.05 * kRate);
-    for (size_t i = 0; i < fade && i < total_frames; ++i) {
-        double k = static_cast<double>(i) / static_cast<double>(fade);
-        out->pcm[i * 2] *= static_cast<float>(k);
-        out->pcm[i * 2 + 1] *= static_cast<float>(k);
-        size_t j = total_frames - 1 - i;
-        out->pcm[j * 2] *= static_cast<float>(k);
-        out->pcm[j * 2 + 1] *= static_cast<float>(k);
-    }
-}
-
-bool Audio::export_music(const std::string &path)
-{
-    SoundClip theme;
-    build_music(&theme);
-    std::vector<unsigned char> wav;
-    unsigned data_bytes = static_cast<unsigned>(theme.pcm.size() * 2);
-    wav.insert(wav.end(), {'R', 'I', 'F', 'F'});
-    write_le32(&wav, 36 + data_bytes);
-    wav.insert(wav.end(), {'W', 'A', 'V', 'E', 'f', 'm', 't', ' '});
-    write_le32(&wav, 16);
-    write_le16(&wav, 1);                 // PCM
-    write_le16(&wav, kChannels);
-    write_le32(&wav, kRate);
-    write_le32(&wav, kRate * kChannels * 2);
-    write_le16(&wav, kChannels * 2);
-    write_le16(&wav, 16);
-    wav.insert(wav.end(), {'d', 'a', 't', 'a'});
-    write_le32(&wav, data_bytes);
-    for (float sample : theme.pcm) {
-        float clamped = sample > 0.98f ? 0.98f : (sample < -0.98f ? -0.98f : sample);
-        short value = static_cast<short>(clamped * 32767.0f);
-        write_le16(&wav, static_cast<unsigned short>(value));
-    }
-    std::ofstream out(path, std::ios::binary);
-    if (!out) {
-        return false;
-    }
-    out.write(reinterpret_cast<const char *>(wav.data()),
-              static_cast<std::streamsize>(wav.size()));
-    return static_cast<bool>(out);
 }
 
 }  // namespace cb
