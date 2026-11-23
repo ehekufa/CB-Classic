@@ -39,6 +39,8 @@ local touch_prev = false
 local back_pressed = false
 local var_texts = {}        -- ярлыки текстовых полей, показывающих переменные
 local trophies = require("runtime.trophies")
+local valentines = require("runtime.valentines")
+local abilities = require("runtime.abilities")
 
 local function_scripts = {}   -- [object_id] = { [id функции] = { script =, handle = } }
 local stats = { frames = 0, spawns = 0, errors = 0 }
@@ -137,6 +139,8 @@ local function activate(scene_id)
   local mods = load_scene_modules(scene_id)
   register_functions(scene_id, mods)
   trophies.enter_scene(scene_id)
+  valentines.enter_scene(scene_id)
+  abilities.enter_scene(scene_id)
   for object_id, mod in pairs(mods) do
     local handle = cb.obj_by_id(object_id)
     if handle ~= 0 then
@@ -407,6 +411,8 @@ function M.frame(dt)
   poll_releases()
   poll_text_commits()
   trophies.check_frame(active_scene)
+  valentines.check_frame(active_scene)
+  abilities.check_frame(active_scene)
 
   local pending = E.take_pending_scene and E.take_pending_scene()
   if pending and pending ~= active_scene then

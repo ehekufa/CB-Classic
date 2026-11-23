@@ -10,7 +10,7 @@ return {
     { -- скрипт 1: start
       trigger = "start",
       body = function(o)
-        E.load_var(o, E.gv(93))
+        E.load_var(o, 93)
         E.set_pos(o, 400, E.op_neg(230))
         E.text_create("Промокод", "off", 400, 100, 81)
         E.text_set("Промокод", 'pos', E.pos_x(o), E.op_add(E.pos_y(o), 130))
@@ -31,9 +31,9 @@ return {
         if E.truthy(E.truthy(E.op_eq(E.gv(81), "Lover")) and E.truthy((not E.truthy(E.array_contains(E.array(2), "Lover"))))) then
           E.add_gv(93, 20)
           E.array_add(2, "Lover")
-          E.store_var(o, E.gv(93))
+          E.store_var(o, E.gv(93), 93)
           if E.truthy(E.op_ne(E.gv(60), 3)) then
-            E.load_var(o, E.gv(93))
+            E.load_var(o, 93)
             E.fb_set(E.fb_key(E.gv(61), E.gv(62), "В"), E.gv(93), "https://cubic-battle-default-rtdb.firebaseio.com/")
           end
         else
@@ -42,9 +42,9 @@ return {
         if E.truthy(E.truthy(E.op_eq(E.gv(81), "Chips Battle")) and E.truthy((not E.truthy(E.array_contains(E.array(2), "Lover"))))) then
           E.add_gv(80, 20)
           E.array_add(2, "Lover")
-          E.store_var(o, E.gv(93))
+          E.store_var(o, E.gv(93), 93)
           if E.truthy(E.op_ne(E.gv(60), 3)) then
-            E.load_var(o, E.gv(93))
+            E.load_var(o, 93)
             E.fb_set(E.fb_key(E.gv(61), E.gv(62), "В"), E.gv(93), "https://cubic-battle-default-rtdb.firebaseio.com/")
           end
         else

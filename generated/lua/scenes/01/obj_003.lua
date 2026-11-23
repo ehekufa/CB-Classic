@@ -10,7 +10,7 @@ return {
     { -- скрипт 1: start
       trigger = "start",
       body = function(o)
-        E.load_var(o, E.gv(108))
+        E.load_var(o, 108)
         E.adaptive_off()
       end,
     },

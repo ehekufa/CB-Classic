@@ -35,9 +35,9 @@ return {
       body = function(o)
         E.wait(E.num(0.03))
         E.add_gv(24, 5)
-        E.store_var(o, E.gv(24))
+        E.store_var(o, E.gv(24), 24)
         if E.truthy(E.op_ne(E.gv(60), 3)) then
-          E.load_var(o, E.gv(24))
+          E.load_var(o, 24)
           E.fb_set(E.fb_key(E.gv(61), E.gv(62), "К"), E.gv(24), "https://cubic-battle-default-rtdb.firebaseio.com/")
         end
         E.run_scene(1) return

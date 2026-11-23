@@ -70,24 +70,22 @@ awk '/Игрок /{print $3}' /tmp/cb_joy.log | tail -1 | \
   python3 -c "import sys; sys.exit(0 if float(sys.stdin.read().strip() or 0) > 100 else 1)"
 check $?
 
-step "способности: кнопка «Супер атака» перезаряжается и не сбивается спамом"
-$BIN --frames 100 --scene 26 --profile "61=Гость,62=123,60=3,3=100,4=6,12=1,47=4" \
-     --script tests/scripts/super_attack.txt --trace 26 --no-sound \
+step "способности: кнопка «Супер атака» перезаряжается (своя пауза у всех классов)"
+$BIN --frames 520 --scene 26 --profile "61=Гость,62=123,60=3,3=100,4=600,12=1,47=2" \
+     --set-var "65=1@2" --script tests/scripts/super_attack.txt --trace 26 --bench 520 --no-sound \
      >/tmp/cb_cooldown.log 2>&1
 check $?
-# нажатие гасит кнопку (85), через перезарядку она снова 100
 grep -q "ярк= 85.0" /tmp/cb_cooldown.log
 check $?
-# ровно 60 «серых» кадров: нажатия во время перезарядки её не продлевают
+# 15 секунд при 30 fps — это ~450 серых кадров; нажатие во время паузы её не продлевает
 DIM=$(grep -c "ярк= 85.0" /tmp/cb_cooldown.log || true)
-if [ "$DIM" -eq 60 ]; then
-  printf '   OK (серых кадров %s)\n' "$DIM"
+if [ "$DIM" -ge 430 ] && [ "$DIM" -le 470 ]; then
+  printf '   OK (серых кадров %s ≈ 15 с)\n' "$DIM"
 else
-  printf '   ПРОВАЛ: серых кадров %s вместо 60\n' "$DIM"
+  printf '   ПРОВАЛ: серых кадров %s, ждали ~450 (15 с)\n' "$DIM"
   FAILED=$((FAILED + 1))
 fi
-# и после перезарядки яркость вернулась к 100 (кнопка снова активна)
-LAST=$(grep "сцена=" /tmp/cb_cooldown.log | grep "id=26" | tail -1)
+LAST=$(grep "id=26" /tmp/cb_cooldown.log | tail -1)
 case "$LAST" in
   *"ярк=100.0"*) printf '   OK кнопка снова яркая\n' ;;
   *) printf '   ПРОВАЛ: кнопка осталась серой\n'; FAILED=$((FAILED + 1)) ;;
@@ -101,6 +99,21 @@ check $?
 grep -q "trace   20 .*vis=1" /tmp/cb_aim.log
 check $?
 grep -q "trace   50 .*vis=0" /tmp/cb_aim.log
+check $?
+
+step "валентинки: счётчик поверх интерфейса и сохранение между сценами"
+rm -f saves/db.tsv
+$BIN --frames 12 --scene 26 --profile "61=Гость,62=123,60=3,3=100,4=6,12=1,47=4" \
+     --set-var "93=12@5" --out /tmp/cb_frames_val --no-sound >/tmp/cb_val1.log 2>&1
+check $?
+grep -q "var:93	12\|var:93 12" saves/db.tsv
+check $?
+$BIN --frames 6 --scene 1 --out /tmp/cb_frames_val2 --verbose >/tmp/cb_val2.log 2>&1
+check $?
+grep -q 'hud:валентинки .*значение="Валентинки: 12"' /tmp/cb_val2.log
+check $?
+# надпись оригинала под «Конфетой» больше не показывается — счётчик один
+grep -q 'var:92 .*видно=0' /tmp/cb_val2.log
 check $?
 
 step "скины: выбор скина меняет картинку игрока"

@@ -24,16 +24,16 @@ return {
       body = function(o)
         if E.truthy(E.op_eq(E.gv(95), "abc")) then
           E.set_gv(93, 0)
-          E.store_var(o, E.gv(93))
+          E.store_var(o, E.gv(93), 93)
           if E.truthy(E.op_ne(E.gv(60), 3)) then
             E.fb_set(E.fb_key(E.gv(61), E.gv(62), "В"), E.gv(93), "https://cubic-battle-default-rtdb.firebaseio.com/")
-            E.load_var(o, E.gv(93))
+            E.load_var(o, 93)
           end
           E.set_gv(24, 0)
-          E.store_var(o, E.gv(24))
+          E.store_var(o, E.gv(24), 24)
           if E.truthy(E.op_ne(E.gv(60), 3)) then
             E.fb_set(E.fb_key(E.gv(61), E.gv(62), "К"), E.gv(24), "https://cubic-battle-default-rtdb.firebaseio.com/")
-            E.load_var(o, E.gv(24))
+            E.load_var(o, 24)
           end
         end
       end,

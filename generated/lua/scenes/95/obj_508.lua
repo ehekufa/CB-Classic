@@ -10,7 +10,7 @@ return {
     { -- скрипт 1: start
       trigger = "start",
       body = function(o)
-        E.load_var(o, E.gv(93))
+        E.load_var(o, 93)
         E.set_size(o, 50)
         E.set_image_by_id(o, 882)
         E.hide(o)
@@ -33,9 +33,9 @@ return {
       cond = function(o) return E.truthy(E.truthy(E.op_eq(E.gv(72), "3")) and E.truthy(E.touching_object(o, 410))) end,
       body = function(o)
         E.add_gv(93, 5)
-        E.store_var(o, E.gv(93))
+        E.store_var(o, E.gv(93), 93)
         if E.truthy(E.op_ne(E.gv(60), 3)) then
-          E.load_var(o, E.gv(93))
+          E.load_var(o, 93)
           E.fb_set(E.fb_key(E.gv(61), E.gv(62), "В"), E.gv(93), "https://cubic-battle-default-rtdb.firebaseio.com/")
         end
       end,
@@ -45,9 +45,9 @@ return {
       cond = function(o) return E.truthy(E.truthy(E.op_eq(E.gv(72), "2")) and E.truthy(E.touching_object(o, 409))) end,
       body = function(o)
         E.add_gv(93, 5)
-        E.store_var(o, E.gv(93))
+        E.store_var(o, E.gv(93), 93)
         if E.truthy(E.op_ne(E.gv(60), 3)) then
-          E.load_var(o, E.gv(93))
+          E.load_var(o, 93)
           E.fb_set(E.fb_key(E.gv(61), E.gv(62), "В"), E.gv(93), "https://cubic-battle-default-rtdb.firebaseio.com/")
         end
       end,
@@ -57,9 +57,9 @@ return {
       cond = function(o) return E.truthy(E.truthy(E.op_eq(E.gv(72), "1")) and E.truthy(E.touching_object(o, 390))) end,
       body = function(o)
         E.add_gv(93, 5)
-        E.store_var(o, E.gv(93))
+        E.store_var(o, E.gv(93), 93)
         if E.truthy(E.op_ne(E.gv(60), 3)) then
-          E.load_var(o, E.gv(93))
+          E.load_var(o, 93)
           E.fb_set(E.fb_key(E.gv(61), E.gv(62), "В"), E.gv(93), "https://cubic-battle-default-rtdb.firebaseio.com/")
         end
       end,

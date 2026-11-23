@@ -16,10 +16,10 @@ return {
           E.text_show_var(91, 365, 120, 180, "#FFFFFF", "left")
           if E.truthy(E.op_ge(E.gv(24), 1000000)) then
             E.set_gv(108, "ban")
-            E.store_var(o, E.gv(108))
+            E.store_var(o, E.gv(108), 108)
           else
             E.set_gv(108, "unban")
-            E.store_var(o, E.gv(108))
+            E.store_var(o, E.gv(108), 108)
           end
           E.wait(E.num(0.5))
         end)

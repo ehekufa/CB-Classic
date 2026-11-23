@@ -437,7 +437,16 @@ class BrickGen:
             return f"E.add_lv(o, {lid}, {delta})"
 
         if name in ("saveVariable", "readVariable"):
-            use, _ = self.target(args[0] if args else [])
+            # «сохранить переменную 93» / «прочитать сохранённую 93»: ключ
+            # хранилища — сама переменная, а не её значение (раньше ключ
+            # терялся и все сохранения ложились в «var:nil»)
+            arg = args[0] if args else []
+            if isinstance(arg, list) and len(arg) > 1 and arg[0] == "globalVariable":
+                gid = arg[1]
+                if name == "saveVariable":
+                    return f"E.store_var(o, E.gv({gid}), {gid})"
+                return f"E.load_var(o, {gid})"
+            use, _ = self.target(arg)
             return f"E.{'store_var' if name == 'saveVariable' else 'load_var'}(o, {use})"
 
         if name == "addElementArray":
