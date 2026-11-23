@@ -1,24 +1,24 @@
 # Отчёт сборки APK
 
-- дата: 2026-11-23T14:52:56Z
+- дата: 2026-11-23T15:17:36Z
 - SDL: release-2.30.9
 - NDK: 26.1.10909125
 - Gradle: 8.7
-- запуск: https://github.com/ehekufa/CB-Classic/actions/runs/45198591980
+- запуск: https://github.com/ehekufa/CB-Classic/actions/runs/45203263846
 - APK в запуске: артефакт `cb-classic-debug-apk`
 
 ## APK
 
 ```
--rw-r--r-- 1 runner runner 33181658 Nov 23 14:52 dist/cb-classic-debug.apk
-a0494c0fa972820733cc32d7d752cadefcf331abc014818397cf330d81552e01  dist/cb-classic-debug.apk
+-rw-r--r-- 1 runner runner 33186309 Nov 23 15:17 dist/cb-classic-debug.apk
+b4aee3312ecab2eaad4762d82a9c371685f97b29cab887623d81d87cc10e32b2  dist/cb-classic-debug.apk
      1056  1981-01-01 01:01   classes.dex
   1309008  1981-01-01 01:01   lib/arm64-v8a/libSDL2.so
   1330832  1981-01-01 01:01   lib/arm64-v8a/libc++_shared.so
-   685264  1981-01-01 01:01   lib/arm64-v8a/libmain.so
+   692104  1981-01-01 01:01   lib/arm64-v8a/libmain.so
    918044  1981-01-01 01:01   lib/armeabi-v7a/libSDL2.so
   1109732  1981-01-01 01:01   lib/armeabi-v7a/libc++_shared.so
-   460724  1981-01-01 01:01   lib/armeabi-v7a/libmain.so
+   464888  1981-01-01 01:01   lib/armeabi-v7a/libmain.so
     43863  1981-01-01 01:01   assets/assets/project.lua
   4086673  1981-01-01 01:01   assets/assets/scenes/26_igra/016_fon/images/0222_fon.png
   4293837  1981-01-01 01:01   assets/assets/scenes/26_igra/016_fon/images/0604_fon_so_snegom.png
@@ -35,7 +35,7 @@ a0494c0fa972820733cc32d7d752cadefcf331abc014818397cf330d81552e01  dist/cb-classi
 ...
     42320  1981-01-01 01:01   META-INF/MANIFEST.MF
 ---------                     -------
- 37682020                     337 files
+ 37694807                     337 files
 ```
 
 всего записей: 337
@@ -49,7 +49,7 @@ classes.dex: 1056 байт
   ссылок на org/cbclassic: 3
   ссылок на org/libsdl:    0
   MainActivity:            0
-classes2.dex: 5384 байт
+classes2.dex: 5388 байт
   ссылок на org/cbclassic: 2
   ссылок на org/libsdl:    1
   MainActivity:            3
@@ -87,9 +87,9 @@ activity/action в манифесте:
 
 подпись:
 V2 Signer: certificate DN: C=US, O=Android, CN=Android Debug
-V2 Signer: certificate SHA-256 digest: 7bcc0cbf965ea021557618a69cc1f1501d91b841c87a3de24ad3e3413e5383de
-V2 Signer: certificate SHA-1 digest: 2ae7b14f5aa6eec2108190a44d129b2796353606
-V2 Signer: certificate MD5 digest: 948f8b24c18524f8789f1cf33c912870
+V2 Signer: certificate SHA-256 digest: 05479e7a60b36fbf2b7f8016b950a0b92e1f4b1fc7e893c86f8bfd534fa7ea1f
+V2 Signer: certificate SHA-1 digest: 6e84144f0c5517f73d94fb9f3b9487b266a54f4f
+V2 Signer: certificate MD5 digest: 69a003fff02eb07c01776ddb22ff2474
 WARNING: META-INF/com/android/build/gradle/app-metadata.properties not protected by signature. Unauthorized modifications to this JAR entry will not be detected. Delete or move the entry outside of META-INF/.
 
 ### основные lua-модули
@@ -116,9 +116,9 @@ Daemon will be stopped at the end of the build
 > Task :app:preBuild UP-TO-DATE
 > Task :app:preDebugBuild UP-TO-DATE
 > Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
-> Task :app:generateDebugResValues
 > Task :app:javaPreCompileDebug
 > Task :app:checkDebugAarMetadata
+> Task :app:generateDebugResValues
 > Task :app:mapDebugSourceSetPaths
 > Task :app:generateDebugResources
 > Task :app:packageDebugResources
@@ -165,7 +165,7 @@ Note: Recompile with -Xlint:deprecation for details.
 > Task :app:createDebugApkListingFileRedirect
 > Task :app:assembleDebug
 
-BUILD SUCCESSFUL in 1m 30s
+BUILD SUCCESSFUL in 1m 3s
 39 actionable tasks: 39 executed
 код возврата gradle: 0
 ```
