@@ -1,6 +1,6 @@
 # Отчёт сборки APK
 
-- дата: 2026-11-23T13:43:32Z
+- дата: 2026-11-23T13:47:18Z
 - SDL: release-2.30.9
 - NDK: 26.1.10909125
 - Gradle: 8.7
@@ -8,15 +8,15 @@
 ## APK
 
 ```
--rw-r--r-- 1 runner runner 31956745 Nov 23 13:42 dist/cb-classic-debug.apk
-e4fd64e64c6bea43cc7d4a0806a3153ca74f12675395f5944a6bc335256a4230  dist/cb-classic-debug.apk
+-rw-r--r-- 1 runner runner 32889787 Nov 23 13:47 dist/cb-classic-debug.apk
+d168a15f3dcece4dbd919e7438ce47d54e5f25766059baff77ab4be2025694d9  dist/cb-classic-debug.apk
      1056  1981-01-01 01:01   classes.dex
   1309008  1981-01-01 01:01   lib/arm64-v8a/libSDL2.so
   1330832  1981-01-01 01:01   lib/arm64-v8a/libc++_shared.so
-   517416  1981-01-01 01:01   lib/arm64-v8a/libmain.so
+   668664  1981-01-01 01:01   lib/arm64-v8a/libmain.so
    918044  1981-01-01 01:01   lib/armeabi-v7a/libSDL2.so
   1109732  1981-01-01 01:01   lib/armeabi-v7a/libc++_shared.so
-   327812  1981-01-01 01:01   lib/armeabi-v7a/libmain.so
+   446972  1981-01-01 01:01   lib/armeabi-v7a/libmain.so
     43863  1981-01-01 01:01   assets/assets/project.lua
   4086673  1981-01-01 01:01   assets/assets/scenes/26_igra/016_fon/images/0222_fon.png
   4293837  1981-01-01 01:01   assets/assets/scenes/26_igra/016_fon/images/0604_fon_so_snegom.png
@@ -31,135 +31,138 @@ e4fd64e64c6bea43cc7d4a0806a3153ca74f12675395f5944a6bc335256a4230  dist/cb-classi
       334  1981-01-01 01:01   assets/assets/scenes/26_igra/021_igrok/images/0024_igrok_6.png
      1037  1981-01-01 01:01   assets/assets/scenes/26_igra/021_igrok/images/0026_igrok_8.png
 ...
-    41907  1981-01-01 01:01   META-INF/MANIFEST.MF
+    42217  1981-01-01 01:01   META-INF/MANIFEST.MF
 ---------                     -------
- 35394311                     333 files
+ 37141670                     336 files
 ```
 
-всего записей: 333
+всего записей: 336
 
+
+## Проверка содержимого APK
+
+```
+### dex
+classes.dex: 1056 байт
+  ссылок на org/cbclassic: 3
+  ссылок на org/libsdl:    0
+  MainActivity:            0
+classes2.dex: 4284 байт
+  ссылок на org/cbclassic: 2
+  ссылок на org/libsdl:    1
+  MainActivity:            3
+classes3.dex: 97980 байт
+  ссылок на org/cbclassic: 0
+  ссылок на org/libsdl:    54
+  MainActivity:            0
+
+### ресурсы
+всего записей: 336
+assets/:        321
+  png:          167
+  mp3:          8
+  generated/lua:136
+  src/lua:      4
+  project.lua:  1
+  index.json:   1
+  layout.lua:   1
+  font:         1
+
+### манифест
+package: name='org.cbclassic' versionCode='1' versionName='2.8' platformBuildVersionName='14' platformBuildVersionCode='34' compileSdkVersion='34' compileSdkVersionCodename='14'
+targetSdkVersion:'34'
+application-label:'Cubic battle'
+launchable-activity: name='org.cbclassic.MainActivity'  label='' icon=''
+native-code: 'arm64-v8a' 'armeabi-v7a'
+
+activity/action в манифесте:
+        A: http://schemas.android.com/apk/res/android:name(0x01010003)="android.permission.INTERNET" (Raw: "android.permission.INTERNET")
+          E: activity (line=24)
+            A: http://schemas.android.com/apk/res/android:name(0x01010003)="org.cbclassic.MainActivity" (Raw: "org.cbclassic.MainActivity")
+                    A: http://schemas.android.com/apk/res/android:name(0x01010003)="android.intent.action.MAIN" (Raw: "android.intent.action.MAIN")
+                    A: http://schemas.android.com/apk/res/android:name(0x01010003)="android.intent.category.LAUNCHER" (Raw: "android.intent.category.LAUNCHER")
+
+подпись:
+V2 Signer: certificate DN: C=US, O=Android, CN=Android Debug
+V2 Signer: certificate SHA-256 digest: 0e3a64165019a6e4480e3a8dbe78b7391eaabe2c5e52596f0ba19b5c48ab76bf
+V2 Signer: certificate SHA-1 digest: 163419ce96dd35ebe00185930c806cdef94a3e78
+V2 Signer: certificate MD5 digest: 2d16cda1641ff0eeb8131f543b211b0a
+WARNING: META-INF/com/android/build/gradle/app-metadata.properties not protected by signature. Unauthorized modifications to this JAR entry will not be detected. Delete or move the entry outside of META-INF/.
+
+### основные lua-модули
+assets/generated/lua/scenes/01/index.lua: 909 байт
+assets/generated/lua/scenes/01/obj_003.lua: 757 байт
+assets/generated/lua/scenes/01/obj_004.lua: 459 байт
+```
 
 ## Хвост лога сборки
 
 ```
-[61/309] Generating include/SDL2/SDL_metal.h
-[62/309] Generating include/SDL2/SDL_opengl_glext.h
-[63/309] Generating include/SDL2/SDL_misc.h
-[64/309] Generating include/SDL2/SDL_mouse.h
-[65/309] Generating include/SDL2/SDL_mutex.h
-[66/309] Generating include/SDL2/SDL_opengl.h
-[67/309] Generating include/SDL2/SDL_name.h
-[68/309] Generating include/SDL2/SDL_opengles2_gl2.h
-[69/309] Generating include/SDL2/SDL_opengles2.h
-[70/309] Generating include/SDL2/SDL_opengles.h
-[71/309] Generating include/SDL2/SDL_opengles2_gl2ext.h
-[72/309] Generating include/SDL2/SDL_opengles2_gl2platform.h
-[73/309] Generating include/SDL2/SDL_opengles2_khrplatform.h
-[74/309] Generating include/SDL2/SDL_test_assert.h
-[75/309] Generating include/SDL2/SDL_platform.h
-[76/309] Generating include/SDL2/SDL_pixels.h
-[77/309] Generating include/SDL2/SDL_quit.h
-[78/309] Generating include/SDL2/SDL_power.h
-[79/309] Generating include/SDL2/SDL_rect.h
-[80/309] Generating include/SDL2/SDL_render.h
-[81/309] Generating include/SDL2/SDL_rwops.h
-[82/309] Generating include/SDL2/SDL_scancode.h
-[83/309] Generating include/SDL2/SDL_shape.h
-[84/309] Generating include/SDL2/SDL_sensor.h
-[85/309] Generating include/SDL2/SDL_stdinc.h
-[86/309] Generating include/SDL2/SDL_surface.h
-[87/309] Generating include/SDL2/SDL_syswm.h
-[88/309] Generating include/SDL2/SDL_system.h
-[89/309] Building C object CMakeFiles/lua54.dir/home/runner/work/CB-Classic/CB-Classic/third_party/lua-5.4/lparser.c.o
-[90/309] Generating include/SDL2/SDL_test.h
-[91/309] Generating include/SDL2/SDL_test_common.h
-[92/309] Generating include/SDL2/SDL_test_compare.h
-[93/309] Building C object CMakeFiles/cb_core.dir/home/runner/work/CB-Classic/CB-Classic/src/c/inflate.c.o
-[94/309] Generating include/SDL2/SDL_test_crc32.h
-[95/309] Generating include/SDL2/SDL_test_font.h
-[96/309] Generating include/SDL2/SDL_test_fuzzer.h
-[97/309] Generating include/SDL2/SDL_test_memory.h
-[98/309] Generating include/SDL2/SDL_test_harness.h
-[99/309] Generating include/SDL2/SDL_test_images.h
-[100/309] Generating include/SDL2/SDL_thread.h
-[101/309] Generating include/SDL2/SDL_test_log.h
-[102/309] Linking C static library libcb_core.a
-[103/309] Generating include/SDL2/SDL_test_md5.h
-[104/309] Generating include/SDL2/SDL_test_random.h
-[105/309] Generating include/SDL2/SDL_timer.h
-[106/309] Generating include/SDL2/SDL_touch.h
-[107/309] Generating include/SDL2/SDL_types.h
-[108/309] Generating include/SDL2/SDL_version.h
-[109/309] Generating include/SDL2/SDL_video.h
-[110/309] Generating include/SDL2/SDL_vulkan.h
-[111/309] Generating include/SDL2/close_code.h
-[112/309] Generating include/SDL2/begin_code.h
-[113/309] Building C object sdl2/CMakeFiles/SDL2.dir/src/SDL_utils.c.o
-[114/309] Building C object CMakeFiles/lua54.dir/home/runner/work/CB-Classic/CB-Classic/third_party/lua-5.4/lvm.c.o
-[115/309] Linking C static library liblua54.a
-[116/309] Building CXX object CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/renderer.cpp.o
-[117/309] Building C object sdl2/CMakeFiles/SDL2main.dir/src/main/android/SDL_android_main.c.o
-[118/309] Building CXX object CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/lua_api.cpp.o
-[119/309] Building C object sdl2/CMakeFiles/SDL2.dir/src/SDL.c.o
-[120/309] Linking C static library sdl2/libSDL2main.a
-[121/309] Building C object sdl2/CMakeFiles/SDL2.dir/src/atomic/SDL_spinlock.c.o
-[122/309] Building C object sdl2/CMakeFiles/SDL2.dir/src/SDL_assert.c.o
-[123/309] Building CXX object CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/main.cpp.o
-FAILED: CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/main.cpp.o 
-/usr/local/lib/android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=aarch64-none-linux-android21 --sysroot=/usr/local/lib/android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DCB_USE_SDL2 -Dmain_EXPORTS -I/home/runner/work/CB-Classic/CB-Classic/src/c -I/home/runner/work/CB-Classic/CB-Classic/src/cpp -I/home/runner/work/CB-Classic/CB-Classic/third_party/stb -I/home/runner/work/CB-Classic/CB-Classic/third_party/minimp3 -I/home/runner/work/CB-Classic/CB-Classic/third_party/lua-5.4 -I/home/runner/work/CB-Classic/CB-Classic/android/app/.cxx/Release/601fi4a6/arm64-v8a/sdl2/include -I/home/runner/work/CB-Classic/CB-Classic/android/app/.cxx/Release/601fi4a6/arm64-v8a/sdl2/include/SDL2 -I/home/runner/work/CB-Classic/CB-Classic/android/app/.cxx/Release/601fi4a6/arm64-v8a/sdl2/include-config-release/SDL2 -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -O3 -DNDEBUG  -fPIC -std=gnu++17 -MD -MT CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/main.cpp.o -MF CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/main.cpp.o.d -o CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/main.cpp.o -c /home/runner/work/CB-Classic/CB-Classic/src/cpp/main.cpp
-/home/runner/work/CB-Classic/CB-Classic/src/cpp/main.cpp:666:28: error: use of undeclared identifier 'Renderer'; did you mean 'cb::Renderer'?
-            app.renderer = Renderer(app.options.width, app.options.height, pixel_scale);
-                           ^
-/home/runner/work/CB-Classic/CB-Classic/src/cpp/renderer.hpp:14:7: note: 'cb::Renderer' declared here
-class Renderer {
-      ^
-1 error generated.
-[124/309] Building C object sdl2/CMakeFiles/SDL2.dir/src/SDL_error.c.o
-[125/309] Building C object sdl2/CMakeFiles/SDL2.dir/src/SDL_dataqueue.c.o
-[126/309] Building CXX object CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/font.cpp.o
-[127/309] Building CXX object CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/audio.cpp.o
-[128/309] Building CXX object CMakeFiles/main.dir/home/runner/work/CB-Classic/CB-Classic/src/cpp/engine.cpp.o
-ninja: build stopped: subcommand failed.
 
-C++ build system [build] failed while executing:
-    /usr/local/lib/android/sdk/cmake/3.22.1/bin/ninja \
-      -C \
-      /home/runner/work/CB-Classic/CB-Classic/android/app/.cxx/Release/601fi4a6/arm64-v8a \
-      SDL2 \
-      main
-  from /home/runner/work/CB-Classic/CB-Classic/android/app
-	at com.android.build.gradle.internal.cxx.process.ExecuteProcessKt.execute(ExecuteProcess.kt:288)
-	at com.android.build.gradle.internal.cxx.process.ExecuteProcessKt$executeProcess$1.invoke(ExecuteProcess.kt:108)
-	at com.android.build.gradle.internal.cxx.process.ExecuteProcessKt$executeProcess$1.invoke(ExecuteProcess.kt:106)
-	at com.android.build.gradle.internal.cxx.timing.TimingEnvironmentKt.time(TimingEnvironment.kt:32)
-	at com.android.build.gradle.internal.cxx.process.ExecuteProcessKt.executeProcess(ExecuteProcess.kt:106)
-	at com.android.build.gradle.internal.cxx.process.ExecuteProcessKt.executeProcess$default(ExecuteProcess.kt:85)
-	at com.android.build.gradle.internal.cxx.build.CxxRegularBuilder.executeProcessBatch(CxxRegularBuilder.kt:332)
-	at com.android.build.gradle.internal.cxx.build.CxxRegularBuilder.build(CxxRegularBuilder.kt:129)
-	at com.android.build.gradle.tasks.ExternalNativeBuildTask$doTaskAction$$inlined$recordTaskAction$1.invoke(BaseTask.kt:70)
-	at com.android.build.gradle.internal.tasks.Blocks.recordSpan(Blocks.java:51)
-	at com.android.build.gradle.tasks.ExternalNativeBuildTask.doTaskAction(ExternalNativeBuildTask.kt:145)
-	at com.android.build.gradle.internal.tasks.UnsafeOutputsTask$taskAction$$inlined$recordTaskAction$1.invoke(BaseTask.kt:65)
-	at com.android.build.gradle.internal.tasks.Blocks.recordSpan(Blocks.java:51)
-	at com.android.build.gradle.internal.tasks.UnsafeOutputsTask.taskAction(UnsafeOutputsTask.kt:63)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
-	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at org.gradle.internal.reflect.JavaMethod.invoke(JavaMethod.java:125)
-	... 119 more
-Caused by: com.android.ide.common.process.ProcessException: Error while executing process /usr/local/lib/android/sdk/cmake/3.22.1/bin/ninja with arguments {-C /home/runner/work/CB-Classic/CB-Classic/android/app/.cxx/Release/601fi4a6/arm64-v8a SDL2 main}
-	at com.android.build.gradle.internal.process.GradleProcessResult.buildProcessException(GradleProcessResult.java:73)
-	at com.android.build.gradle.internal.process.GradleProcessResult.assertNormalExitValue(GradleProcessResult.java:48)
-	at com.android.build.gradle.internal.cxx.process.ExecuteProcessKt.execute(ExecuteProcess.kt:277)
-	... 136 more
-Caused by: org.gradle.process.internal.ExecException: Process 'command '/usr/local/lib/android/sdk/cmake/3.22.1/bin/ninja'' finished with non-zero exit value 1
-	at org.gradle.process.internal.DefaultExecHandle$ExecResultImpl.assertNormalExitValue(DefaultExecHandle.java:442)
-	at com.android.build.gradle.internal.process.GradleProcessResult.assertNormalExitValue(GradleProcessResult.java:46)
-	... 137 more
+Welcome to Gradle 8.7!
 
+Here are the highlights of this release:
+ - Compiling and testing with Java 22
+ - Cacheable Groovy script compilation
+ - New methods in lazy collection properties
 
-BUILD FAILED in 52s
-29 actionable tasks: 29 executed
-код возврата gradle: 1
-СБОРКА НЕ УДАЛАСЬ
+For more details see https://docs.gradle.org/8.7/release-notes.html
+
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.7/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:javaPreCompileDebug
+> Task :app:checkDebugAarMetadata
+> Task :app:generateDebugResValues
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :app:mergeDebugResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :app:parseDebugLocalResources
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:mergeDebugShaders
+> Task :app:processDebugManifestForPackage
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:processDebugResources
+> Task :app:mergeDebugAssets
+
+> Task :app:compileDebugJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :app:desugarDebugFileDependencies
+> Task :app:compressDebugAssets
+> Task :app:dexBuilderDebug
+> Task :app:processDebugJavaRes NO-SOURCE
+> Task :app:mergeDebugGlobalSynthetics
+> Task :app:mergeDebugStartupProfile
+> Task :app:preReleaseBuild UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses
+> Task :app:mergeDebugJavaResource
+> Task :app:configureCMakeRelease[arm64-v8a]
+> Task :app:mergeExtDexDebug
+> Task :app:mergeLibDexDebug
+> Task :app:mergeProjectDexDebug
+> Task :app:buildCMakeRelease[arm64-v8a]
+> Task :app:configureCMakeRelease[armeabi-v7a]
+> Task :app:buildCMakeRelease[armeabi-v7a]
+> Task :app:mergeDebugJniLibFolders
+> Task :app:mergeDebugNativeLibs
+> Task :app:validateSigningDebug
+> Task :app:writeDebugAppMetadata
+> Task :app:writeDebugSigningConfigVersions
+> Task :app:stripDebugDebugSymbols
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect
+> Task :app:assembleDebug
+
+BUILD SUCCESSFUL in 1m 5s
+39 actionable tasks: 39 executed
+код возврата gradle: 0
 ```
