@@ -1,0 +1,834 @@
+{
+ "project": "Cubic battle в новых красках 2.8 (2026 исправленный)",
+ "scenes": [
+  {
+   "id": 42,
+   "name": "Загрузка",
+   "dir": "42",
+   "objects": [
+    {
+     "object_id": 1,
+     "name": "Фон",
+     "file": "obj_001.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 2,
+     "name": "Текст",
+     "file": "obj_002.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 186,
+     "name": "Спасибо",
+     "file": "obj_186.lua",
+     "scripts": 2
+    }
+   ]
+  },
+  {
+   "id": 1,
+   "name": "Меню",
+   "dir": "01",
+   "objects": [
+    {
+     "object_id": 3,
+     "name": "Фон",
+     "file": "obj_003.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 4,
+     "name": "Надпись",
+     "file": "obj_004.lua",
+     "scripts": 1
+    },
+    {
+     "object_id": 5,
+     "name": "Режимы",
+     "file": "obj_005.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 6,
+     "name": "Больше",
+     "file": "obj_006.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 426,
+     "name": "Достижения",
+     "file": "obj_426.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 8,
+     "name": "Путь к богатству",
+     "file": "obj_008.lua",
+     "scripts": 1
+    },
+    {
+     "object_id": 11,
+     "name": "Силы",
+     "file": "obj_011.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 281,
+     "name": "Конфета",
+     "file": "obj_281.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 417,
+     "name": "Наш сервер",
+     "file": "obj_417.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 520,
+     "name": "Сбросить прогресс",
+     "file": "obj_520.lua",
+     "scripts": 2
+    }
+   ]
+  },
+  {
+   "id": 70,
+   "name": "Режимы",
+   "dir": "70",
+   "objects": [
+    {
+     "object_id": 95,
+     "name": "Фон",
+     "file": "obj_095.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 96,
+     "name": "Назад",
+     "file": "obj_096.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 99,
+     "name": "Обычный режим",
+     "file": "obj_099.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 411,
+     "name": "Онлайн",
+     "file": "obj_411.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 507,
+     "name": "Онлайн (1)",
+     "file": "obj_507.lua",
+     "scripts": 3
+    }
+   ]
+  },
+  {
+   "id": 80,
+   "name": "Классы",
+   "dir": "80",
+   "objects": [
+    {
+     "object_id": 189,
+     "name": "Фон",
+     "file": "obj_189.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 190,
+     "name": "Назад",
+     "file": "obj_190.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 191,
+     "name": "Скролл",
+     "file": "obj_191.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 595,
+     "name": "Изум",
+     "file": "obj_595.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 193,
+     "name": "Азум",
+     "file": "obj_193.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 207,
+     "name": "Титан",
+     "file": "obj_207.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 416,
+     "name": "Влюбивик",
+     "file": "obj_416.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 420,
+     "name": "Настя",
+     "file": "obj_420.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 422,
+     "name": "Лошадь",
+     "file": "obj_422.lua",
+     "scripts": 2
+    }
+   ]
+  },
+  {
+   "id": 95,
+   "name": "Онлайн",
+   "dir": "95",
+   "objects": [
+    {
+     "object_id": 385,
+     "name": "Фон",
+     "file": "obj_385.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 533,
+     "name": "Кубик (Дождь) (2)",
+     "file": "obj_533.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 508,
+     "name": "Кубик (Дождь) (1)",
+     "file": "obj_508.lua",
+     "scripts": 5
+    },
+    {
+     "object_id": 488,
+     "name": "Кубик (Дождь)",
+     "file": "obj_488.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 390,
+     "name": "Игрок 1",
+     "file": "obj_390.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 409,
+     "name": "Игрок 2",
+     "file": "obj_409.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 410,
+     "name": "Игрок 3",
+     "file": "obj_410.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 394,
+     "name": "Джойстик",
+     "file": "obj_394.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 487,
+     "name": "Ивент",
+     "file": "obj_487.lua",
+     "scripts": 1
+    },
+    {
+     "object_id": 404,
+     "name": "Назад",
+     "file": "obj_404.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 490,
+     "name": "Игрок 4 (админ)",
+     "file": "obj_490.lua",
+     "scripts": 1
+    },
+    {
+     "object_id": 491,
+     "name": "Игрок 5 (админ)",
+     "file": "obj_491.lua",
+     "scripts": 1
+    },
+    {
+     "object_id": 525,
+     "name": "Игрок 5 (админ) (1)",
+     "file": "obj_525.lua",
+     "scripts": 1
+    },
+    {
+     "object_id": 528,
+     "name": "Открыть магазин скинов",
+     "file": "obj_528.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 530,
+     "name": "скин влюблённого куба",
+     "file": "obj_530.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 531,
+     "name": "скин влюблённого куба (1)",
+     "file": "obj_531.lua",
+     "scripts": 3
+    }
+   ]
+  },
+  {
+   "id": 99,
+   "name": "Онлайн (1)",
+   "dir": "99",
+   "objects": [
+    {
+     "object_id": 492,
+     "name": "Фон",
+     "file": "obj_492.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 527,
+     "name": "Кубик (Дождь) (2)",
+     "file": "obj_527.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 509,
+     "name": "Кубик (Дождь) (1)",
+     "file": "obj_509.lua",
+     "scripts": 5
+    },
+    {
+     "object_id": 493,
+     "name": "Кубик (Дождь)",
+     "file": "obj_493.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 497,
+     "name": "Джойстик",
+     "file": "obj_497.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 498,
+     "name": "Admin panel",
+     "file": "obj_498.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 499,
+     "name": "Написать",
+     "file": "obj_499.lua",
+     "scripts": 4
+    },
+    {
+     "object_id": 500,
+     "name": "Ивент (кнопка)",
+     "file": "obj_500.lua",
+     "scripts": 4
+    },
+    {
+     "object_id": 526,
+     "name": "выйти из админа и зайти в другого",
+     "file": "obj_526.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 501,
+     "name": "Ивент",
+     "file": "obj_501.lua",
+     "scripts": 1
+    },
+    {
+     "object_id": 505,
+     "name": "Игрок 5 (админ)",
+     "file": "obj_505.lua",
+     "scripts": 1
+    },
+    {
+     "object_id": 502,
+     "name": "Admin panel open",
+     "file": "obj_502.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 504,
+     "name": "Игрок 4 (админ)",
+     "file": "obj_504.lua",
+     "scripts": 1
+    },
+    {
+     "object_id": 524,
+     "name": "Игрок 404 (хакер)",
+     "file": "obj_524.lua",
+     "scripts": 1
+    },
+    {
+     "object_id": 516,
+     "name": "выбор",
+     "file": "obj_516.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 517,
+     "name": "выбор (1)",
+     "file": "obj_517.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 518,
+     "name": "выбор (1) (1)",
+     "file": "obj_518.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 523,
+     "name": "выбор (1) (2)",
+     "file": "obj_523.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 519,
+     "name": "выбор (1) (1) (1)",
+     "file": "obj_519.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 503,
+     "name": "Назад",
+     "file": "obj_503.lua",
+     "scripts": 3
+    }
+   ]
+  },
+  {
+   "id": 26,
+   "name": "Игра",
+   "dir": "26",
+   "objects": [
+    {
+     "object_id": 16,
+     "name": "Фон",
+     "file": "obj_016.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 17,
+     "name": "Тень игрока",
+     "file": "obj_017.lua",
+     "scripts": 1
+    },
+    {
+     "object_id": 18,
+     "name": "Тень врага",
+     "file": "obj_018.lua",
+     "scripts": 1
+    },
+    {
+     "object_id": 19,
+     "name": "Кровь",
+     "file": "obj_019.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 20,
+     "name": "Прицел",
+     "file": "obj_020.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 21,
+     "name": "Игрок",
+     "file": "obj_021.lua",
+     "scripts": 8
+    },
+    {
+     "object_id": 246,
+     "name": "Пушка",
+     "file": "obj_246.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 363,
+     "name": "Пушка (2)",
+     "file": "obj_363.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 247,
+     "name": "Пуля",
+     "file": "obj_247.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 418,
+     "name": "Лазер",
+     "file": "obj_418.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 412,
+     "name": "Пуля (2)",
+     "file": "obj_412.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 22,
+     "name": "Враг",
+     "file": "obj_022.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 322,
+     "name": "Джойстик (2)",
+     "file": "obj_322.lua",
+     "scripts": 4
+    },
+    {
+     "object_id": 24,
+     "name": "Джойстик",
+     "file": "obj_024.lua",
+     "scripts": 5
+    },
+    {
+     "object_id": 25,
+     "name": "Атака",
+     "file": "obj_025.lua",
+     "scripts": 4
+    },
+    {
+     "object_id": 421,
+     "name": "Леденец",
+     "file": "obj_421.lua",
+     "scripts": 4
+    },
+    {
+     "object_id": 26,
+     "name": "Супер атака",
+     "file": "obj_026.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 413,
+     "name": "Снежинка",
+     "file": "obj_413.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 303,
+     "name": "Mod-menu",
+     "file": "obj_303.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 304,
+     "name": "Контроль",
+     "file": "obj_304.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 309,
+     "name": "Noclip",
+     "file": "obj_309.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 305,
+     "name": "Закрыть",
+     "file": "obj_305.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 29,
+     "name": "Назад",
+     "file": "obj_029.lua",
+     "scripts": 3
+    }
+   ]
+  },
+  {
+   "id": 89,
+   "name": "Магазин ивента",
+   "dir": "89",
+   "objects": [
+    {
+     "object_id": 285,
+     "name": "Фон",
+     "file": "obj_285.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 286,
+     "name": "Назад",
+     "file": "obj_286.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 287,
+     "name": "Ивент-куб",
+     "file": "obj_287.lua",
+     "scripts": 3
+    }
+   ]
+  },
+  {
+   "id": 31,
+   "name": "Больше",
+   "dir": "31",
+   "objects": [
+    {
+     "object_id": 30,
+     "name": "Фон",
+     "file": "obj_030.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 31,
+     "name": "Назад",
+     "file": "obj_031.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 33,
+     "name": "Кубы",
+     "file": "obj_033.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 424,
+     "name": "Ввести",
+     "file": "obj_424.lua",
+     "scripts": 3
+    }
+   ]
+  },
+  {
+   "id": 27,
+   "name": "Кубы",
+   "dir": "27",
+   "objects": [
+    {
+     "object_id": 37,
+     "name": "Фон",
+     "file": "obj_037.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 38,
+     "name": "Назад",
+     "file": "obj_038.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 39,
+     "name": "Куб",
+     "file": "obj_039.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 40,
+     "name": "Куб-мясник",
+     "file": "obj_040.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 41,
+     "name": "Галактик-куб",
+     "file": "obj_041.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 42,
+     "name": "Золотой_куб",
+     "file": "obj_042.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 43,
+     "name": "Куб Games",
+     "file": "obj_043.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 44,
+     "name": "[Ультра-куб]",
+     "file": "obj_044.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 45,
+     "name": "Кошкоролева куб",
+     "file": "obj_045.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 46,
+     "name": "Неко-куб",
+     "file": "obj_046.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 425,
+     "name": "Кошкоролева куб (1)",
+     "file": "obj_425.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 47,
+     "name": "Пасхалка",
+     "file": "obj_047.lua",
+     "scripts": 1
+    },
+    {
+     "object_id": 48,
+     "name": "Скролл",
+     "file": "obj_048.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 49,
+     "name": "Камера",
+     "file": "obj_049.lua",
+     "scripts": 1
+    }
+   ]
+  },
+  {
+   "id": 96,
+   "name": "Достижения",
+   "dir": "96",
+   "objects": [
+    {
+     "object_id": 427,
+     "name": "Фон",
+     "file": "obj_427.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 428,
+     "name": "Назад",
+     "file": "obj_428.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 429,
+     "name": "Скролл",
+     "file": "obj_429.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 430,
+     "name": "KI KI MA MA",
+     "file": "obj_430.lua",
+     "scripts": 1
+    },
+    {
+     "object_id": 431,
+     "name": "Титан",
+     "file": "obj_431.lua",
+     "scripts": 1
+    },
+    {
+     "object_id": 432,
+     "name": "Снеговик",
+     "file": "obj_432.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 433,
+     "name": "Настя",
+     "file": "obj_433.lua",
+     "scripts": 2
+    }
+   ]
+  },
+  {
+   "id": 91,
+   "name": "Дед мороз лаки блок",
+   "dir": "91",
+   "objects": [
+    {
+     "object_id": 332,
+     "name": "Фон",
+     "file": "obj_332.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 333,
+     "name": "Дед мороз лаки блок",
+     "file": "obj_333.lua",
+     "scripts": 1
+    }
+   ]
+  },
+  {
+   "id": 77,
+   "name": "Регистрация",
+   "dir": "77",
+   "objects": [
+    {
+     "object_id": 161,
+     "name": "Фон",
+     "file": "obj_161.lua",
+     "scripts": 1
+    },
+    {
+     "object_id": 164,
+     "name": "Поле ввода визуал",
+     "file": "obj_164.lua",
+     "scripts": 1
+    },
+    {
+     "object_id": 165,
+     "name": "Поле ввода визуал 2",
+     "file": "obj_165.lua",
+     "scripts": 1
+    },
+    {
+     "object_id": 166,
+     "name": "Зарегистрироваться",
+     "file": "obj_166.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 167,
+     "name": "Войти",
+     "file": "obj_167.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 168,
+     "name": "Подтвердить",
+     "file": "obj_168.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 188,
+     "name": "Не хочу",
+     "file": "obj_188.lua",
+     "scripts": 2
+    }
+   ]
+  }
+ ]
+}
