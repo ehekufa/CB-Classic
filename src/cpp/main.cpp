@@ -663,7 +663,7 @@ int main(int argc, char **argv)
                                             static_cast<double>(app.options.height));
         }
         if (pixel_scale > 1.01) {
-            app.renderer = Renderer(app.options.width, app.options.height, pixel_scale);
+            app.renderer = cb::Renderer(app.options.width, app.options.height, pixel_scale);
             app.engine.set_text_measurer([&app](const std::string &text, double size) {
                 return app.renderer.text_width(text, size);
             });
