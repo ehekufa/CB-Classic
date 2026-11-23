@@ -31,6 +31,9 @@ struct AppOptions {
     bool verbose = false;
     std::string check_dir;               // проверить синтаксис всех .lua в каталоге и выйти
     bool check_buttons = false;          // проверить, что все кнопки получают нажатие
+    int bench = 0;                       // замерить время кадра (без записи PNG)
+    int window_frames = 0;               // оконный режим: выйти после N кадров (0 = бесконечно)
+    std::string screenshot;              // сохранить последний кадр окна в PNG
     bool no_sound = false;               // без звука вообще
     bool no_music = false;               // эффекты есть, музыки нет
     double music_volume = 0.30;          // громкость встроенной темы

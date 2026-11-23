@@ -3,6 +3,7 @@
 // Примеры:
 //   ./cb-classic --frames 90 --scene 1 --out out/frames
 //   ./cb-classic --script tests/scripts/click_menu.txt --frames 200 --dump-state
+#include <chrono>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -23,6 +24,9 @@ extern "C" {
 }
 
 #include "app.hpp"
+#ifdef CB_USE_SDL2
+#include "view_sdl.hpp"
+#endif
 
 #ifdef CB_USE_SDL2
 #include <SDL2/SDL.h>
@@ -391,6 +395,15 @@ bool App::run()
     size_t script_pos = 0;
     double dt = 1.0 / options.fps;
     int frames = options.frames > 0 ? options.frames : 1;
+    if (options.bench > 0) {
+        frames = options.bench;
+    }
+    // --bench: время кадра без записи PNG (на телефоне именно отрисовка
+    // определяет плавность). Считаем отдельно Lua/шаг и растеризацию.
+    using Clock = std::chrono::steady_clock;
+    double bench_step_ms = 0.0;
+    double bench_draw_ms = 0.0;
+    double bench_worst_ms = 0.0;
 
     for (int frame = 0; frame < frames; ++frame) {
         if (engine.exit_requested()) {
@@ -414,10 +427,24 @@ bool App::run()
             apply_input_command(line);
             ++script_pos;
         }
+        auto t0 = Clock::now();
         step(dt);
-        char name[256];
-        std::snprintf(name, sizeof(name), "%s/frame_%04d.png", options.out_dir.c_str(), frame);
-        render_to_disk(name);
+        auto t1 = Clock::now();
+        if (options.bench > 0) {
+            renderer.draw_scene(engine);
+        } else {
+            char name[256];
+            std::snprintf(name, sizeof(name), "%s/frame_%04d.png", options.out_dir.c_str(), frame);
+            render_to_disk(name);
+        }
+        auto t2 = Clock::now();
+        if (options.bench > 0) {
+            double step_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+            double draw_ms = std::chrono::duration<double, std::milli>(t2 - t1).count();
+            bench_step_ms += step_ms;
+            bench_draw_ms += draw_ms;
+            bench_worst_ms = std::max(bench_worst_ms, step_ms + draw_ms);
+        }
         if (options.verbose && frame < 8) {
             std::fprintf(stderr, "[кадр %d] сцена=%d журнал=%zu спрайтов=%zu\n", frame,
                          engine.current_scene_id(), engine.log_lines().size(),
@@ -434,6 +461,15 @@ bool App::run()
     std::printf("спрайтов на сцене: %zu, записей журнала: %zu\n",
                 engine.sprites_in_draw_order().size(), engine.log_lines().size());
     std::printf("прозвучало звуков: %zu\n", engine.sound_log().size());
+    if (options.bench > 0 && frames > 0) {
+        std::printf("бенч: %d кадров, буфер %dx%d (x%.2f)\n", frames, renderer.width(),
+                    renderer.height(), renderer.scale());
+        double total_ms = bench_step_ms + bench_draw_ms;
+        double fps = total_ms > 0.0 ? 1000.0 * frames / total_ms : 0.0;
+        std::printf("бенч: шаг Lua %.2f мс, отрисовка %.2f мс, кадр %.2f мс (макс %.2f) -> %.1f fps\n",
+                    bench_step_ms / frames, bench_draw_ms / frames, total_ms / frames,
+                    bench_worst_ms, fps);
+    }
     lua_getglobal(lua, "boot");
     lua_getfield(lua, -1, "stats");
     if (lua_pcall(lua, 0, 1, 0) == LUA_OK && lua_istable(lua, -1)) {
@@ -539,6 +575,14 @@ int main(int argc, char **argv)
             opts.no_music = false;
         } else if (a == "--export-music") {
             opts.export_music = next("music.wav");
+        } else if (a == "--window") {
+            opts.headless = false;
+        } else if (a == "--window-frames") {
+            opts.window_frames = std::atoi(next("60").c_str());
+        } else if (a == "--screenshot") {
+            opts.screenshot = next("shot.png");
+        } else if (a == "--bench") {
+            opts.bench = std::atoi(next("60").c_str());
         } else if (a == "--pixel-scale") {
             opts.pixel_scale = std::atof(next("2").c_str());
             if (opts.pixel_scale < 1.0) {
@@ -585,6 +629,10 @@ int main(int argc, char **argv)
                 "  --music-volume V громкость музыки (0..1)\n"
                 "  --export-music F сохранить встроенную тему в WAV и выйти\n"
                 "  --pixel-scale N рисовать кадр в N раз крупнее (адаптация экрана)\n"
+                "  --bench N      замерить время кадра (без записи PNG)\n"
+                "  --window       открыть окно SDL2 (нужна сборка make SDL2=1)\n"
+                "  --window-frames N  оконный режим: выйти после N кадров\n"
+                "  --screenshot F сохранить кадр окна в PNG\n"
                 "  --check DIR    проверить синтаксис Lua-файлов в каталоге\n"
                 "  --verbose      подробный вывод\n");
             return 0;
@@ -663,12 +711,17 @@ int main(int argc, char **argv)
         int win_w = app.options.width;
         int win_h = app.options.height;
         SDL_GetWindowSize(window, &win_w, &win_h);
-        // суперсэмплинг: на телефоне кадр рисуется в разрешении экрана,
-        // чтобы шрифт и спрайты были чёткими (не больше 2x по площади)
+        // Масштаб кадра: на телефоне рисуем в разрешении экрана, чтобы шрифт
+        // и спрайты были чёткими. Берём меньший из двух коэффициентов — тогда
+        // пропорции сцены сохраняются, а лишнее уходит в поля (letterbox).
         double pixel_scale = app.options.pixel_scale;
-        if (pixel_scale <= 1.0 && win_h > app.options.height) {
-            pixel_scale = std::min(2.0, static_cast<double>(win_h) /
-                                            static_cast<double>(app.options.height));
+        if (pixel_scale <= 1.0) {
+            double by_height = static_cast<double>(win_h) / static_cast<double>(app.options.height);
+            double by_width = static_cast<double>(win_w) / static_cast<double>(app.options.width);
+            pixel_scale = std::min(2.0, std::min(by_height, by_width));
+            if (pixel_scale < 1.0) {
+                pixel_scale = 1.0;
+            }
         }
         if (pixel_scale > 1.01) {
             app.renderer = cb::Renderer(app.options.width, app.options.height, pixel_scale);
@@ -679,19 +732,41 @@ int main(int argc, char **argv)
                         app.options.width, app.options.height, app.renderer.width(),
                         app.renderer.height(), pixel_scale, win_w, win_h);
         }
-        SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+        // Вертикальная синхронизация: без неё цикл крутится сотни раз в секунду,
+        // ест процессор и картинка дёргается.
+        SDL_Renderer *renderer = SDL_CreateRenderer(
+            window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+        bool vsync = renderer != nullptr;
+        if (!renderer) {
+            renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+        }
         if (!renderer) {
             renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+            vsync = false;
+        }
+        if (!renderer) {
+            std::fprintf(stderr, "SDL2: %s\n", SDL_GetError());
+            SDL_DestroyWindow(window);
+            SDL_Quit();
+            return 1;
+        }
+        if (vsync) {
+            SDL_RendererInfo info;
+            if (SDL_GetRendererInfo(renderer, &info) == 0) {
+                vsync = (info.flags & SDL_RENDERER_PRESENTVSYNC) != 0;
+            }
         }
         // Звук: устройство открывается после SDL_Init, музыка — сразу за ним.
         app.open_audio();
         if (app.audio.ready() && !app.options.no_music) {
             app.audio.start_music(app.options.music_volume);   // фоновая тема
         }
-        SDL_RenderSetLogicalSize(renderer, app.options.width, app.options.height);
-        SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32,
-                                                 SDL_TEXTUREACCESS_STREAMING,
-                                                 app.renderer.width(), app.renderer.height());
+        // Кадр рисуется SDL-текстурами (GPU). Программный app.renderer остаётся
+        // источником размеров/шрифта — по нему же снимаются PNG в headless.
+        cb::SdlView view(renderer, app.renderer);
+        SDL_RenderSetLogicalSize(renderer, view.width(), view.height());
+        std::printf("вид: SDL2%s, кадр %dx%d\n", vsync ? " (vsync)" : "", view.width(),
+                    view.height());
 
         // окно -> координаты сцены (учитывает letterbox и полноэкранный режим)
         auto to_stage = [&](double wx, double wy, double *sx, double *sy) {
@@ -699,13 +774,17 @@ int main(int argc, char **argv)
             float ly = 0.0f;
             SDL_RenderWindowToLogical(renderer, static_cast<int>(wx), static_cast<int>(wy),
                                       &lx, &ly);
-            *sx = static_cast<double>(lx) - app.options.width / 2.0;
-            *sy = app.options.height / 2.0 - static_cast<double>(ly);
+            *sx = (static_cast<double>(lx) - view.width() / 2.0) / view.scale();
+            *sy = (static_cast<double>(view.height()) / 2.0 - static_cast<double>(ly)) /
+                  view.scale();
         };
         auto finger_x = [&](float nx) { return static_cast<double>(nx) * win_w; };
         auto finger_y = [&](float ny) { return static_cast<double>(ny) * win_h; };
         bool running = true;
+        int drawn_frames = 0;
+        Uint32 start_ticks = SDL_GetTicks();
         Uint32 last = SDL_GetTicks();
+        const Uint32 frame_ms = 1000u / 60u;
         std::string last_focus;
         auto sync_text_input = [&]() {
             std::string focus = app.engine.focused_text();
@@ -793,13 +872,48 @@ int main(int argc, char **argv)
             }
             app.step(dt);
             sync_text_input();
-            app.renderer.draw_scene(app.engine);
-            SDL_UpdateTexture(texture, nullptr, app.renderer.pixels(), app.renderer.width() * 4);
-            SDL_RenderClear(renderer);
-            SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+            Uint32 frame_start = SDL_GetTicks();
+            view.draw_scene(app.engine);
             SDL_RenderPresent(renderer);
+            ++drawn_frames;
+            if (!vsync) {
+                // без vsync придерживаем кадр до 60 Гц, иначе цикл жрёт батарею
+                Uint32 spent = SDL_GetTicks() - frame_start;
+                if (spent < frame_ms) {
+                    SDL_Delay(frame_ms - spent);
+                }
+            }
+            if (app.options.window_frames > 0 && drawn_frames >= app.options.window_frames) {
+                running = false;
+            }
         }
-        SDL_DestroyTexture(texture);
+        if (drawn_frames > 0) {
+            Uint32 total_ms = SDL_GetTicks() - start_ticks;
+            double fps = total_ms > 0 ? 1000.0 * drawn_frames / total_ms : 0.0;
+            std::printf("кадров: %d, %.1f fps%s\n", drawn_frames, fps,
+                        vsync ? " (vsync)" : "");
+        }
+        if (!app.options.screenshot.empty()) {
+            // кадр перерисовывается перед снимком: после SDL_RenderPresent
+            // содержимое буфера обмена буферами не определено
+            view.draw_scene(app.engine);
+            int out_w = 0;
+            int out_h = 0;
+            if (SDL_GetRendererOutputSize(renderer, &out_w, &out_h) == 0 && out_w > 0 &&
+                out_h > 0) {
+                std::vector<unsigned char> shot(static_cast<size_t>(out_w) * out_h * 4);
+                if (SDL_RenderReadPixels(renderer, nullptr, SDL_PIXELFORMAT_RGBA32, shot.data(),
+                                         out_w * 4) == 0) {
+                    cb_image image;
+                    image.width = out_w;
+                    image.height = out_h;
+                    image.pixels = shot.data();
+                    cb_png_save(app.options.screenshot.c_str(), &image);
+                    std::printf("скриншот: %s (%dx%d)\n", app.options.screenshot.c_str(),
+                                out_w, out_h);
+                }
+            }
+        }
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
         SDL_Quit();

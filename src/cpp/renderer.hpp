@@ -34,6 +34,8 @@ public:
     // настоящий шрифт (TTF); без него остаётся встроенный 5×7
     bool load_font(const std::vector<std::string> &candidates);
     bool has_font() const { return font_.loaded(); }
+    // шрифт нужен SDL-виду: он растеризует строки в текстуры
+    Font &font() { return font_; }
     std::string font_path() const { return font_.path(); }
     bool save_png(const std::string &path) const;
 

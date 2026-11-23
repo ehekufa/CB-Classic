@@ -7,6 +7,7 @@
 
 #include <cmath>
 #include <cstdio>
+#include <algorithm>
 #include <cstring>
 #include <fstream>
 
@@ -371,8 +372,14 @@ void Audio::mix_callback(void *user, unsigned char *stream, int len)
     short *out = reinterpret_cast<short *>(stream);
     int samples = len / 2;               // всего сэмплов (кадры * 2 канала)
     std::lock_guard<std::mutex> lock(self->mutex_);
+    // Буфер переиспользуется: alloc/free на каждый колбэк (43 раза в секунду)
+    // даёт заметный джиттер, а звук идёт вместе с кадром.
     std::vector<float> &mix = self->scratch_;
-    mix.assign(static_cast<size_t>(samples), 0.0f);
+    if (mix.size() != static_cast<size_t>(samples)) {
+        mix.resize(static_cast<size_t>(samples), 0.0f);
+    } else {
+        std::fill(mix.begin(), mix.end(), 0.0f);
+    }
     for (auto &voice : self->voices_) {
         if (!voice.active || !voice.clip) {
             continue;

@@ -29,7 +29,7 @@ original/  ──tools/catrobat.py──>  разбор формата Catrobat
    │                                 └── tools/catrobat2lua.py  ──> generated/lua/**
    ▼
 src/c/     inflate.c, png.c, io.c        — чистый C: чтение/запись PNG без zlib/libpng
-src/cpp/   engine, renderer, lua_api, main — C++: сцены, спрайты, ввод, программный рендер
+src/cpp/   engine, renderer, view_sdl, lua_api, main — C++: сцены, спрайты, ввод, отрисовка
 src/lua/   runtime/engine.lua, runtime/scheduler.lua, boot.lua — Lua: семантика блоков
 ```
 
@@ -71,6 +71,10 @@ make test            # все проверки (сборка, PNG, конвер�
 ```sh
 make SDL2=1
 ./build/cb-classic --root . --scene 1     # запускается окно, мышь = палец, Esc = «назад»
+# проверить плавность и содержимое кадра без окна и без записи PNG:
+./build/cb-classic --scene 26 --bench 120
+# снять кадр окна (в том числе на CI с SDL_VIDEODRIVER=dummy):
+./build/cb-classic --window --scene 1 --window-frames 30 --screenshot out/shot.png
 ```
 
 Полезные флаги: `--scene ID`, `--frames N`, `--fps N`, `--size WxH`, `--out DIR`,
@@ -118,7 +122,12 @@ make SDL2=1
   `repeatIsTrue`, условия `whenTheTruth`, события касания/клона/«назад»;
 * «Firebase» и `saveVariable` замкнуты на локальное хранилище (`saves/db.tsv`) —
   игра работает без сети;
-* программный рендер пишет PNG-кадры (в оконном режиме те же пиксели идут в SDL-текстуру);
+* два бэкенда отрисовки: программный (`renderer.cpp`) пишет PNG-кадры для тестов и
+  скриншотов, оконный (`view_sdl.cpp`) выводит ту же сцену SDL-текстурами на GPU;
+* **плавность**: кадр на телефоне больше не собирается по пикселям на CPU. Раньше
+  сцена «Игра» занимала 70 мс на кадр даже на десктопе (14 fps), теперь картинка идёт
+  через `SDL_RenderCopyEx` с вертикальной синхронизацией: 60 fps и ровный шаг времени
+  (`--bench N` — замер без записи PNG, `--window` — окно на десктопе);
 * **настоящий шрифт** (DejaVu Sans, кириллица + латиница, сглаживание) — текст в игре
   выглядит как в оригинале, а не пиксельными 5×7 (`third_party/fonts`, `src/cpp/font.cpp`);
 * **звук**: 8 MP3 проекта декодируются minimp3 и играют через SDL2 (шаги, выстрел, взрыв,

@@ -123,6 +123,12 @@ sys.exit(0 if (w, h) == (2696, 1440) else 1)
 PYW
 check $?
 
+step "плавность: время кадра измеряется (--bench, без записи PNG)"
+$BIN --scene 26 --bench 12 --no-sound >/tmp/cb_bench.log 2>&1
+check $?
+grep -Eq "бенч: .*fps" /tmp/cb_bench.log
+check $?
+
 step "ввод: все кнопки проекта получают нажатие"
 $BIN --check-buttons >/tmp/cb_buttons.log 2>&1
 check $?
