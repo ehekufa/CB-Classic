@@ -98,6 +98,12 @@ else
   FAILED=$((FAILED + 1))
 fi
 
+step "шрифт: используется Roboto из third_party/fonts"
+$BIN --frames 2 --scene 1 --out /tmp/cb_frames_font --verbose >/tmp/cb_font.log 2>&1
+check $?
+grep -q "шрифт: .*Roboto-Regular.ttf" /tmp/cb_font.log
+check $?
+
 step "звук: играют эффекты проекта, фоновой музыки нет"
 $BIN --frames 30 --scene 26 --script tests/scripts/joystick.txt \
      --profile "61=Гость,62=123,60=3,3=100,4=6,12=1" --out /tmp/cb_frames_snd \

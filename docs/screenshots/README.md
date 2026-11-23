@@ -1,7 +1,8 @@
 # Скриншоты прогонов
 
-Кадры из настоящего движка (`build/cb-classic --frames 25 --scene N --out ...`),
-уменьшенные до ширины 800 px.
+Кадры из настоящего движка (`build/cb-classic --frames 25 --scene N --out ...`).
+Движок пишет PNG без сжатия (свой deflate только «stored»), поэтому файлы здесь
+пересжаты: `convert in.png -strip -define png:compression-level=9 out.png`.
 
 * `scene_1.png` — меню (сцена 1);
 * `scene_26.png` — «Игра»: джойстик, атака, кубики, «назад», мод-меню;

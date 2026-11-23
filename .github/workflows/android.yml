@@ -77,6 +77,7 @@ jobs:
           cp -r generated/lua     android/app/src/main/assets/generated/lua
           # шрифт с кириллицей: MainActivity распаковывает его в filesDir/root/fonts
           mkdir -p android/app/src/main/assets/fonts
+          cp third_party/fonts/Roboto-Regular.ttf android/app/src/main/assets/fonts/
           cp third_party/fonts/DejaVuSans.ttf android/app/src/main/assets/fonts/
           cp third_party/fonts/DejaVuSans-Bold.ttf android/app/src/main/assets/fonts/
           du -sh android/app/src/main/assets
@@ -127,7 +128,8 @@ jobs:
           echo "  project.lua:  $(unzip -Z1 "$APK" | grep -c '^assets/assets/project.lua$')"
           echo "  index.json:   $(unzip -Z1 "$APK" | grep -c '^assets/assets/index.json$')"
           echo "  layout.lua:   $(unzip -Z1 "$APK" | grep -c '^assets/assets/layout.lua$')"
-          echo "  font:         $(unzip -Z1 "$APK" | grep -c '^assets/fonts/DejaVuSans\.ttf$')"
+          echo "  font Roboto:  $(unzip -Z1 "$APK" | grep -c '^assets/fonts/Roboto-Regular\.ttf$')"
+          echo "  font DejaVu:  $(unzip -Z1 "$APK" | grep -c '^assets/fonts/DejaVuSans\.ttf$')"
           echo
           echo "### манифест"
           AAPT="$(ls "$ANDROID_HOME"/build-tools/*/aapt2 2>/dev/null | tail -1)"

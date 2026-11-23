@@ -160,6 +160,9 @@ bool App::init()
     // Запасной путь — DejaVu Sans, упакованный в APK (MainActivity кладёт его
     // в filesDir/root/fonts): он же используется в headless-прогонах и тестах.
     std::vector<std::string> font_candidates;
+    // Roboto — тот самый шрифт, которым рисовал текст Pocket Code на Android.
+    font_candidates.push_back(options.root + "/fonts/Roboto-Regular.ttf");
+    font_candidates.push_back(options.root + "/third_party/fonts/Roboto-Regular.ttf");
 #ifdef __ANDROID__
     font_candidates.push_back("/system/fonts/Roboto-Regular.ttf");
     font_candidates.push_back("/system/fonts/RobotoCondensed-Regular.ttf");
