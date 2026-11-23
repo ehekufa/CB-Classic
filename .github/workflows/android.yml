@@ -97,6 +97,48 @@ jobs:
           tail -n 40 android-build.log
           ls -la android/app/build/outputs/apk/debug/ 2>/dev/null || true
 
+      - name: Проверка APK
+        if: always()
+        run: |
+          : > /tmp/apk-check.txt
+          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          [ -f "$APK" ] || exit 0
+          exec 3>&1
+          exec >> /tmp/apk-check.txt 2>&1
+          echo "### dex"
+          for d in $(unzip -Z1 "$APK" | grep '\.dex$'); do
+            echo "$d: $(unzip -p "$APK" "$d" | wc -c) байт"
+            echo "  ссылок на org/cbclassic: $(unzip -p "$APK" "$d" | strings | grep -c 'org/cbclassic' || true)"
+            echo "  ссылок на org/libsdl:    $(unzip -p "$APK" "$d" | strings | grep -c 'org/libsdl' || true)"
+            echo "  MainActivity:            $(unzip -p "$APK" "$d" | strings | grep -c 'MainActivity' || true)"
+          done
+          echo
+          echo "### ресурсы"
+          echo "всего записей: $(unzip -Z1 "$APK" | wc -l)"
+          echo "assets/:        $(unzip -Z1 "$APK" | grep -c '^assets/')"
+          echo "  png:          $(unzip -Z1 "$APK" | grep -c '^assets/.*\.png$')"
+          echo "  mp3:          $(unzip -Z1 "$APK" | grep -c '^assets/.*\.mp3$')"
+          echo "  generated/lua:$(unzip -Z1 "$APK" | grep -c '^assets/generated/lua/')"
+          echo "  src/lua:      $(unzip -Z1 "$APK" | grep -c '^assets/src/lua/')"
+          echo "  project.lua:  $(unzip -Z1 "$APK" | grep -c '^assets/assets/project.lua$')"
+          echo "  index.json:   $(unzip -Z1 "$APK" | grep -c '^assets/assets/index.json$')"
+          echo "  layout.lua:   $(unzip -Z1 "$APK" | grep -c '^assets/assets/layout.lua$')"
+          echo
+          echo "### манифест"
+          AAPT="$(ls "$ANDROID_HOME"/build-tools/*/aapt 2>/dev/null | tail -1)"
+          if [ -n "$AAPT" ]; then
+            "$AAPT" dump badging "$APK" 2>/dev/null | egrep \
+              "^(package|launchable-activity|sdkVersion|targetSdkVersion|native-code|application-label)" || true
+          else
+            echo "aapt недоступен"
+          fi
+          echo
+          echo "### основные lua-модули"
+          for f in $(unzip -Z1 "$APK" | grep '^assets/generated/lua/' | head -3); do
+            echo "$f: $(unzip -p "$APK" "$f" | wc -c) байт"
+          done
+          cat /tmp/apk-check.txt >&3
+
       - name: Отчёт и APK в релиз
         if: always()
         env:
@@ -131,6 +173,15 @@ jobs:
               echo "всего записей: $(unzip -l dist/cb-classic-debug.apk | tail -1 | awk '{print $2}')"
             else
               echo "## APK не собрался"
+            fi
+            echo
+            if [ -s /tmp/apk-check.txt ]; then
+              echo
+              echo "## Проверка содержимого APK"
+              echo
+              echo '```'
+              cat /tmp/apk-check.txt
+              echo '```'
             fi
             echo
             echo "## Хвост лога сборки"
