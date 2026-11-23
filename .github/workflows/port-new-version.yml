@@ -67,8 +67,7 @@ jobs:
           git config user.name "port-bot"
           git config user.email "bot@users.noreply.github.com"
           git rm -q --ignore-unmatch .port-request || true
-          git add -A original assets generated ops .port-request
-          git add android/app/src/main/java/org/cbclassic/MainActivity.java
+          git add -A .
           git commit -m "feat: новая версия проекта из релиза" || echo "нет изменений"
           # сборка APK тоже коммитит в эту ветку (отчёт), поэтому push повторяем
           for attempt in 1 2 3 4 5; do
