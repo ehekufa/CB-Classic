@@ -1,0 +1,1 @@
+[["start",[],"on"],["setSize",[[["number",3],["number",5],["number",0]]],"on"],["setBrightness",[[["number",0]]],"on"],["setAlpha",[[["number",6],["number",5]]],"on"],["cycleForever",[],"on"],["goTo",[["goTo",22]],"on"],["editPositionY",[[["-","-"],["number",2],["number",8]]],"on"],["setRotate",[[["globalVariable",43]]],"on"],["endCycleForever",[],"on"]]

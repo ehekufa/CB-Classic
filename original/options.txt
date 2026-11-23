@@ -1,0 +1,1 @@
+{"displayHeight":1348,"displayWidth":720,"name":"Cubic battle в новых красках 2.8 (2026 исправленный)","orientation":"horizontal","aspectRatio":true,"note":"","description":"Игра про кубиков.\n\nНовый скрыть поцелуи"}

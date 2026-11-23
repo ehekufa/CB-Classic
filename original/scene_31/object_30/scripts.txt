@@ -1,0 +1,1 @@
+[["start",[],"on"],["removeAdaptiveSizeDevice",[],"on"],["touchBack",[],"on"],["broadcastFun>object",[["objects",424],["function",2]],"on"],["wait",[[["number",0],["number","."],["number",0],["number",6]]],"on"],["runScene",[["scenes",1]],"on"]]

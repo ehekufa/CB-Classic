@@ -1,0 +1,1 @@
+[["Фон",285,{"rotation":0,"size":1.5}],["Назад",286,{"rotation":0,"path":"project_2/scene_89/object_286/image_706.png","size":1}],["Ивент-куб",287,{"rotation":0,"path":"project_2/scene_89/object_287/image_826.png","size":1}]]
