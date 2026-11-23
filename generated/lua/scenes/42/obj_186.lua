@@ -28,10 +28,9 @@ return {
     { -- скрипт 2: start
       trigger = "start",
       body = function(o)
-        while true do
+        E.forever(function()
           E.add_size(o, 0.2)
-          E.frame()
-        end
+        end)
       end,
     },
   },

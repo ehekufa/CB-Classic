@@ -62,6 +62,27 @@ int l_stage(lua_State *L)
     return 2;
 }
 
+int l_particles_create(lua_State *L)
+{
+    Eng *e = engine_of(L);
+    e->particles_create(arg_num(L, 1), luaL_checkstring(L, 2), arg_num(L, 3));
+    return 0;
+}
+
+int l_particles_move(lua_State *L)
+{
+    Eng *e = engine_of(L);
+    e->particles_move(arg_num(L, 1), luaL_checkstring(L, 2), arg_num(L, 3), arg_num(L, 4));
+    return 0;
+}
+
+int l_particles_stop(lua_State *L)
+{
+    Eng *e = engine_of(L);
+    e->particles_stop(arg_num(L, 1), luaL_checkstring(L, 2));
+    return 0;
+}
+
 int l_unsupported(lua_State *L)
 {
     engine_of(L)->unsupported_calls(luaL_checkstring(L, 1));
@@ -290,17 +311,8 @@ int l_set_image_id(lua_State *L)
     Eng *e = engine_of(L);
     Sprite *sprite = e->find(arg_num(L, 1));
     int image_id = arg_num(L, 2);
-    bool found = false;
-    if (sprite && sprite->def) {
-        for (size_t i = 0; i < sprite->def->images.size(); ++i) {
-            if (sprite->def->images[i].id == image_id) {
-                sprite->image_index = static_cast<int>(i);
-                found = true;
-                break;
-            }
-        }
-    }
-    lua_pushboolean(L, found ? 1 : 0);
+    bool found = sprite && e->set_image_by_id(*sprite, image_id);
+    lua_pushinteger(L, found ? 1 : 0);
     return 1;
 }
 
@@ -654,6 +666,9 @@ const luaL_Reg kApi[] = {
     {"dt", l_dt},
     {"stage", l_stage},
     {"unsupported", l_unsupported},
+    {"particles_create", l_particles_create},
+    {"particles_move", l_particles_move},
+    {"particles_stop", l_particles_stop},
 
     {"scene_define", l_scene_define},
     {"object_define", l_object_define},

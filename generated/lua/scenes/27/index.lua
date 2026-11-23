@@ -15,6 +15,6 @@ return {
     { id = 425, name = "Кошкоролева куб (1)", file = "obj_425.lua", scripts = 3 },
     { id = 47, name = "Пасхалка", file = "obj_047.lua", scripts = 1 },
     { id = 48, name = "Скролл", file = "obj_048.lua", scripts = 2 },
-    { id = 49, name = "Камера", file = "obj_049.lua", scripts = 1 },
+    { id = 49, name = "Камера", file = "obj_049.lua", scripts = 3 },
   },
 }

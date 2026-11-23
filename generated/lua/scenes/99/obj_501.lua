@@ -13,15 +13,35 @@ return {
         E.set_size(o, 20)
         E.set_pos(o, -48.500030517578, -300.67236706443)
         E.camera_off()
-        E.call_function(25)
+      end,
+    },
+    { -- скрипт 2: function:25
+      trigger = "function:25",
+      body = function(o)
         E.set_image_by_id(o, 1067)
-        E.call_function(16)
+      end,
+    },
+    { -- скрипт 3: function:16
+      trigger = "function:16",
+      body = function(o)
         E.set_image_by_id(o, 856)
-        E.call_function(20)
+      end,
+    },
+    { -- скрипт 4: function:20
+      trigger = "function:20",
+      body = function(o)
         E.set_image_by_id(o, 895)
-        E.call_function(19)
+      end,
+    },
+    { -- скрипт 5: function:19
+      trigger = "function:19",
+      body = function(o)
         E.set_image_by_id(o, 881)
-        E.call_function(15)
+      end,
+    },
+    { -- скрипт 6: function:15
+      trigger = "function:15",
+      body = function(o)
         E.set_image_by_id(o, 857)
       end,
     },

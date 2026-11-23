@@ -13,7 +13,7 @@ return {
         E.set_size(o, 20)
         E.set_pos(o, -48.500030517578, -300.67236706443)
         E.camera_off()
-        while true do
+        E.forever(function()
           E.fb_get("Ивент", "https://cubic-battle-default-rtdb.firebaseio.com/", function(v) E.set_gv(85, v) end)
           if E.truthy(E.op_eq(E.gv(85), "4")) then
             E.broadcast(25)
@@ -31,15 +31,30 @@ return {
             E.broadcast(15)
           end
           E.wait(E.num(0.05))
-          E.frame()
-        end
-        E.call_function(16)
+        end)
+      end,
+    },
+    { -- скрипт 2: function:16
+      trigger = "function:16",
+      body = function(o)
         E.set_image_by_id(o, 836)
-        E.call_function(15)
+      end,
+    },
+    { -- скрипт 3: function:15
+      trigger = "function:15",
+      body = function(o)
         E.set_image_by_id(o, 837)
-        E.call_function(24)
+      end,
+    },
+    { -- скрипт 4: function:24
+      trigger = "function:24",
+      body = function(o)
         E.set_image_by_id(o, 947)
-        E.call_function(19)
+      end,
+    },
+    { -- скрипт 5: function:19
+      trigger = "function:19",
+      body = function(o)
         E.set_image_by_id(o, 877)
       end,
     },

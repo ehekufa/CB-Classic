@@ -30,12 +30,11 @@ return {
     { -- скрипт 3: start
       trigger = "start",
       body = function(o)
-        while true do
+        E.forever(function()
           E.fb_get("Написано", "https://cubic-battle-default-rtdb.firebaseio.com/", function(v) E.set_gv(82, v) end)
           E.text_show_var(82, 100, 200, 120, "#FF0000", "center")
           E.wait(E.num(0.05))
-          E.frame()
-        end
+        end)
       end,
     },
   },

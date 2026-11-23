@@ -22,9 +22,17 @@ return {
           E.go_to_touch(o)
           E.frame()
         end
-        E.call_function(17)
+      end,
+    },
+    { -- скрипт 3: function:17
+      trigger = "function:17",
+      body = function(o)
         E.hide(o)
-        E.call_function(18)
+      end,
+    },
+    { -- скрипт 4: function:18
+      trigger = "function:18",
+      body = function(o)
         E.show(o)
       end,
     },

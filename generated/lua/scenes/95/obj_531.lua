@@ -12,19 +12,27 @@ return {
       body = function(o)
         E.set_pos(o, 60, E.op_neg(100))
         E.hide(o)
-        E.call_function(23)
+      end,
+    },
+    { -- скрипт 2: function:23
+      trigger = "function:23",
+      body = function(o)
         E.hide(o)
-        E.call_function(22)
+      end,
+    },
+    { -- скрипт 3: function:22
+      trigger = "function:22",
+      body = function(o)
         E.show(o)
       end,
     },
-    { -- скрипт 2: touch_down
+    { -- скрипт 4: touch_down
       trigger = "touch_down",
       body = function(o)
         E.set_bright(o, 120)
       end,
     },
-    { -- скрипт 3: tap
+    { -- скрипт 5: tap
       trigger = "tap",
       body = function(o)
         E.set_bright(o, 100)

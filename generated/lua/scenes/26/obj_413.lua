@@ -12,11 +12,10 @@ return {
       body = function(o)
         E.set_y(o, 450)
         E.hide(o)
-        while true do
+        E.forever(function()
           E.clone_self(o)
           E.wait(E.num(0.18))
-          E.frame()
-        end
+        end)
       end,
     },
     { -- скрипт 2: clone

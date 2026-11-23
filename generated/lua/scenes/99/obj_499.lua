@@ -13,42 +13,56 @@ return {
         E.set_bright(o, 120)
         E.camera_off()
         E.set_size(o, 30)
-        while true do
+        E.forever(function()
           E.go_to(o, 498)
           E.add_y(o, 50)
-          E.frame()
-        end
+        end)
       end,
     },
     { -- скрипт 2: start
       trigger = "start",
       body = function(o)
-        while true do
+        E.forever(function()
           E.fb_get("Написано", "https://cubic-battle-default-rtdb.firebaseio.com/", function(v) E.set_gv(82, v) end)
           E.text_show_var(82, 0, 300, 120, "#078707", "left")
           E.wait(E.num(0.05))
-          E.frame()
-        end
-        E.call_function(17)
+        end)
+      end,
+    },
+    { -- скрипт 3: function:17
+      trigger = "function:17",
+      body = function(o)
         E.hide(o)
-        E.call_function(18)
+      end,
+    },
+    { -- скрипт 4: function:18
+      trigger = "function:18",
+      body = function(o)
         E.show(o)
       end,
     },
-    { -- скрипт 3: touch_down
+    { -- скрипт 5: touch_down
       trigger = "touch_down",
       body = function(o)
         E.set_bright(o, 130)
-        E.call_function(21)
+      end,
+    },
+    { -- скрипт 6: function:21
+      trigger = "function:21",
+      body = function(o)
         E.ask(o, "Что написать??", function(answer) E.set_gv(83, answer) end)
       end,
     },
-    { -- скрипт 4: tap
+    { -- скрипт 7: tap
       trigger = "tap",
       body = function(o)
         E.set_bright(o, 120)
         E.broadcast(22)
-        E.call_function(13)
+      end,
+    },
+    { -- скрипт 8: function:13
+      trigger = "function:13",
+      body = function(o)
         E.fb_set("Написано", E.fb_key(E.gv(94), E.gv(83)), "https://cubic-battle-default-rtdb.firebaseio.com/")
         E.wait(E.num(3))
         E.fb_set("Написано", "", "https://cubic-battle-default-rtdb.firebaseio.com/")

@@ -16,11 +16,15 @@ return {
         if E.truthy(E.op_eq(E.random(1, 100), 1)) then
           E.show(o)
         end
-        E.call_function(2)
+      end,
+    },
+    { -- скрипт 2: function:2
+      trigger = "function:2",
+      body = function(o)
         E.add_y(o, E.gv(48))
       end,
     },
-    { -- скрипт 2: touch_down
+    { -- скрипт 3: touch_down
       trigger = "touch_down",
       body = function(o)
         E.set_gv(47, 5)

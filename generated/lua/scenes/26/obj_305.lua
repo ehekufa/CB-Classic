@@ -13,11 +13,15 @@ return {
         E.set_pos(o, 65, 220)
         E.hide(o)
         E.camera_off()
-        E.call_function(11)
+      end,
+    },
+    { -- скрипт 2: function:11
+      trigger = "function:11",
+      body = function(o)
         E.show(o)
       end,
     },
-    { -- скрипт 2: touch_down
+    { -- скрипт 3: touch_down
       trigger = "touch_down",
       body = function(o)
         E.hide(o)

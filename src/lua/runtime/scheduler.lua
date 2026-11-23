@@ -26,6 +26,10 @@ function Scheduler:spawn(fn, handle, tag)
   return thread
 end
 
+function Scheduler:on_resume(fn)
+  self.hook = fn
+end
+
 local function resume(thread)
   -- аргументы в корутину не передаём: объект-владелец захвачен замыканием
   local ok, delay = coroutine.resume(thread.co)
@@ -58,6 +62,7 @@ function Scheduler:update(dt)
         thread.wait = thread.wait - dt
       end
       if thread.wait <= 0 then
+        if self.hook then self.hook(thread.handle) end
         resume(thread)
       end
       if thread.dead then

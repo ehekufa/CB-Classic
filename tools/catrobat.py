@@ -479,13 +479,42 @@ def split_scripts(bricks: Iterable[dict]) -> list[dict]:
                 "startClone", "touchBack"}
     scripts: list[dict] = []
     current: dict | None = None
+    depth = 0                                   # вложенность if/repeat/forever
     for brick in bricks:
-        if brick["name"] in TRIGGERS:
-            current = {"trigger": brick["name"], "args": brick["args"], "body": []}
+        name = brick["name"]
+        if name in ("if", "repeat", "cycleForever", "repeatIsTrue"):
+            depth += 1
+        elif name in ("endIf", "endRepeat", "endCycleForever"):
+            depth = max(0, depth - 1)
+        if name in TRIGGERS:
+            current = {"trigger": name, "args": brick["args"], "body": []}
             scripts.append(current)
             continue
+        if name == "function" and depth == 0:
+            # Модифицированный Pocket Code: блок "функция N" — это точка входа.
+            # На неё прыгают broadcast_to_object(объект, N) из других скриптов,
+            # а всё, что стоит ниже, — тело функции.
+            fid = function_id(brick)
+            if fid is not None:
+                current = {"trigger": ("function", fid), "args": [], "body": []}
+                scripts.append(current)
+                continue
         if current is None:                     # проект без триггера — не должен встречаться
             current = {"trigger": "start", "args": [], "body": []}
             scripts.append(current)
         current["body"].append(brick)
     return scripts
+
+
+def function_id(brick: dict) -> int | None:
+    """Достаёт N из блока "функция N": args = [[["function", N]]]."""
+    args = brick.get("args") or []
+    node = args[0] if args else None
+    while isinstance(node, list) and len(node) == 1:
+        node = node[0]
+    if isinstance(node, list) and len(node) >= 2 and node[0] == "function":
+        try:
+            return int(node[1])
+        except (TypeError, ValueError):
+            return None
+    return None

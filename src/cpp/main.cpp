@@ -150,12 +150,66 @@ bool App::init()
     if (options.height <= 0) {
         options.height = engine.stage_height();
     }
-    renderer = Renderer(options.width, options.height);
+    renderer = Renderer(options.width, options.height, options.pixel_scale);
+    // Настоящий шрифт: на десктопе лежит в third_party/fonts, в APK — в assets/fonts
+    // (MainActivity распаковывает его в filesDir/root/fonts).
+    renderer.load_font({
+        options.root + "/fonts/DejaVuSans.ttf",
+        options.root + "/third_party/fonts/DejaVuSans.ttf",
+    });
+    // Звук: эффекты проекта (mp3) и встроенная музыка. В headless-сборке
+    // без SDL звук только попадает в журнал, но файлы всё равно декодируются.
+    if (!options.no_sound) {
+        audio.open();
+        engine.set_sound_hook([this](const std::string &name, bool loop) {
+            if (name.empty()) {
+                return;
+            }
+            std::string path = name.rfind('/', 0) == 0 || name.find(':') != std::string::npos
+                                   ? name
+                                   : engine.asset_root() + "/" + name;
+            if (loop) {
+                audio.play_looped(path, 0.8);
+            } else {
+                audio.play(path, 0.9);
+            }
+        });
+        engine.log(std::string("звук: ") +
+                   (audio.ready() ? "устройство открыто" : "только журнал (нет SDL)"));
+    }
+    if (renderer.has_font()) {
+        engine.log("шрифт: " + renderer.font_path());
+        engine.set_text_measurer([this](const std::string &text, double size) {
+            return renderer.text_width(text, size);
+        });
+    } else {
+        engine.log("шрифт не найден — встроенный 5x7");
+    }
     return ok;
 }
 
 void App::step(double dt)
 {
+    // отложенные переменные из --set-var (проверки в тестах)
+    for (auto &entry : options.set_vars) {
+        if (entry.frame != frame_index_) {
+            continue;
+        }
+        lua_getglobal(lua, "boot");
+        lua_getfield(lua, -1, "debug_set_var");
+        if (lua_isfunction(lua, -1)) {
+            lua_pushinteger(lua, entry.id);
+            lua_pushstring(lua, entry.value.c_str());
+            if (lua_pcall(lua, 2, 1, 0) == LUA_OK) {
+                engine.log("set-var: " + std::to_string(entry.id) + "=" + entry.value);
+            }
+            lua_pop(lua, 1);
+        } else {
+            lua_pop(lua, 1);
+        }
+        lua_pop(lua, 1);
+    }
+    ++frame_index_;
     engine.advance(dt);
     lua_getglobal(lua, "boot");
     lua_getfield(lua, -1, "frame");
@@ -187,9 +241,31 @@ void App::apply_input_command(const std::string &line)
     } else if (cmd == "release") {
         engine.set_touch(false, engine.touch_x(), engine.touch_y(), 0);
     } else if (cmd == "move") {
-        double x = 0, y = 0;
-        in >> x >> y;
-        engine.set_touch(engine.touch_down(), x, y, engine.touch_count());
+        // move [id] x y: без id двигаем последний палец, иначе появлялся
+        // «фантомный» нулевой палец и джойстик считал касания неверно
+        std::vector<double> numbers;
+        double value = 0.0;
+        while (in >> value) {
+            numbers.push_back(value);
+        }
+        double x = 0.0;
+        double y = 0.0;
+        int id = -1;
+        if (numbers.size() >= 3) {
+            id = static_cast<int>(numbers[0]);
+            x = numbers[1];
+            y = numbers[2];
+        } else if (numbers.size() == 2) {
+            x = numbers[0];
+            y = numbers[1];
+        }
+        if (id >= 0) {
+            engine.touch_move(id, x, y);
+        } else if (engine.touch_count() > 0) {
+            engine.touch_move(engine.last_touch_id(), x, y);
+        } else {
+            engine.set_touch(true, x, y, 1);
+        }
     } else if (cmd == "type") {
         std::string text = line.substr(line.find(cmd) + cmd.size());
         size_t start = text.find_first_not_of(' ');
@@ -446,10 +522,40 @@ int main(int argc, char **argv)
                 opts.width = std::atoi(s.substr(0, x).c_str());
                 opts.height = std::atoi(s.substr(x + 1).c_str());
             }
+        } else if (a == "--no-sound") {
+            opts.no_sound = true;
+        } else if (a == "--no-music") {
+            opts.no_music = true;
+        } else if (a == "--music-volume") {
+            opts.music_volume = std::atof(next("0.3").c_str());
+            opts.no_music = false;
+        } else if (a == "--export-music") {
+            opts.export_music = next("music.wav");
+        } else if (a == "--pixel-scale") {
+            opts.pixel_scale = std::atof(next("2").c_str());
+            if (opts.pixel_scale < 1.0) {
+                opts.pixel_scale = 1.0;
+            }
         } else if (a == "--check-buttons") {
             opts.check_buttons = true;
         } else if (a == "--check") {
             opts.check_dir = next("generated/lua");
+        } else if (a == "--set-var") {
+            std::string spec = next("4=0@0");       // id=значение[@кадр]
+            int frame_no = 0;
+            size_t at = spec.find('@');
+            if (at != std::string::npos) {
+                frame_no = std::atoi(spec.c_str() + at + 1);
+                spec = spec.substr(0, at);
+            }
+            size_t eq = spec.find('=');
+            if (eq != std::string::npos) {
+                cb::AppOptions::SetVar entry;
+                entry.frame = frame_no;
+                entry.id = std::atoi(spec.c_str());
+                entry.value = spec.substr(eq + 1);
+                opts.set_vars.push_back(entry);
+            }
         } else if (a == "--profile") {
             opts.profile = next("");
         } else if (a == "--verbose") {
@@ -465,6 +571,12 @@ int main(int argc, char **argv)
                 "  --script FILE  сценарий ввода (press/release/move/back/scene)\n"
                 "  --size WxH     размер кадра\n"
                 "  --profile P    стартовые переменные: \"61=Гость,62=123,60=3\"\n"
+                "  --set-var S    выставить переменную на кадре: \"4=0@20\"\n"
+                "  --no-sound     без звука\n"
+                "  --no-music     без фоновой музыки\n"
+                "  --music-volume V громкость музыки (0..1)\n"
+                "  --export-music F сохранить встроенную тему в WAV и выйти\n"
+                "  --pixel-scale N рисовать кадр в N раз крупнее (адаптация экрана)\n"
                 "  --check DIR    проверить синтаксис Lua-файлов в каталоге\n"
                 "  --verbose      подробный вывод\n");
             return 0;
@@ -501,6 +613,13 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    if (!opts.export_music.empty()) {
+        bool ok = app.audio.export_music(opts.export_music);
+        std::printf("музыка: %s (%s)\n", ok ? "сохранена" : "ошибка записи",
+                    opts.export_music.c_str());
+        return ok ? 0 : 1;
+    }
+
     if (opts.check_buttons) {
         return app.check_buttons() ? 0 : 1;
     }
@@ -508,17 +627,73 @@ int main(int argc, char **argv)
 #ifdef CB_USE_SDL2
     if (!opts.headless) {
         // Оконный режим: тот же движок, кадры отдаются в SDL-текстуру.
+        // адаптация экрана: оригинал свёрстан в 1348x720 (19:10), а телефоны
+        // бывают 20:9 и шире — поэтому окно полноэкранное, а сцена
+        // вписывается через логический размер (letterbox, без обрезки и
+        // растяжения). Тач-координаты пересчитываются через ту же матрицу.
+        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+        SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
+        SDL_SetHint(SDL_HINT_ANDROID_BLOCK_ON_PAUSE, "1");
+        SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
         if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
             std::fprintf(stderr, "SDL2: %s\n", SDL_GetError());
             return 1;
         }
+#ifdef __ANDROID__
+        Uint32 window_flags = SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN_DESKTOP;
+#else
+        Uint32 window_flags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
+#endif
         SDL_Window *window = SDL_CreateWindow(
             "Cubic battle — C/C++/Lua", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-            app.options.width, app.options.height, SDL_WINDOW_SHOWN);
+            app.options.width, app.options.height, window_flags);
+        if (!window) {
+            std::fprintf(stderr, "SDL2: %s\n", SDL_GetError());
+            SDL_Quit();
+            return 1;
+        }
+        int win_w = app.options.width;
+        int win_h = app.options.height;
+        SDL_GetWindowSize(window, &win_w, &win_h);
+        // суперсэмплинг: на телефоне кадр рисуется в разрешении экрана,
+        // чтобы шрифт и спрайты были чёткими (не больше 2x по площади)
+        double pixel_scale = app.options.pixel_scale;
+        if (pixel_scale <= 1.0 && win_h > app.options.height) {
+            pixel_scale = std::min(2.0, static_cast<double>(win_h) /
+                                            static_cast<double>(app.options.height));
+        }
+        if (pixel_scale > 1.01) {
+            app.renderer = Renderer(app.options.width, app.options.height, pixel_scale);
+            app.engine.set_text_measurer([&app](const std::string &text, double size) {
+                return app.renderer.text_width(text, size);
+            });
+            std::printf("адаптация: сцена %dx%d, буфер %dx%d (x%.2f), экран %dx%d\n",
+                        app.options.width, app.options.height, app.renderer.width(),
+                        app.renderer.height(), pixel_scale, win_w, win_h);
+        }
         SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+        if (!renderer) {
+            renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+        }
+        if (!app.options.no_sound && !app.options.no_music) {
+            app.audio.start_music(app.options.music_volume);   // фоновая тема
+        }
+        SDL_RenderSetLogicalSize(renderer, app.options.width, app.options.height);
         SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32,
                                                  SDL_TEXTUREACCESS_STREAMING,
-                                                 app.options.width, app.options.height);
+                                                 app.renderer.width(), app.renderer.height());
+
+        // окно -> координаты сцены (учитывает letterbox и полноэкранный режим)
+        auto to_stage = [&](double wx, double wy, double *sx, double *sy) {
+            float lx = 0.0f;
+            float ly = 0.0f;
+            SDL_RenderWindowToLogical(renderer, static_cast<int>(wx), static_cast<int>(wy),
+                                      &lx, &ly);
+            *sx = static_cast<double>(lx) - app.options.width / 2.0;
+            *sy = app.options.height / 2.0 - static_cast<double>(ly);
+        };
+        auto finger_x = [&](float nx) { return static_cast<double>(nx) * win_w; };
+        auto finger_y = [&](float ny) { return static_cast<double>(ny) * win_h; };
         bool running = true;
         Uint32 last = SDL_GetTicks();
         std::string last_focus;
@@ -542,25 +717,29 @@ int main(int argc, char **argv)
                 } else if (event.type == SDL_FINGERDOWN) {
                     // каждый палец — отдельное касание: джойстик и кнопки
                     // работают одновременно
-                    double x = (event.tfinger.x - 0.5) * app.options.width;
-                    double y = (0.5 - event.tfinger.y) * app.options.height;
+                    double x = 0.0;
+                    double y = 0.0;
+                    to_stage(finger_x(event.tfinger.x), finger_y(event.tfinger.y), &x, &y);
                     app.engine.touch_begin(static_cast<int>(event.tfinger.fingerId) + 1, x, y);
                 } else if (event.type == SDL_FINGERMOTION) {
-                    double x = (event.tfinger.x - 0.5) * app.options.width;
-                    double y = (0.5 - event.tfinger.y) * app.options.height;
+                    double x = 0.0;
+                    double y = 0.0;
+                    to_stage(finger_x(event.tfinger.x), finger_y(event.tfinger.y), &x, &y);
                     app.engine.touch_move(static_cast<int>(event.tfinger.fingerId) + 1, x, y);
                 } else if (event.type == SDL_FINGERUP) {
                     app.engine.touch_end(static_cast<int>(event.tfinger.fingerId) + 1);
                 } else if (event.type == SDL_MOUSEBUTTONDOWN) {
-                    double x = event.button.x - app.options.width / 2.0;
-                    double y = app.options.height / 2.0 - event.button.y;
+                    double x = 0.0;
+                    double y = 0.0;
+                    to_stage(event.button.x, event.button.y, &x, &y);
                     app.engine.touch_begin(0, x, y);
                 } else if (event.type == SDL_MOUSEBUTTONUP) {
                     app.engine.touch_end(0);
                 } else if (event.type == SDL_MOUSEMOTION) {
                     if (app.engine.touch_down()) {
-                        double x = event.motion.x - app.options.width / 2.0;
-                        double y = app.options.height / 2.0 - event.motion.y;
+                        double x = 0.0;
+                        double y = 0.0;
+                        to_stage(event.motion.x, event.motion.y, &x, &y);
                         app.engine.touch_move(0, x, y);
                     }
                 } else if (event.type == SDL_TEXTINPUT) {
@@ -574,6 +753,12 @@ int main(int argc, char **argv)
                         case SDLK_KP_ENTER:
                             if (!app.engine.focused_text().empty()) {
                                 app.engine.blur_text();
+                            }
+                            break;
+                        case SDLK_m:
+                            // звук: клавиша M включает/выключает музыку
+                            if (!app.options.no_sound) {
+                                app.audio.set_music_enabled(!app.audio.music_enabled());
                             }
                             break;
                         case SDLK_AC_BACK:
@@ -599,7 +784,7 @@ int main(int argc, char **argv)
             app.step(dt);
             sync_text_input();
             app.renderer.draw_scene(app.engine);
-            SDL_UpdateTexture(texture, nullptr, app.renderer.pixels(), app.options.width * 4);
+            SDL_UpdateTexture(texture, nullptr, app.renderer.pixels(), app.renderer.width() * 4);
             SDL_RenderClear(renderer);
             SDL_RenderCopy(renderer, texture, nullptr, nullptr);
             SDL_RenderPresent(renderer);

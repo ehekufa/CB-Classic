@@ -19,7 +19,7 @@ add_library(cb_core STATIC ${C_SOURCES})
 target_include_directories(cb_core PUBLIC src/c)
 
 add_executable(cb-classic ${CPP_SOURCES})
-target_include_directories(cb-classic PRIVATE src/c src/cpp)
+target_include_directories(cb-classic PRIVATE src/c src/cpp third_party/stb third_party/minimp3)
 target_link_libraries(cb-classic PRIVATE cb_core lua54 m)
 
 if(CB_USE_SDL2)

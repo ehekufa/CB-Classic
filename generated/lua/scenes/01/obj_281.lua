@@ -12,7 +12,7 @@ return {
       body = function(o)
         E.set_pos(o, 560, E.op_neg(195))
         E.set_size(o, 80)
-        while true do
+        E.forever(function()
           E.fb_get(E.fb_key(E.gv(61), E.gv(62), "В"), "https://cubic-battle-default-rtdb.firebaseio.com/", function(v) E.set_gv(92, v) end)
           E.text_show_var(92, E.pos_x(o), E.op_add(E.pos_y(o), 160), 110, "#FFFFFF", "center")
           if E.truthy(E.op_ge(E.gv(93), 100000)) then
@@ -23,8 +23,7 @@ return {
             E.store_var(o, E.lv(o, 1))
           end
           E.wait(E.num(0.5))
-          E.frame()
-        end
+        end)
       end,
     },
     { -- скрипт 2: touch_down

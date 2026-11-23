@@ -13,14 +13,17 @@ return {
         E.add_body(o, "static")
         E.set_gravity(0, 0)
         E.set_size(o, 350)
-        while true do
+        E.forever(function()
           E.fb_get("X1", "https://cubic-battle-default-rtdb.firebaseio.com/", function(v) E.set_gv(73, v) end)
           E.fb_get("Y1", "https://cubic-battle-default-rtdb.firebaseio.com/", function(v) E.set_gv(74, v) end)
           E.set_pos(o, E.gv(73), E.gv(74))
           E.wait(E.num(0.13))
-          E.frame()
-        end
-        E.call_function(2)
+        end)
+      end,
+    },
+    { -- скрипт 2: function:2
+      trigger = "function:2",
+      body = function(o)
         while E.truthy(E.touch_id_by_index(E.gv(7))) do
           E.go_steps(o, 50)
           E.set_rot(o, E.gv(2))
@@ -31,15 +34,14 @@ return {
         end
       end,
     },
-    { -- скрипт 2: start
+    { -- скрипт 3: start
       trigger = "start",
       body = function(o)
-        while true do
+        E.forever(function()
           E.fb_get("Какой скин у первого куба", "https://cubic-battle-default-rtdb.firebaseio.com/", function(v) E.set_gv(105, v) end)
           E.set_image_by_id(o, E.gv(105))
           E.wait(E.num(0.05))
-          E.frame()
-        end
+        end)
       end,
     },
   },

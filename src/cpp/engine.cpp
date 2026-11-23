@@ -1,6 +1,8 @@
 // engine.cpp — реализация состояния мира.
 #include "engine.hpp"
 
+#include <filesystem>
+
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -51,6 +53,9 @@ std::vector<unsigned> utf8_decode(const std::string &text)
 
 const ImageRef *Sprite::current_image() const
 {
+    if (look_override) {
+        return look_override;
+    }
     if (!def || def->images.empty()) {
         return nullptr;
     }
@@ -114,7 +119,43 @@ unsigned parse_hex_color(const std::string &hex, unsigned fallback)
     return (value << 8) | 0xffu;
 }
 
-Engine::Engine(std::string asset_root) : asset_root_(std::move(asset_root)) {}
+Engine::Engine(std::string asset_root) : asset_root_(std::move(asset_root))
+{
+    store_load();      // сохранения прошлых запусков (кубки, «firebase», переменные)
+}
+
+void Engine::store_load()
+{
+    std::string path = asset_root_ + "/../saves/db.tsv";
+    FILE *file = std::fopen(path.c_str(), "rb");
+    if (!file) {
+        return;
+    }
+    char line[4096];
+    while (std::fgets(line, sizeof(line), file)) {
+        std::string text(line);
+        while (!text.empty() && (text.back() == '\n' || text.back() == '\r')) {
+            text.pop_back();
+        }
+        size_t first = text.find('\t');
+        if (first == std::string::npos) {
+            continue;
+        }
+        size_t second = text.find('\t', first + 1);
+        if (second == std::string::npos) {
+            continue;
+        }
+        std::string kind = text.substr(0, first);
+        std::string key = text.substr(first + 1, second - first - 1);
+        std::string value = text.substr(second + 1);
+        if (kind == "fb") {
+            fb_[key] = value;
+        } else if (kind == "st") {
+            store_[key] = value;
+        }
+    }
+    std::fclose(file);
+}
 
 void Engine::set_stage(int w, int h)
 {
@@ -140,6 +181,9 @@ void Engine::define_scene(int id, const std::string &name)
 
 void Engine::define_object(int scene_id, const ObjectDef &def)
 {
+    for (const auto &image : def.images) {
+        project_images_.emplace(image.id, image);   // общая таблица для скинов
+    }
     for (auto &scene : scenes_) {
         if (scene.id == scene_id) {
             scene.objects.push_back(def);
@@ -408,6 +452,53 @@ bool Engine::sprite_hit_pixel(Sprite &s, double x, double y)
     return effective >= 16.0;           // полностью прозрачные места не ловят нажатия
 }
 
+bool Engine::set_image_by_id(Sprite &sprite, int image_id)
+{
+    if (sprite.def) {
+        for (size_t i = 0; i < sprite.def->images.size(); ++i) {
+            if (sprite.def->images[i].id == image_id) {
+                sprite.image_index = static_cast<int>(i);
+                sprite.look_override = nullptr;
+                return true;
+            }
+        }
+    }
+    // «setImageToId» в моде принимает и номер образа (1..N): так приходят
+    // номера скинов из Firebase («1», «2», «3»)
+    if (sprite.def && image_id >= 1 &&
+        image_id <= static_cast<int>(sprite.def->images.size())) {
+        sprite.image_index = image_id - 1;
+        sprite.look_override = nullptr;
+        return true;
+    }
+    auto it = project_images_.find(image_id);
+    if (it != project_images_.end()) {
+        sprite.look_override = &it->second;   // картинка другого объекта
+        return true;
+    }
+    return false;
+}
+
+bool Engine::set_image_by_name(Sprite &sprite, const std::string &name)
+{
+    if (sprite.def) {
+        for (size_t i = 0; i < sprite.def->images.size(); ++i) {
+            if (sprite.def->images[i].path.find(name) != std::string::npos) {
+                sprite.image_index = static_cast<int>(i);
+                sprite.look_override = nullptr;
+                return true;
+            }
+        }
+    }
+    for (const auto &pair : project_images_) {
+        if (pair.second.path.find(name) != std::string::npos) {
+            sprite.look_override = &pair.second;
+            return true;
+        }
+    }
+    return false;
+}
+
 std::vector<Sprite *> Engine::sprites_at(double x, double y)
 {
     std::vector<Sprite *> order = sprites_in_draw_order();
@@ -442,12 +533,15 @@ std::vector<Sprite *> Engine::sprites_at(double x, double y)
     return hits;
 }
 
-double Engine::text_width(const TextField &field) const
+double Engine::text_width(const TextField &field)
 {
-    // та же метрика, что у рендерера: 6x8 «пикселей» на символ при size/24
+    const std::string &text = field.value.empty() ? field.placeholder : field.value;
+    if (measurer_) {
+        return measurer_(text, field.size);
+    }
+    // запасной вариант без шрифта: 6x8 «пикселей» на символ при size/24
     double scale = std::max(1.0, field.size / 24.0);
-    return static_cast<double>(utf8_length(field.value.empty() ? field.placeholder : field.value)) *
-           6.0 * scale;
+    return static_cast<double>(utf8_length(text)) * 6.0 * scale;
 }
 
 std::string utf8_encode(unsigned cp)
@@ -589,17 +683,42 @@ void Engine::text_remove(const std::string &label)
 
 void Engine::toast(const std::string &msg)
 {
+    // Оригинал умеет выдать одно и то же сообщение несколько раз подряд
+    // (по ветке на каждый промокод) — в кадре оно должно быть одно.
+    for (auto &existing : toasts_) {
+        if (existing == msg) {
+            return;
+        }
+    }
     toasts_.push_back(msg);
-    if (toasts_.size() > 6) {
+    toast_ttl_.push_back(3.0);
+    while (toasts_.size() > 4) {
         toasts_.pop_front();
+        if (!toast_ttl_.empty()) {
+            toast_ttl_.erase(toast_ttl_.begin());
+        }
     }
     log("toast: " + msg);
+}
+
+void Engine::tick_toasts(double dt)
+{
+    for (size_t i = 0; i < toast_ttl_.size() && i < toasts_.size(); ++i) {
+        toast_ttl_[i] -= dt;
+    }
+    while (!toasts_.empty() && !toast_ttl_.empty() && toast_ttl_.front() <= 0.0) {
+        toasts_.pop_front();
+        toast_ttl_.erase(toast_ttl_.begin());
+    }
 }
 
 void Engine::pop_toast()
 {
     if (!toasts_.empty()) {
         toasts_.pop_front();
+        if (!toast_ttl_.empty()) {
+            toast_ttl_.erase(toast_ttl_.begin());
+        }
     }
 }
 
@@ -645,7 +764,11 @@ void Engine::store_flush()
     for (const auto &pair : store_) {
         data += "st\t" + pair.first + "\t" + pair.second + "\n";
     }
-    cb_write_file((asset_root_ + "/../saves/db.tsv").c_str(), data.data(), data.size());
+    std::string path = asset_root_ + "/../saves/db.tsv";
+    // каталог saves/ может отсутствовать (первый запуск на телефоне)
+    std::error_code ec;
+    std::filesystem::create_directories(std::filesystem::path(path).parent_path(), ec);
+    cb_write_file(path.c_str(), data.data(), data.size());
 }
 
 void Engine::play_sound(int handle, int sound_id)
@@ -664,6 +787,133 @@ void Engine::play_sound(int handle, int sound_id)
     active_sounds_.push_back(name);
     if (sound_log_.size() > 256) {
         sound_log_.erase(sound_log_.begin());
+    }
+    if (sound_hook_ && !name.empty()) {
+        sound_hook_(name, false);
+    }
+}
+
+void Engine::play_sound_name(const std::string &path)
+{
+    play_sound(0, -1);
+    // play_sound(0, -1) уже записал «sound_-1» — заменяем на настоящее имя
+    if (!sound_log_.empty()) {
+        sound_log_.back() = path;
+    }
+    if (!active_sounds_.empty()) {
+        active_sounds_.back() = path;
+    }
+    if (sound_hook_ && !path.empty()) {
+        sound_hook_(path, false);
+    }
+}
+
+const ImageRef *Engine::image_by_id(int id) const
+{
+    auto it = project_images_.find(id);
+    return it == project_images_.end() ? nullptr : &it->second;
+}
+
+void Engine::particles_create(int handle, const std::string &name, int image_id)
+{
+    Sprite *sprite = find(handle);
+    auto &emitter = emitters_[{handle, name}];
+    emitter = ParticleEmitter();
+    emitter.name = name;
+    emitter.image_id = image_id;
+    if (sprite) {
+        emitter.x = sprite->x;
+        emitter.y = sprite->y;
+    }
+    if (image_id > 0) {
+        const ImageRef *ref = image_by_id(image_id);
+        if (ref) {
+            log("частицы: " + name + " (" + ref->path + ")");
+        }
+    }
+}
+
+void Engine::particles_move(int handle, const std::string &name, double x, double y)
+{
+    auto it = emitters_.find({handle, name});
+    if (it == emitters_.end()) {
+        return;
+    }
+    it->second.x = x;
+    it->second.y = y;
+}
+
+void Engine::particles_stop(int handle, const std::string &name)
+{
+    auto it = emitters_.find({handle, name});
+    if (it != emitters_.end()) {
+        it->second.active = false;
+    }
+}
+
+void Engine::particles_update(double dt)
+{
+    for (auto it = emitters_.begin(); it != emitters_.end();) {
+        ParticleEmitter &emitter = it->second;
+        if (!emitter.active && emitter.particles.empty()) {
+            it = emitters_.erase(it);
+            continue;
+        }
+        if (emitter.active) {
+            emitter.emit_accum += emitter.rate * dt;
+            while (emitter.emit_accum >= 1.0) {
+                emitter.emit_accum -= 1.0;
+                Particle p;
+                p.x = emitter.x;
+                p.y = emitter.y;
+                double angle = (static_cast<double>(std::rand() % 6283)) / 1000.0;
+                double speed = emitter.speed_min +
+                               (emitter.speed_max - emitter.speed_min) *
+                                   ((std::rand() % 1000) / 1000.0);
+                p.vx = std::cos(angle) * speed;
+                p.vy = std::sin(angle) * speed;
+                p.life = emitter.life_min + (emitter.life_max - emitter.life_min) *
+                                                ((std::rand() % 1000) / 1000.0);
+                p.size_start = emitter.size_start;
+                p.size_end = emitter.size_end;
+                p.rotation = (std::rand() % 360);
+                p.rotation_speed = (std::rand() % 120) - 60.0;
+                p.rgba = emitter.rgba;
+                emitter.particles.push_back(p);
+            }
+        }
+        for (auto p = emitter.particles.begin(); p != emitter.particles.end();) {
+            p->age += dt;
+            if (p->age >= p->life) {
+                p = emitter.particles.erase(p);
+                continue;
+            }
+            p->x += p->vx * dt;
+            p->y += p->vy * dt;
+            p->vx += p->ax * dt;
+            p->vy += p->ay * dt;
+            p->rotation += p->rotation_speed * dt;
+            ++p;
+        }
+        ++it;
+    }
+}
+
+std::vector<const ParticleEmitter *> Engine::particle_emitters() const
+{
+    std::vector<const ParticleEmitter *> result;
+    for (const auto &entry : emitters_) {
+        if (!entry.second.particles.empty()) {
+            result.push_back(&entry.second);
+        }
+    }
+    return result;
+}
+
+void Engine::stop_sound_by_name(const std::string &path)
+{
+    for (auto it = active_sounds_.begin(); it != active_sounds_.end();) {
+        it = (*it == path) ? active_sounds_.erase(it) : it + 1;
     }
 }
 

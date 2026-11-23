@@ -192,6 +192,25 @@ end
 
 ---------------------------------------------------------------- тайминги
 
+-- «Повторять всегда» из Pocket Code: отдельный поток, который крутится,
+-- пока жива сцена. Раньше такой цикл застревал в теле скрипта и блокировал
+-- всё, что стоит после него (джойстик, движение игрока).
+function E.forever(fn)
+  if not scheduler then
+    while true do
+      fn()
+      E.frame()
+    end
+    return
+  end
+  scheduler:spawn(function()
+    while true do
+      fn()
+      E.frame()
+    end
+  end, nil, "forever")
+end
+
 function E.wait(seconds)
   seconds = num(seconds)
   if seconds <= 0 then seconds = 0 end
@@ -304,19 +323,34 @@ end
 
 ---------------------------------------------------------------- события
 
--- обработчики подставляет boot.lua: клоны и broadcast-сообщения
-local clone_handler, broadcast_handler
+-- обработчики подставляет boot.lua: клоны и «функции»
+local clone_handler, function_handler
 function E.on_clone(fn) clone_handler = fn end
-function E.on_broadcast(fn) broadcast_handler = fn end
+function E.on_function(fn) function_handler = fn end
 
-function E.broadcast(id)
-  if broadcast_handler then
-    broadcast_handler(math.floor(num(id)))
+-- текущий объект исполняемого потока (ставит планировщик при возобновлении)
+E.current_object = nil
+
+-- «функция N» в модифицированном Pocket Code — точка входа, на которую
+-- прыгают broadcastFunction / broadcastFun>object. Раньше эти вызовы
+-- молча терялись, из-за чего джойстик не запускал движение игрока.
+function E.call_function(id)
+  if function_handler then
+    function_handler(E.current_object, math.floor(num(id)))
   end
 end
 
-function E.call_function(id) E.broadcast(id) end
-function E.broadcast_to_object(object_id, id) E.broadcast(id) end
+function E.broadcast_to_object(object_id, id)
+  if function_handler then
+    function_handler(math.floor(num(object_id)), math.floor(num(id)))
+  end
+end
+
+function E.broadcast(id)
+  if function_handler then
+    function_handler(nil, math.floor(num(id)))     -- всем объектам сцены
+  end
+end
 
 local warned = {}
 function E.warn_once(key, message)
@@ -447,9 +481,11 @@ local ask_counter = 0
 function E.ask(o, prompt, callback)
   ask_counter = ask_counter + 1
   local label = "Вопрос:" .. tostring(prompt) .. ":" .. tostring(ask_counter)
-  cb.text_create(label, 0, 0, 620, 80, "#000000", "center", 1)
-  cb.text_set(label, "size", 120)
-  cb.text_set(label, "placeholder", str(prompt))
+  -- поле стоит ниже заголовка: вопрос рисует renderer (модальная панель),
+  -- иначе текст ложился прямо на интерфейс сцены
+  cb.text_create(label, 0, -55, 620, 80, "#ffffff", "center", 1)
+  cb.text_set(label, "size", 52)
+  cb.text_set(label, "placeholder", "ответ")
   cb.text_set(label, "value", "")
   E.text_handlers[label] = function(value)
     cb.text_delete(label)
@@ -490,12 +526,15 @@ function E.transition(o, duration, x, y)
   E.set_pos(o, x, y)
 end
 
--- частицы (createRadialParticle / setPositionParticle) — заглушка
+-- частицы (createRadialParticle / setPositionParticle): эффект рисует движок
 function E.particles_create(o, label, image_id)
-  cb.unsupported("particles")
+  cb.particles_create(o, str(label), math.floor(num(image_id)))
 end
 function E.particles_move(o, label, x, y)
-  cb.unsupported("particles")
+  cb.particles_move(o, str(label), num(x), num(y))
+end
+function E.particles_stop(o, label)
+  cb.particles_stop(o, str(label))
 end
 
 ---------------------------------------------------------------- часы

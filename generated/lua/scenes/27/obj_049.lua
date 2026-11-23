@@ -11,9 +11,17 @@ return {
       trigger = "start",
       body = function(o)
         E.camera_focus(0, 0)
-        E.call_function(3)
+      end,
+    },
+    { -- скрипт 2: function:3
+      trigger = "function:3",
+      body = function(o)
         E.add_y(o, 80)
-        E.call_function(2)
+      end,
+    },
+    { -- скрипт 3: function:2
+      trigger = "function:2",
+      body = function(o)
         E.add_y(o, E.op_neg(80))
       end,
     },

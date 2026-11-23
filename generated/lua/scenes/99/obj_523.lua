@@ -12,12 +12,11 @@ return {
       body = function(o)
         E.camera_off()
         E.hide(o)
-        while true do
+        E.forever(function()
           E.go_to(o, 516)
           E.add_x(o, 0)
           E.add_y(o, E.op_neg(100))
-          E.frame()
-        end
+        end)
       end,
     },
     { -- скрипт 2: touch_down
@@ -30,11 +29,23 @@ return {
       trigger = "tap",
       body = function(o)
         E.broadcast(21)
-        E.call_function(23)
+      end,
+    },
+    { -- скрипт 4: function:23
+      trigger = "function:23",
+      body = function(o)
         E.hide(o)
-        E.call_function(21)
+      end,
+    },
+    { -- скрипт 5: function:21
+      trigger = "function:21",
+      body = function(o)
         E.hide(o)
-        E.call_function(22)
+      end,
+    },
+    { -- скрипт 6: function:22
+      trigger = "function:22",
+      body = function(o)
         E.show(o)
       end,
     },

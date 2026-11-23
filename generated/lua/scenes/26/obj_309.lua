@@ -25,9 +25,17 @@ return {
         else
           E.set_gv(65, 0)
         end
-        E.call_function(11)
+      end,
+    },
+    { -- скрипт 3: function:11
+      trigger = "function:11",
+      body = function(o)
         E.show(o)
-        E.call_function(12)
+      end,
+    },
+    { -- скрипт 4: function:12
+      trigger = "function:12",
+      body = function(o)
         E.hide(o)
       end,
     },

@@ -19,11 +19,10 @@ return {
     { -- скрипт 2: start
       trigger = "start",
       body = function(o)
-        while true do
+        E.forever(function()
           E.go_to(o, 21)
           E.set_rot(o, E.op_sub(E.gv(2), 90))
-          E.frame()
-        end
+        end)
       end,
     },
     { -- скрипт 3: when_truth

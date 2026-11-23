@@ -13,12 +13,11 @@ return {
         E.set_size(o, 350)
         E.set_bright(o, 0)
         E.set_alpha(o, 65)
-        while true do
+        E.forever(function()
           E.go_to(o, 22)
           E.add_y(o, E.op_neg(28))
           E.set_rot(o, E.gv(43))
-          E.frame()
-        end
+        end)
       end,
     },
   },

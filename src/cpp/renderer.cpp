@@ -201,9 +201,10 @@ std::string transliterate(const std::string &text)
 
 }  // namespace
 
-Renderer::Renderer(int width, int height)
-    : width_(width), height_(height),
-      pixels_(static_cast<size_t>(width) * static_cast<size_t>(height) * 4, 0)
+Renderer::Renderer(int width, int height, double scale)
+    : width_(static_cast<int>(std::lround(width * scale))),
+      height_(static_cast<int>(std::lround(height * scale))), scale_(scale),
+      pixels_(static_cast<size_t>(width_) * static_cast<size_t>(height_) * 4, 0)
 {
 }
 
@@ -220,6 +221,28 @@ void Renderer::clear(unsigned rgba)
         pixels_[i + 3] = a;
     }
     drawn_ = 0;
+}
+
+bool Renderer::load_font(const std::vector<std::string> &candidates)
+{
+    return font_.load(candidates);
+}
+
+double Renderer::text_width(const std::string &text, double size)
+{
+    if (font_.loaded()) {
+        return font_.measure(text, size * scale_) / scale_;
+    }
+    // запасной вариант: встроенный шрифт 5x7
+    double scale = std::max(1.0, size / 24.0);
+    return static_cast<double>(utf8_length(text)) * 6.0 * scale;
+}
+
+void Renderer::blend_alpha(int x, int y, unsigned rgba, unsigned char alpha)
+{
+    unsigned char base = static_cast<unsigned char>(rgba & 0xff);
+    unsigned scaled = static_cast<unsigned>(alpha) * base / 255u;
+    blend(x, y, (rgba & 0xffffff00u) | scaled);
 }
 
 void Renderer::blend(int x, int y, unsigned rgba)
@@ -253,6 +276,7 @@ void Renderer::draw_image(const cb_image &img, double cx, double cy, double w, d
     if (w <= 0.5 || h <= 0.5 || img.width <= 0 || img.height <= 0) {
         return;
     }
+    cx *= scale_; cy *= scale_; w *= scale_; h *= scale_;
     double rad = rotation_deg * kPi / 180.0;
     double cos_a = std::cos(rad);
     double sin_a = std::sin(rad);
@@ -288,22 +312,74 @@ void Renderer::draw_image(const cb_image &img, double cx, double cy, double w, d
             }
             double u = (lx + half_w) / w;          // 0..1 слева направо
             double v = (ly + half_h) / h;          // 0..1 сверху вниз
-            int ix = static_cast<int>(u * img.width);
-            int iy = static_cast<int>(v * img.height);
-            if (ix < 0) ix = 0;
-            if (iy < 0) iy = 0;
-            if (ix >= img.width) ix = img.width - 1;
-            if (iy >= img.height) iy = img.height - 1;
-            const unsigned char *src = img.pixels +
-                (static_cast<size_t>(iy) * static_cast<size_t>(img.width) +
-                 static_cast<size_t>(ix)) * 4;
-            double a = src[3] / 255.0 * alpha;
+            // Во сколько исходных пикселей попадает один пиксель кадра.
+            // Больше 1 — картинка уменьшается: берём среднее по площадке,
+            // иначе крупные фоны (снег, шум) превращаются в «рябь».
+            double sample = (img.width / w > img.height / h) ? img.width / w
+                                                             : img.height / h;
+            int taps = 1;
+            if (sample > 1.25) {
+                taps = static_cast<int>(std::ceil(sample));
+                if (taps > 4) taps = 4;
+                if (taps < 2) taps = 2;
+            }
+            double acc_r = 0.0, acc_g = 0.0, acc_b = 0.0, acc_a = 0.0;
+            double inv = 1.0;
+            if (taps == 1) {
+                // увеличение: билинейная интерполяция — без «крупных пикселей»
+                double fx = u * img.width - 0.5;
+                double fy = v * img.height - 0.5;
+                int x0i = static_cast<int>(std::floor(fx));
+                int y0i = static_cast<int>(std::floor(fy));
+                double tx = fx - x0i;
+                double ty = fy - y0i;
+                for (int dyi = 0; dyi < 2; ++dyi) {
+                    for (int dxi = 0; dxi < 2; ++dxi) {
+                        int ix = x0i + dxi;
+                        int iy = y0i + dyi;
+                        if (ix < 0) ix = 0;
+                        if (iy < 0) iy = 0;
+                        if (ix >= img.width) ix = img.width - 1;
+                        if (iy >= img.height) iy = img.height - 1;
+                        const unsigned char *tap = img.pixels +
+                            (static_cast<size_t>(iy) * static_cast<size_t>(img.width) +
+                             static_cast<size_t>(ix)) * 4;
+                        double weight = (dxi ? tx : 1.0 - tx) * (dyi ? ty : 1.0 - ty);
+                        acc_r += tap[0] * weight;
+                        acc_g += tap[1] * weight;
+                        acc_b += tap[2] * weight;
+                        acc_a += tap[3] * weight;
+                    }
+                }
+            } else {
+                double base_x = u * img.width - (taps - 1) * sample / 2.0;
+                double base_y = v * img.height - (taps - 1) * sample / 2.0;
+                for (int sy = 0; sy < taps; ++sy) {
+                    for (int sx = 0; sx < taps; ++sx) {
+                        int ix = static_cast<int>(base_x + sx * sample);
+                        int iy = static_cast<int>(base_y + sy * sample);
+                        if (ix < 0) ix = 0;
+                        if (iy < 0) iy = 0;
+                        if (ix >= img.width) ix = img.width - 1;
+                        if (iy >= img.height) iy = img.height - 1;
+                        const unsigned char *tap = img.pixels +
+                            (static_cast<size_t>(iy) * static_cast<size_t>(img.width) +
+                             static_cast<size_t>(ix)) * 4;
+                        acc_r += tap[0];
+                        acc_g += tap[1];
+                        acc_b += tap[2];
+                        acc_a += tap[3];
+                    }
+                }
+                inv = 1.0 / static_cast<double>(taps * taps);
+            }
+            double a = acc_a * inv / 255.0 * alpha;
             if (a <= 0.002) {
                 continue;
             }
-            double r = std::min(255.0, src[0] * bright);
-            double g = std::min(255.0, src[1] * bright);
-            double b = std::min(255.0, src[2] * bright);
+            double r = std::min(255.0, acc_r * inv * bright);
+            double g = std::min(255.0, acc_g * inv * bright);
+            double b = std::min(255.0, acc_b * inv * bright);
             unsigned rgba = (static_cast<unsigned>(r) << 24) |
                             (static_cast<unsigned>(g) << 16) |
                             (static_cast<unsigned>(b) << 8) |
@@ -340,8 +416,10 @@ void Renderer::draw_scene(Engine &engine)
     for (Sprite *sprite : engine.sprites_in_draw_order()) {
         draw_sprite(engine, *sprite);
     }
+    draw_particles(engine);
     auto &fields = engine.texts();
     const std::string focused = engine.focused_text();
+    draw_ask_panel(engine);
     // мигающая каретка: 0.5 с видна, 0.5 с нет
     bool caret_visible = std::fmod(engine.time(), 1.0) < 0.6;
     for (auto &pair : fields) {
@@ -359,10 +437,10 @@ void Renderer::draw_scene(Engine &engine)
             double h = field.height > 0.0 ? field.height : std::max(28.0, field.size * 1.6);
             unsigned frame = is_focused ? 0x3a90d0ffu : 0x9aa0a880u;
             double left = field.x - w / 2.0;
-            double top = field.y + h / 2.0;
+            double top = field.y + h / 2.0;      // fill_rect рисует вниз от top
             // светлая подложка: текст читается на любом фоне
-            fill_rect(left, field.y - h / 2.0, w, h, is_focused ? 0xffffffe6 : 0xffffffb4);
-            fill_rect(left, top - 2.0, w, 2.0, frame);            // верх
+            fill_rect(left, top, w, h, is_focused ? 0xffffffe6u : 0xffffffb4u);
+            fill_rect(left, top, w, 2.0, frame);                  // верх
             fill_rect(left, field.y - h / 2.0, w, 2.0, frame);    // низ
             fill_rect(left, field.y - h / 2.0, 2.0, h, frame);    // лево
             fill_rect(left + w - 2.0, field.y - h / 2.0, 2.0, h, frame);
@@ -377,16 +455,15 @@ void Renderer::draw_scene(Engine &engine)
             draw_text(text, field.x, field.y, field.size, color, field.align);
         }
         if (is_focused && caret_visible) {
-            double scale = std::max(1.0, field.size / 24.0);
-            double glyph_w = 6.0 * scale;
-            double total = static_cast<double>(utf8_length(field.value)) * glyph_w;
+            double total = text_width(field.value, field.size);
             double sx = field.x;
             if (field.align == "center") {
                 sx -= total / 2.0;
             } else if (field.align == "right") {
                 sx -= total;
             }
-            fill_rect(sx + total + 2.0, field.y + 3.5 * scale, 2.0, 7.0 * scale,
+            double caret_h = field.size * 0.38;
+            fill_rect(sx + total + 2.0, field.y - caret_h / 2.0, 2.0, caret_h,
                       (color & 0x00ffffffu) | 0xff000000u);
         }
     }
@@ -395,6 +472,7 @@ void Renderer::draw_scene(Engine &engine)
 
 void Renderer::fill_rect(double x, double y, double w, double h, unsigned rgba)
 {
+    x *= scale_; y *= scale_; w *= scale_; h *= scale_;
     double sx = x + static_cast<double>(width_) / 2.0;
     double sy = static_cast<double>(height_) / 2.0 - y;
     for (int py = static_cast<int>(sy); py < static_cast<int>(sy + h); ++py) {
@@ -407,7 +485,16 @@ void Renderer::fill_rect(double x, double y, double w, double h, unsigned rgba)
 void Renderer::draw_text(const std::string &text, double x, double y, double size,
                          unsigned rgba, const std::string &align)
 {
+    if (font_.loaded()) {
+        // координаты — сценические (центр, Y вверх), plot рисует в буфер
+        font_.draw(text, x * scale_, y * scale_, size * scale_, align,
+                   [this, rgba](int px, int py, unsigned char alpha) {
+                       blend_alpha(px + width_ / 2, height_ / 2 - py, rgba, alpha);
+                   });
+        return;
+    }
     // Символы без глифа (редкая экзотика) транслитерируются в латиницу.
+    x *= scale_; y *= scale_; size *= scale_;
     std::vector<const char *> cells;
     for (unsigned cp : utf8_decode(text)) {
         if (cp < 0x80) {
@@ -465,14 +552,75 @@ void Renderer::draw_text(const std::string &text, double x, double y, double siz
     }
 }
 
+void Renderer::draw_particles(Engine &engine)
+{
+    // Частицы (createRadialParticle): рисуются поверх спрайтов, но под текстом.
+    for (const ParticleEmitter *emitter : engine.particle_emitters()) {
+        const ImageRef *ref = engine.image_by_id(emitter->image_id);
+        if (!ref) {
+            continue;
+        }
+        const ImageAsset *asset = engine.image(ref->path);
+        if (!asset || !asset->loaded) {
+            continue;
+        }
+        for (const Particle &particle : emitter->particles) {
+            double t = particle.age / (particle.life > 0.0 ? particle.life : 1.0);
+            double size = particle.size_start +
+                          (particle.size_end - particle.size_start) * t;
+            // проявление / затухание
+            double alpha = t < 0.15 ? t / 0.15 : 1.0 - std::max(0.0, (t - 0.65) / 0.35);
+            if (alpha <= 0.02 || size <= 0.5) {
+                continue;
+            }
+            draw_image(asset->image, particle.x, particle.y, size, size,
+                       particle.rotation, alpha * 100.0, 100.0);
+        }
+    }
+}
+
+void Renderer::draw_ask_panel(Engine &engine)
+{
+    // E.ask создаёт поле с меткой «Вопрос:<текст>:<номер>». Рисуем под ним
+    // затемнение и панель с вопросом — как диалог в оригинале.
+    for (auto &entry : engine.texts()) {
+        TextField &field = entry.second;
+        if (!field.visible || entry.first.rfind("Вопрос:", 0) != 0) {
+            continue;
+        }
+        size_t first = entry.first.find(':') + 1;
+        size_t last = entry.first.rfind(':');
+        std::string prompt = last > first ? entry.first.substr(first, last - first) : std::string();
+        double sw = static_cast<double>(engine.stage_width());
+        double sh = static_cast<double>(engine.stage_height());
+        // fill_rect принимает левый-ВЕРХНИЙ угол (y идёт вниз), а не центр
+        fill_rect(-sw / 2.0, sh / 2.0, sw, sh, 0x0000008cu);
+        fill_rect(-380.0, 125.0, 760.0, 250.0, 0x1b3c5affu);
+        fill_rect(-380.0, 125.0, 760.0, 3.0, 0x3a90d0ffu);
+        fill_rect(-380.0, 10.0, 760.0, 2.0, 0x3a90d0ffu);
+        if (!prompt.empty()) {
+            draw_text(prompt, 0.0, 62.0, 62.0, 0xffffffffu, "center");
+        }
+        return;
+    }
+}
+
 void Renderer::draw_toasts(Engine &engine)
 {
-    int i = 0;
-    for (const auto &msg : engine.toasts()) {
-        double y = static_cast<double>(engine.stage_height()) / 2.0 -
-                   30.0 - static_cast<double>(i) * 20.0;
-        draw_text(msg, 0.0, y, 14.0, 0xffffffffu, "center");
-        ++i;
+    const auto &messages = engine.toasts();
+    if (messages.empty()) {
+        return;
+    }
+    // Внизу по центру: в оригинале тост всплывает поверх сцены, но не
+    // перекрывает кнопки. Несколько сообщений — стопкой вверх.
+    double bottom = -static_cast<double>(engine.stage_height()) / 2.0 + 34.0;
+    size_t count = messages.size();
+    for (size_t i = 0; i < count; ++i) {
+        const std::string &msg = messages[count - 1 - i];   // новые сверху
+        double y = bottom + static_cast<double>(i) * 34.0;
+        double w = text_width(msg, 20.0) + 28.0;
+        fill_rect(-w / 2.0, y + 16.0, w, 32.0, 0x1b3c5ab0u);
+        draw_text(msg, 0.0, y, 20.0, 0xffffffffu, "center");
     }
 }
 

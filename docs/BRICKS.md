@@ -102,5 +102,14 @@
 ## Итог
 
 * блоков без реализации: **0**
-* заглушки (пишут в журнал, но не моделируют физику/частицы): `addBody`, `isSensor`, `setGravityAllObjects`, `setQuareWHHitbox`, `createRadialParticle`, `setPositionParticle`, `focusCameraToObject`.
-* звук: выбор и запуск звука перенесены, воспроизведения нет (нет MP3-декодера).
+* заглушки (пишут в журнал, физика не моделируется): `addBody`, `isSensor`, `setGravityAllObjects`, `setQuareWHHitbox`, `focusCameraToObject`.
+* частицы `createRadialParticle`/`setPositionParticle` **рисуются**: движок ведёт источники
+  (`Engine::particles_*`), частица получает скорость, время жизни, размер, вращение и
+  затухание; картинка берётся по id из блока.
+* звук **играет**: `startSound`/`playSound*` отдают MP3 в `Audio` (minimp3 + SDL2),
+  `stopAllSounds` глушит эффекты; музыка — встроенная синтезированная тема.
+* «функции» (`function N`) — это точки входа, на которые прыгают
+  `broadcastFunction`/`broadcastFun>object`: конвертер делает из них скрипты
+  `function:N`, а рантайм запускает их по broadcast (благодаря этому работает джойстик).
+* кубки: победа в сцене «Игра» начисляет +5 (как `add_gv(24, 5)` в скриптах),
+  счёт сохраняется локально и показывается в меню.

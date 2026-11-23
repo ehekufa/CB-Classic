@@ -29,10 +29,9 @@ return {
           if E.truthy(E.op_eq(E.gv(47), 1)) then
             E.set_gv(65, 1)
             E.broadcast_to_object(21, 8)
-            while true do
+            E.forever(function()
               E.set_bright(o, 85)
-              E.frame()
-            end
+            end)
           end
           if E.truthy(E.op_eq(E.gv(47), 2)) then
             E.clone(247)
@@ -50,10 +49,9 @@ return {
             E.broadcast_to_object(21, 5)
             E.wait(E.num(2.1))
           end
-          while true do
+          E.forever(function()
             E.set_bright(o, 100)
-            E.frame()
-          end
+          end)
         end
       end,
     },
@@ -62,10 +60,9 @@ return {
       cond = function(o) return E.truthy(E.op_eq(E.gv(68), true)) end,
       body = function(o)
         E.wait_until(function() return E.truthy(E.op_eq(E.gv(68), true)) end, o)
-        while true do
+        E.forever(function()
           E.set_bright(o, 85)
-          E.frame()
-        end
+        end)
       end,
     },
   },

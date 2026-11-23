@@ -30,7 +30,7 @@ LDFLAGS  += $(shell pkg-config --libs sdl2)
 CPPFLAGS += -DCB_USE_SDL2
 endif
 
-CPPFLAGS += -Ithird_party/lua-5.4 -Isrc/c
+CPPFLAGS += -Ithird_party/lua-5.4 -Ithird_party/stb -Ithird_party/minimp3 -Isrc/c
 
 all: $(BIN)
 

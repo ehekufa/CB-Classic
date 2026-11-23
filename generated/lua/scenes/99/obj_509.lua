@@ -44,44 +44,62 @@ return {
     { -- скрипт 4: start
       trigger = "start",
       body = function(o)
-        while true do
+        E.forever(function()
           E.add_rot(o, E.random(1, 50))
-          E.frame()
-        end
+        end)
       end,
     },
     { -- скрипт 5: start
       trigger = "start",
       body = function(o)
-        while true do
+        E.forever(function()
           E.transition(o, 1, E.random(E.op_neg(300), 300), E.random(E.op_neg(300), 300))
-          E.frame()
-        end
-        E.call_function(25)
+        end)
+      end,
+    },
+    { -- скрипт 6: function:25
+      trigger = "function:25",
+      body = function(o)
         if E.truthy(E.op_eq(E.image_number(o), 1)) then
           E.wait(E.num(1))
           E.hide(o)
           E.wait(E.num(1))
         end
-        E.call_function(20)
+      end,
+    },
+    { -- скрипт 7: function:20
+      trigger = "function:20",
+      body = function(o)
         if E.truthy(E.op_eq(E.image_number(o), 1)) then
           E.wait(E.num(1))
           E.hide(o)
           E.wait(E.num(1))
         end
-        E.call_function(15)
+      end,
+    },
+    { -- скрипт 8: function:15
+      trigger = "function:15",
+      body = function(o)
         if E.truthy(E.op_eq(E.image_number(o), 1)) then
           E.wait(E.num(1))
           E.hide(o)
           E.wait(E.num(1))
         end
-        E.call_function(16)
+      end,
+    },
+    { -- скрипт 9: function:16
+      trigger = "function:16",
+      body = function(o)
         if E.truthy(E.op_eq(E.image_number(o), 1)) then
           E.wait(E.num(1))
           E.hide(o)
           E.wait(E.num(1))
         end
-        E.call_function(19)
+      end,
+    },
+    { -- скрипт 10: function:19
+      trigger = "function:19",
+      body = function(o)
         if E.truthy(E.op_eq(E.image_number(o), 1)) then
           E.show(o)
         end

@@ -17,13 +17,16 @@ return {
     { -- скрипт 2: start
       trigger = "start",
       body = function(o)
-        while true do
+        E.forever(function()
           E.go_to(o, 21)
           E.face(o, 22)
           E.go_steps(o, 320)
-          E.frame()
-        end
-        E.call_function(13)
+        end)
+      end,
+    },
+    { -- скрипт 3: function:13
+      trigger = "function:13",
+      body = function(o)
         E.add_body(o, "dynamic")
         E.set_sensor(o, "off")
         E.set_hitbox(o, 50, 450)

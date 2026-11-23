@@ -61,6 +61,68 @@ check $?
 grep -q "ошибок: 0" /tmp/cb_run26.log
 check $?
 
+step "управление: джойстик ведёт игрока вправо, а не вверх"
+$BIN --frames 40 --scene 26 --script tests/scripts/joystick_move.txt \
+     --profile "61=Гость,62=123,60=3,3=100,4=6,12=1" --out /tmp/cb_frames_joy --verbose \
+     >/tmp/cb_joy.log 2>&1
+check $?
+awk '/Игрок /{print $3}' /tmp/cb_joy.log | tail -1 | \
+  python3 -c "import sys; sys.exit(0 if float(sys.stdin.read().strip() or 0) > 100 else 1)"
+check $?
+
+step "скины: выбор скина меняет картинку игрока"
+$BIN --frames 40 --scene 95 --script tests/scripts/skin_select.txt \
+     --out /tmp/cb_frames_skin --verbose >/tmp/cb_skin.log 2>&1
+check $?
+grep -q "Игрок 1 .*0931_" /tmp/cb_skin.log
+check $?
+
+step "кубки: победа даёт кубки, счёт сохраняется и виден в меню"
+rm -f saves/db.tsv
+$BIN --frames 30 --scene 26 --set-var "4=0@15" --out /tmp/cb_frames_cups --verbose \
+     >/tmp/cb_cups.log 2>&1
+check $?
+grep -q "toast: Победа! +5 кубков" /tmp/cb_cups.log
+check $?
+grep -q "cups.5" saves/db.tsv
+check $?
+$BIN --frames 3 --scene 1 --out /tmp/cb_frames_cups2 --verbose >/tmp/cb_cups2.log 2>&1
+grep -q "Кубки: 5" /tmp/cb_cups2.log
+check $?
+
+step "звук: эффекты проекта звучат, музыка синтезируется"
+$BIN --frames 30 --scene 26 --script tests/scripts/joystick.txt \
+     --profile "61=Гость,62=123,60=3,3=100,4=6,12=1" --out /tmp/cb_frames_snd \
+     >/tmp/cb_snd.log 2>&1
+check $?
+grep -Eq "прозвучало звуков: [1-9]" /tmp/cb_snd.log
+check $?
+$BIN --export-music /tmp/cb_theme.wav >/tmp/cb_music.log 2>&1
+check $?
+python3 - <<'PYW'
+import sys, wave
+try:
+    w = wave.open("/tmp/cb_theme.wav")
+except Exception:
+    sys.exit(1)
+sys.exit(0 if w.getnframes() > 44100 * 10 else 1)
+PYW
+check $?
+
+step "адаптация: суперсэмплинг сохраняет раскладку (2x кадр)"
+$BIN --frames 3 --scene 77 --pixel-scale 2 --out /tmp/cb_frames_x2 >/tmp/cb_x2.log 2>&1
+check $?
+python3 - <<'PYW'
+import struct, sys, glob
+files = sorted(glob.glob("/tmp/cb_frames_x2/*.png"))
+if not files:
+    sys.exit(1)
+data = open(files[-1], "rb").read(33)
+w, h = struct.unpack(">II", data[16:24])
+sys.exit(0 if (w, h) == (2696, 1440) else 1)
+PYW
+check $?
+
 step "ввод: все кнопки проекта получают нажатие"
 $BIN --check-buttons >/tmp/cb_buttons.log 2>&1
 check $?

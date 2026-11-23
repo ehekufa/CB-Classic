@@ -20,12 +20,11 @@ return {
     { -- скрипт 2: start
       trigger = "start",
       body = function(o)
-        while true do
+        E.forever(function()
           E.go_to(o, 21)
           E.set_rot(o, E.gv(2))
           E.go_steps(o, 15)
-          E.frame()
-        end
+        end)
       end,
     },
   },

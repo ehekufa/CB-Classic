@@ -6,6 +6,7 @@
 #define CB_ENGINE_HPP
 
 #include <deque>
+#include <functional>
 #include <map>
 #include <string>
 #include <unordered_map>
@@ -54,6 +55,42 @@ struct SceneDef {
     std::vector<ObjectDef> objects;
 };
 
+// Частица: отдельная точка эффекта (createRadialParticle в Pocket Code).
+struct Particle {
+    double x = 0.0;
+    double y = 0.0;
+    double vx = 0.0;
+    double vy = 0.0;
+    double ax = 0.0;
+    double ay = 0.0;
+    double age = 0.0;
+    double life = 1.0;
+    double size_start = 30.0;
+    double size_end = 8.0;
+    double rotation = 0.0;
+    double rotation_speed = 0.0;
+    unsigned rgba = 0xffffffffu;
+};
+
+// Источник частиц, привязанный к объекту по имени («Частицы»).
+struct ParticleEmitter {
+    std::string name;
+    int image_id = 0;
+    double x = 0.0;
+    double y = 0.0;
+    double rate = 12.0;          // частиц в секунду
+    double emit_accum = 0.0;
+    double life_min = 0.5;
+    double life_max = 1.0;
+    double speed_min = 40.0;
+    double speed_max = 110.0;
+    double size_start = 26.0;
+    double size_end = 4.0;
+    unsigned rgba = 0xffffffffu;
+    bool active = true;
+    std::vector<Particle> particles;
+};
+
 struct TextField {
     std::string label;
     double x = 0.0;
@@ -98,6 +135,7 @@ struct Sprite {
     bool is_clone = false;
 
     const ImageRef *current_image() const;
+    const ImageRef *look_override = nullptr;   // картинка-скин не из своего списка
 };
 
 class Engine {
@@ -132,6 +170,7 @@ public:
     double touch_x() const { return touch_x_; }
     double touch_y() const { return touch_y_; }
     int touch_count() const { return static_cast<int>(touches_.size()); }
+    int last_touch_id() const { return touches_.empty() ? -1 : touches_.back().id; }
     // index — 1..N в порядке нажатия (так его понимают блоки touchXByIndex/touchXByID)
     bool touch_at(int index, double *x, double *y) const;
     // нажатия, которые ещё не разобраны Lua-рантаймом (по одному на палец)
@@ -141,6 +180,10 @@ public:
 
     // --- попадания по спрайтам ---
     bool sprite_hit_pixel(Sprite &s, double x, double y);        // с учётом альфы картинки
+    // setImageToId из модифицированного Pocket Code умеет брать картинку
+    // любого объекта проекта — на этом построены скины
+    bool set_image_by_id(Sprite &sprite, int image_id);
+    bool set_image_by_name(Sprite &sprite, const std::string &name);
     std::vector<Sprite *> sprites_at(double x, double y);        // сверху вниз
 
     // --- текстовые поля: фокус и ввод с клавиатуры ---
@@ -151,12 +194,22 @@ public:
     bool text_input(const std::string &utf8);
     bool text_backspace();
     bool pop_text_commit(std::string *label, std::string *value);
-    double text_width(const TextField &field) const;
+    double text_width(const TextField &field);
+    // рендерер сообщает движку, как измерить строку настоящим шрифтом
+    void set_text_measurer(std::function<double(const std::string &, double)> fn) {
+        measurer_ = std::move(fn);
+    }
 
     // --- прочее ---
     double time() const { return time_; }
     double dt() const { return dt_; }
-    void advance(double dt) { time_ += dt; dt_ = dt; }
+    void advance(double dt)
+    {
+        time_ += dt;
+        dt_ = dt;
+        tick_toasts(dt);
+        particles_update(dt);
+    }
     int stage_width() const { return stage_w_; }
     int stage_height() const { return stage_h_; }
     void set_stage(int w, int h);
@@ -172,6 +225,7 @@ public:
     std::map<std::string, TextField> &texts() { return texts_; }
     void toast(const std::string &msg);
     const std::deque<std::string> &toasts() const { return toasts_; }
+    void tick_toasts(double dt);
     void pop_toast();
 
     // --- «Firebase» и сохранения эмулируются локально ---
@@ -180,11 +234,27 @@ public:
     void store_set(const std::string &key, const std::string &value);
     bool store_get(const std::string &key, std::string *out) const;
     void store_flush();
+    void store_load();
 
     // --- звук (в headless-режиме только журнал) ---
     void play_sound(int handle, int sound_id);
+    void play_sound_name(const std::string &path);           // по имени файла
+    void stop_sound_by_name(const std::string &path);
+    // Звук отдаётся наружу (audio.cpp): движок не знает про SDL
+    void set_sound_hook(std::function<void(const std::string &, bool loop)> hook)
+    {
+        sound_hook_ = std::move(hook);
+    }
     void stop_sounds() { active_sounds_.clear(); }
     const std::vector<std::string> &sound_log() const { return sound_log_; }
+
+    // --- частицы (визуальные эффекты) ---
+    void particles_create(int handle, const std::string &name, int image_id);
+    void particles_move(int handle, const std::string &name, double x, double y);
+    void particles_stop(int handle, const std::string &name);
+    void particles_update(double dt);
+    std::vector<const ParticleEmitter *> particle_emitters() const;
+    const ImageRef *image_by_id(int id) const;
 
     // --- журнал для отчёта/тестов ---
     void log(const std::string &msg);
@@ -210,6 +280,7 @@ private:
     int next_clone_handle_ = 100000;
 
     std::unordered_map<std::string, ImageAsset> images_;
+    std::map<int, ImageRef> project_images_;     // id картинки -> картинка (все объекты)
 
     bool touch_down_ = false;
     double touch_x_ = 0.0;
@@ -217,6 +288,7 @@ private:
     std::vector<Touch> touches_;
     std::deque<std::pair<double, double>> presses_;
 
+    std::function<double(const std::string &, double)> measurer_;
     std::string focus_;
     std::deque<std::pair<std::string, std::string>> text_commits_;
 
@@ -226,10 +298,13 @@ private:
 
     std::map<std::string, TextField> texts_;
     std::deque<std::string> toasts_;
+    std::vector<double> toast_ttl_;          // сколько секунд ещё показывать
 
     std::map<std::string, std::string> fb_;
     std::map<std::string, std::string> store_;
 
+    std::function<void(const std::string &, bool loop)> sound_hook_;
+    std::map<std::pair<int, std::string>, ParticleEmitter> emitters_;
     std::vector<std::string> active_sounds_;
     std::vector<std::string> sound_log_;
     std::vector<std::string> log_lines_;

@@ -11,6 +11,6 @@ return {
     { id = 11, name = "Силы", file = "obj_011.lua", scripts = 3 },
     { id = 281, name = "Конфета", file = "obj_281.lua", scripts = 3 },
     { id = 417, name = "Наш сервер", file = "obj_417.lua", scripts = 3 },
-    { id = 520, name = "Сбросить прогресс", file = "obj_520.lua", scripts = 2 },
+    { id = 520, name = "Сбросить прогресс", file = "obj_520.lua", scripts = 3 },
   },
 }

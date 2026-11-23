@@ -75,6 +75,10 @@ jobs:
           cp -r assets            android/app/src/main/assets/assets
           cp -r src/lua           android/app/src/main/assets/src/lua
           cp -r generated/lua     android/app/src/main/assets/generated/lua
+          # шрифт с кириллицей: MainActivity распаковывает его в filesDir/root/fonts
+          mkdir -p android/app/src/main/assets/fonts
+          cp third_party/fonts/DejaVuSans.ttf android/app/src/main/assets/fonts/
+          cp third_party/fonts/DejaVuSans-Bold.ttf android/app/src/main/assets/fonts/
           du -sh android/app/src/main/assets
 
       - name: Gradle
@@ -123,6 +127,7 @@ jobs:
           echo "  project.lua:  $(unzip -Z1 "$APK" | grep -c '^assets/assets/project.lua$')"
           echo "  index.json:   $(unzip -Z1 "$APK" | grep -c '^assets/assets/index.json$')"
           echo "  layout.lua:   $(unzip -Z1 "$APK" | grep -c '^assets/assets/layout.lua$')"
+          echo "  font:         $(unzip -Z1 "$APK" | grep -c '^assets/fonts/DejaVuSans\.ttf$')"
           echo
           echo "### манифест"
           AAPT="$(ls "$ANDROID_HOME"/build-tools/*/aapt2 2>/dev/null | tail -1)"

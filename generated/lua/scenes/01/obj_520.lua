@@ -17,7 +17,11 @@ return {
       trigger = "touch_down",
       body = function(o)
         E.ask(o, "кодовое слово (abc)", function(answer) E.set_gv(95, answer) end)
-        E.call_function(5)
+      end,
+    },
+    { -- скрипт 3: function:5
+      trigger = "function:5",
+      body = function(o)
         if E.truthy(E.op_eq(E.gv(95), "abc")) then
           E.set_gv(93, 0)
           E.store_var(o, E.gv(93))

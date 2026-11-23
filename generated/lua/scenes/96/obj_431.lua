@@ -12,7 +12,11 @@ return {
       body = function(o)
         E.set_y(o, E.op_sub(25, 95))
         E.set_size(o, 130)
-        E.call_function(2)
+      end,
+    },
+    { -- скрипт 2: function:2
+      trigger = "function:2",
+      body = function(o)
         E.add_y(o, E.gv(48))
       end,
     },

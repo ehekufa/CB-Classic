@@ -12,16 +12,19 @@ return {
       body = function(o)
         E.add_body(o, "static")
         E.set_size(o, 350)
-        while true do
+        E.forever(function()
           E.fb_get(E.gv(102), "https://cubic-battle-default-rtdb.firebaseio.com/", function(v) E.set_gv(102, v) end)
           E.fb_get("X404", "https://cubic-battle-default-rtdb.firebaseio.com/", function(v) E.set_gv(103, v) end)
           E.fb_get("Y404", "https://cubic-battle-default-rtdb.firebaseio.com/", function(v) E.set_gv(104, v) end)
           E.set_pos(o, E.gv(103), E.gv(104))
           E.set_rot(o, E.gv(102))
           E.wait(E.num(0.13))
-          E.frame()
-        end
-        E.call_function(2)
+        end)
+      end,
+    },
+    { -- скрипт 2: function:2
+      trigger = "function:2",
+      body = function(o)
         while E.truthy(E.touch_id_by_index(E.gv(7))) do
           E.go_steps(o, 50)
           E.set_rot(o, E.gv(2))

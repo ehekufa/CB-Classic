@@ -13,8 +13,20 @@ local Scheduler = require("runtime.scheduler")
 local M = {}
 
 local cb = E.cb
-local sched = Scheduler.new()
-E.set_scheduler(sched)
+
+local function new_scheduler()
+  local scheduler = Scheduler.new()
+  -- поток знает, чей он: нужно для «функций» объекта (call_function)
+  scheduler:on_resume(function(handle)
+    if handle and handle ~= 0 then
+      E.current_object = cb.get(handle, "object_id")
+    end
+  end)
+  E.set_scheduler(scheduler)
+  return scheduler
+end
+
+local sched = new_scheduler()
 
 local project
 local layout = {}           -- стартовые позиции (assets/layout.lua)
@@ -25,7 +37,9 @@ local truth_prev = {}       -- [ключ] = было ли условие ист�
 local touch_prev = false
 local back_pressed = false
 local var_texts = {}        -- ярлыки текстовых полей, показывающих переменные
-local broadcast_receivers = {}
+local trophies = require("runtime.trophies")
+
+local function_scripts = {}   -- [object_id] = { [id функции] = { script =, handle = } }
 local stats = { frames = 0, spawns = 0, errors = 0 }
 
 local function key(handle, index)
@@ -82,17 +96,29 @@ local function load_scene_modules(scene_id)
   return loaded
 end
 
-local function register_broadcasts(scene_id)
-  broadcast_receivers = {}
-  -- в исходном проекте получателей broadcast-сообщений нет (вызовы «функций»
-  -- остались от модифицированной сборки Pocket Code), поэтому реестр пуст
+local function register_functions(scene_id, mods)
+  function_scripts = {}
+  for object_id, mod in pairs(mods or {}) do
+    local handle = cb.obj_by_id(object_id)
+    if handle ~= 0 then
+      for _, script in ipairs(mod.scripts or {}) do
+        local trigger = script.trigger
+        if type(trigger) == "string" and trigger:sub(1, 9) == "function:" then
+          local fid = tonumber(trigger:sub(10))
+          if fid then
+            function_scripts[object_id] = function_scripts[object_id] or {}
+            function_scripts[object_id][fid] = { script = script, handle = handle }
+          end
+        end
+      end
+    end
+  end
 end
 
 -- Активация сцены: движок уже переключён, здесь пересобираем скрипты.
 local function activate(scene_id)
   active_scene = scene_id
-  sched = Scheduler.new()
-  E.set_scheduler(sched)
+  sched = new_scheduler()
   truth_prev = {}
   var_texts = {}
   touch_prev = false
@@ -108,7 +134,8 @@ local function activate(scene_id)
   end
 
   local mods = load_scene_modules(scene_id)
-  register_broadcasts(scene_id)
+  register_functions(scene_id, mods)
+  trophies.enter_scene(scene_id)
   for object_id, mod in pairs(mods) do
     local handle = cb.obj_by_id(object_id)
     if handle ~= 0 then
@@ -139,16 +166,24 @@ E.on_clone(function(handle, object_id)
   end
 end)
 
-E.on_broadcast(function(id)
-  local receivers = broadcast_receivers[id]
-  if not receivers or #receivers == 0 then
-    E.warn_once("bc" .. tostring(id),
-      "broadcast " .. tostring(id) .. ": получателей в проекте нет (особенность сборки)")
-    return
+-- Запуск «функции N» объекта (или всех объектов, если object_id == nil).
+E.on_function(function(object_id, fid)
+  local started = 0
+  for oid, functions in pairs(function_scripts) do
+    if object_id == nil or oid == object_id then
+      local entry = functions[fid]
+      if entry then
+        spawn(entry.script, entry.handle, "function")
+        started = started + 1
+      end
+    end
   end
-  for _, receiver in ipairs(receivers) do
-    spawn(receiver.script, receiver.handle, "broadcast")
+  if started == 0 then
+    E.warn_once("fn" .. tostring(object_id) .. ":" .. tostring(fid),
+      "функция " .. tostring(fid) .. " у объекта " .. tostring(object_id) ..
+      ": нет тела в выгрузке")
   end
+  return started
 end)
 
 function M.start(opts)
@@ -312,6 +347,11 @@ local function update_var_texts()
   end
 end
 
+-- Для тестов и отладки: выставить глобальную переменную из CLI (--set-var).
+function M.debug_set_var(id, value)
+  E.set_gv(tonumber(id), value)
+end
+
 function M.frame(dt)
   stats.frames = stats.frames + 1
 
@@ -322,6 +362,7 @@ function M.frame(dt)
 
   poll_presses()
   poll_text_commits()
+  trophies.check_frame(active_scene)
 
   local pending = E.take_pending_scene and E.take_pending_scene()
   if pending and pending ~= active_scene then

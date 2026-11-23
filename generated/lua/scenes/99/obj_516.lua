@@ -22,11 +22,23 @@ return {
           E.go_to_touch(o)
           E.frame()
         end
-        E.call_function(22)
+      end,
+    },
+    { -- скрипт 3: function:22
+      trigger = "function:22",
+      body = function(o)
         E.show(o)
-        E.call_function(23)
+      end,
+    },
+    { -- скрипт 4: function:23
+      trigger = "function:23",
+      body = function(o)
         E.hide(o)
-        E.call_function(21)
+      end,
+    },
+    { -- скрипт 5: function:21
+      trigger = "function:21",
+      body = function(o)
         E.hide(o)
       end,
     },

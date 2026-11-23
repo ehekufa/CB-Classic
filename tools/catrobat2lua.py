@@ -274,11 +274,13 @@ class BrickGen:
                 continue
 
             if name == "cycleForever":
+                # «повторять всегда» уходит в отдельный поток: иначе блоки,
+                # стоящие после него в том же скрипте, никогда не выполнились бы
+                # (в выгрузке Pocket Code так и есть — на этом ломался джойстик)
                 body, _, nxt = self._split_block(bricks, i + 1)
-                lines.append(f"{pad}while true do")
+                lines.append(f"{pad}E.forever(function()")
                 lines.extend(self.block(body, depth + 1))
-                lines.append(f"{pad}  E.frame()")
-                lines.append(f"{pad}end")
+                lines.append(f"{pad}end)")
                 i = nxt
                 continue
 
@@ -480,7 +482,11 @@ def object_module(obj: SceneObject, scene_name: str, unsup: Unsupported) -> tupl
         "  scripts = {",
     ]
     for idx, script in enumerate(scripts, 1):
-        trig = TRIGGERS.get(script["trigger"], "start")
+        raw_trigger = script["trigger"]
+        if isinstance(raw_trigger, tuple) and raw_trigger[0] == "function":
+            trig = f"function:{raw_trigger[1]}"
+        else:
+            trig = TRIGGERS.get(raw_trigger, "start")
         args = script["args"] or []
         cond_line = None
         if trig == "when_truth":

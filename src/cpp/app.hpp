@@ -3,7 +3,9 @@
 #define CB_APP_HPP
 
 #include <string>
+#include <vector>
 
+#include "audio.hpp"
 #include "engine.hpp"
 #include "renderer.hpp"
 
@@ -17,6 +19,7 @@ struct AppOptions {
     std::string root = ".";              // корень репозитория (там assets/)
     int scene = 0;                       // стартовая сцена (0 = первая в проекте)
     int width = 0;                       // 0 = размер сцены
+    double pixel_scale = 1.0;            // суперсэмплинг (на телефоне ставится сам)
     int height = 0;
     unsigned seed = 20260802u;
     bool headless = true;
@@ -28,6 +31,13 @@ struct AppOptions {
     bool verbose = false;
     std::string check_dir;               // проверить синтаксис всех .lua в каталоге и выйти
     bool check_buttons = false;          // проверить, что все кнопки получают нажатие
+    bool no_sound = false;               // без звука вообще
+    bool no_music = false;               // эффекты есть, музыки нет
+    double music_volume = 0.30;          // громкость встроенной темы
+    std::string export_music;            // сохранить тему в WAV и выйти
+    // --set-var "id=значение@кадр" — установить переменную на нужном кадре
+    struct SetVar { int frame = 0; int id = 0; std::string value; };
+    std::vector<SetVar> set_vars;
 };
 
 class App {
@@ -48,10 +58,12 @@ public:
 
     Engine engine;
     Renderer renderer;
+    Audio audio;
     AppOptions options;
     lua_State *lua = nullptr;
 
 private:
+    int frame_index_ = 0;               // номер кадра (для --set-var)
     bool open_lua();
     void close_lua();
 };

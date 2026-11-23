@@ -33,11 +33,35 @@ public class MainActivity extends SDLActivity {
     protected void onCreate(Bundle savedInstanceState) {
         extractAssets();
         super.onCreate(savedInstanceState);
+        applyImmersiveMode();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            applyImmersiveMode();
+        }
+    }
+
+    /** Полноэкранный режим: сцена занимает весь экран без системных полос. */
+    private void applyImmersiveMode() {
+        if (android.os.Build.VERSION.SDK_INT >= 19) {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        }
     }
 
     private void extractAssets() {
+        // маркер: и проект, и шрифт — иначе обновление не доедет до старой установки
         File marker = new File(getFilesDir(), "root/assets/project.lua");
-        if (marker.exists()) {
+        File font = new File(getFilesDir(), "root/fonts/DejaVuSans.ttf");
+        if (marker.exists() && font.exists()) {
             Log.i(TAG, "ассеты уже распакованы");
             return;
         }
@@ -48,6 +72,7 @@ public class MainActivity extends SDLActivity {
             copyTree(am, "assets", new File(root, "assets"));
             copyTree(am, "src/lua", new File(root, "src/lua"));
             copyTree(am, "generated/lua", new File(root, "generated/lua"));
+            copyTree(am, "fonts", new File(root, "fonts"));
             Log.i(TAG, "ассеты распакованы за " + (System.currentTimeMillis() - started) + " мс");
         } catch (IOException e) {
             Log.e(TAG, "не удалось распаковать ассеты", e);

@@ -50,7 +50,11 @@ return {
         else
           E.toast("этот промокод уже был введён!")
         end
-        E.call_function(2)
+      end,
+    },
+    { -- скрипт 4: function:2
+      trigger = "function:2",
+      body = function(o)
         E.text_delete("Промокод")
       end,
     },

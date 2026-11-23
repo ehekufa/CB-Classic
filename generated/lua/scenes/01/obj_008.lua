@@ -11,7 +11,7 @@ return {
       trigger = "start",
       body = function(o)
         E.set_pos(o, 495, 180)
-        while true do
+        E.forever(function()
           E.fb_get(E.fb_key(E.gv(61), E.gv(62), "К"), "https://cubic-battle-default-rtdb.firebaseio.com/", function(v) E.set_gv(91, v) end)
           E.text_show_var(91, 365, 120, 180, "#FFFFFF", "left")
           if E.truthy(E.op_ge(E.gv(24), 1000000)) then
@@ -22,8 +22,7 @@ return {
             E.store_var(o, E.gv(108))
           end
           E.wait(E.num(0.5))
-          E.frame()
-        end
+        end)
       end,
     },
   },
