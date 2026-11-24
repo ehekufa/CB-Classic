@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """Иконки приложения из assets/icon.png (иконка проекта).
 
-Исходник один — картинка, которая лежит в репозитории (480x480, кот на синем
-круге). Скрипт делает из неё всё, что нужно Android:
+Исходник один — картинка, которая лежит в репозитории: `icon.png` в корне
+(если его нет — иконка проекта `assets/icon.png`). Скрипт делает из неё всё,
+что нужно Android:
 
-    android/app/src/main/res/mipmap-*/ic_launcher.png          обычная иконка
-    android/app/src/main/res/mipmap-*/ic_launcher_round.png    круглая
-    android/app/src/main/res/mipmap-*/ic_launcher_foreground.png  слой адаптивной
-    android/app/src/main/res/mipmap-anydpi-v26/ic_launcher*.xml   адаптивная иконка
-    android/app/src/main/res/values/ic_launcher_background.xml    её фон
+    android/app/src/main/res/mipmap-*/ic_launcher.png            обычная иконка
+    android/app/src/main/res/mipmap-*/ic_launcher_round.png      круглая
+    android/app/src/main/res/mipmap-*/ic_launcher_background.png слой адаптивной
+    android/app/src/main/res/mipmap-anydpi-v26/ic_launcher*.xml адаптивная иконка
 
     python3 tools/make_icon.py            # пересобрать иконки
     python3 tools/make_icon.py --check    # только проверить, что файлы на месте
@@ -25,7 +25,8 @@ import sys
 import zlib
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SOURCE = os.path.join(ROOT, "assets", "icon.png")
+SOURCE = os.path.join(ROOT, "icon.png")          # картинка из корня репозитория
+FALLBACK = os.path.join(ROOT, "assets", "icon.png")   # иконка проекта из оригинала
 RES = os.path.join(ROOT, "android", "app", "src", "main", "res")
 
 # плотность -> (размер иконки, размер слоя адаптивной иконки: 108dp)
@@ -37,9 +38,7 @@ DENSITIES = {
     "xxxhdpi": (192, 432),
 }
 
-# фон адаптивной иконки — серо-синий круг исходника: на нём чёрный кот
-# читается лучше, чем на тёмно-синем фоне (как в оригинальной иконке)
-BACKGROUND = (116, 124, 156)
+
 
 
 # --- PNG ------------------------------------------------------------------
@@ -122,8 +121,35 @@ def write_png(path, width, height, pixels):
 
 # --- картинка -------------------------------------------------------------
 
+def upscale(width, height, pixels, new_w, new_h):
+    """Увеличение билинейно: исходник бывает мелким (icon.png 100x100)."""
+    out = bytearray(new_w * new_h * 4)
+    for y in range(new_h):
+        sy = (y + 0.5) * height / new_h - 0.5
+        y0 = max(0, min(height - 1, int(math.floor(sy))))
+        y1 = min(height - 1, y0 + 1)
+        fy = max(0.0, min(1.0, sy - y0))
+        for x in range(new_w):
+            sx = (x + 0.5) * width / new_w - 0.5
+            x0 = max(0, min(width - 1, int(math.floor(sx))))
+            x1 = min(width - 1, x0 + 1)
+            fx = max(0.0, min(1.0, sx - x0))
+            dst = (y * new_w + x) * 4
+            for c in range(4):
+                p00 = pixels[(y0 * width + x0) * 4 + c]
+                p01 = pixels[(y0 * width + x1) * 4 + c]
+                p10 = pixels[(y1 * width + x0) * 4 + c]
+                p11 = pixels[(y1 * width + x1) * 4 + c]
+                top = p00 + (p01 - p00) * fx
+                bottom = p10 + (p11 - p10) * fx
+                out[dst + c] = int(top + (bottom - top) * fy + 0.5)
+    return out
+
+
 def resize(width, height, pixels, new_w, new_h):
-    """Уменьшение усреднением (оно же сглаживает края при вырезании маски)."""
+    """Уменьшение усреднением, увеличение — билинейно."""
+    if new_w > width or new_h > height:
+        return upscale(width, height, pixels, new_w, new_h)
     out = bytearray(new_w * new_h * 4)
     for y in range(new_h):
         y0 = y * height / new_h
@@ -236,11 +262,8 @@ def round_mask(size, pixels):
 
 
 def build():
-    width, height, pixels = read_png(SOURCE)
-    mask, bbox = mascot_mask(width, height, pixels)
-    if bbox[2] <= bbox[0] or bbox[3] <= bbox[1]:
-        raise SystemExit("не нашли кота на иконке")
-    mascot_w, mascot_h, mascot = crop(width, height, mask, bbox)
+    source = SOURCE if os.path.exists(SOURCE) else FALLBACK
+    width, height, pixels = read_png(source)
 
     for density, (icon_size, adaptive_size) in DENSITIES.items():
         folder = os.path.join(RES, f"mipmap-{density}")
@@ -249,38 +272,26 @@ def build():
         write_png(os.path.join(folder, "ic_launcher_round.png"), icon_size, icon_size,
                   round_mask(icon_size, square))
 
-        # Адаптивная иконка: спрайт занимает ~60% холста 108dp — так он не
-        # обрезается ни круглой, ни квадратной маской лаунчера.
-        inner = int(adaptive_size * 0.60)
-        scale = min(inner / mascot_w, inner / mascot_h)
-        sprite_w = max(1, int(mascot_w * scale))
-        sprite_h = max(1, int(mascot_h * scale))
-        sprite = resize(mascot_w, mascot_h, mascot, sprite_w, sprite_h)
-        canvas = bytearray(adaptive_size * adaptive_size * 4)
-        paste_centered(adaptive_size, adaptive_size, canvas, sprite_w, sprite_h, sprite)
-        write_png(os.path.join(folder, "ic_launcher_foreground.png"),
+        # Адаптивная иконка: картинка на весь холст 108dp, лаунчер сам вырежет
+        # круг/квадрат. Слой «передний план» прозрачный — рисуется только фон.
+        canvas = resize(width, height, pixels, adaptive_size, adaptive_size)
+        write_png(os.path.join(folder, "ic_launcher_background.png"),
                   adaptive_size, adaptive_size, canvas)
+        write_png(os.path.join(folder, "ic_launcher_foreground.png"),
+                  adaptive_size, adaptive_size, bytearray(adaptive_size * adaptive_size * 4))
 
     anydpi = os.path.join(RES, "mipmap-anydpi-v26")
     os.makedirs(anydpi, exist_ok=True)
     layers = """<?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@color/ic_launcher_background"/>
+    <background android:drawable="@mipmap/ic_launcher_background"/>
     <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
 </adaptive-icon>
 """
     for name in ("ic_launcher.xml", "ic_launcher_round.xml"):
         with open(os.path.join(anydpi, name), "w", encoding="utf-8") as handle:
             handle.write(layers)
-
-    values = os.path.join(RES, "values")
-    os.makedirs(values, exist_ok=True)
-    with open(os.path.join(values, "ic_launcher_background.xml"), "w", encoding="utf-8") as handle:
-        handle.write(
-            '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n'
-            f'    <color name="ic_launcher_background">#{BACKGROUND[0]:02X}{BACKGROUND[1]:02X}{BACKGROUND[2]:02X}</color>\n'
-            "</resources>\n")
-    print(f"иконки собраны из {os.path.relpath(SOURCE, ROOT)}")
+    print(f"иконки собраны из {os.path.relpath(source, ROOT)} ({width}x{height})")
 
 
 def check():
@@ -289,6 +300,7 @@ def check():
         folder = os.path.join(RES, f"mipmap-{density}")
         for name, size in (("ic_launcher.png", icon_size),
                            ("ic_launcher_round.png", icon_size),
+                           ("ic_launcher_background.png", adaptive_size),
                            ("ic_launcher_foreground.png", adaptive_size)):
             path = os.path.join(folder, name)
             if not os.path.exists(path):
@@ -297,8 +309,7 @@ def check():
             w, h, _ = read_png(path)
             if (w, h) != (size, size):
                 missing.append(f"{os.path.relpath(path, ROOT)}: {w}x{h}, ждали {size}x{size}")
-    for name in ("mipmap-anydpi-v26/ic_launcher.xml", "mipmap-anydpi-v26/ic_launcher_round.xml",
-                 "values/ic_launcher_background.xml"):
+    for name in ("mipmap-anydpi-v26/ic_launcher.xml", "mipmap-anydpi-v26/ic_launcher_round.xml"):
         if not os.path.exists(os.path.join(RES, name)):
             missing.append(name)
     if missing:
