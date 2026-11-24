@@ -184,6 +184,11 @@ def resize(width, height, pixels, new_w, new_h):
     return out
 
 
+def background_limit(source_width):
+    """До какого размера есть смысл растягивать слой фона (см. build)."""
+    return max(2 * source_width, 128)
+
+
 def mascot_mask(width, height, pixels):
     """Вырезать кота: он почти чёрный (нейтральный), глаза — белые.
 
@@ -274,9 +279,12 @@ def build():
 
         # Адаптивная иконка: картинка на весь холст 108dp, лаунчер сам вырежет
         # круг/квадрат. Слой «передний план» прозрачный — рисуется только фон.
-        canvas = resize(width, height, pixels, adaptive_size, adaptive_size)
+        # Фон не растягиваем сильнее, чем позволяет исходник: из картинки 100x100
+        # холст 432px всё равно не добавит деталей, только вес APK.
+        bg_size = min(adaptive_size, background_limit(width))
+        canvas = resize(width, height, pixels, bg_size, bg_size)
         write_png(os.path.join(folder, "ic_launcher_background.png"),
-                  adaptive_size, adaptive_size, canvas)
+                  bg_size, bg_size, canvas)
         write_png(os.path.join(folder, "ic_launcher_foreground.png"),
                   adaptive_size, adaptive_size, bytearray(adaptive_size * adaptive_size * 4))
 
@@ -300,7 +308,6 @@ def check():
         folder = os.path.join(RES, f"mipmap-{density}")
         for name, size in (("ic_launcher.png", icon_size),
                            ("ic_launcher_round.png", icon_size),
-                           ("ic_launcher_background.png", adaptive_size),
                            ("ic_launcher_foreground.png", adaptive_size)):
             path = os.path.join(folder, name)
             if not os.path.exists(path):
@@ -309,6 +316,14 @@ def check():
             w, h, _ = read_png(path)
             if (w, h) != (size, size):
                 missing.append(f"{os.path.relpath(path, ROOT)}: {w}x{h}, ждали {size}x{size}")
+        background = os.path.join(folder, "ic_launcher_background.png")
+        if not os.path.exists(background):
+            missing.append(os.path.relpath(background, ROOT))
+        else:
+            w, h, _ = read_png(background)
+            if w != h or not 96 <= w <= adaptive_size:
+                missing.append(f"{os.path.relpath(background, ROOT)}: {w}x{h}, ждали "
+                               f"квадрат до {adaptive_size}")
     for name in ("mipmap-anydpi-v26/ic_launcher.xml", "mipmap-anydpi-v26/ic_launcher_round.xml"):
         if not os.path.exists(os.path.join(RES, name)):
             missing.append(name)
