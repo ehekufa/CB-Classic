@@ -25,7 +25,7 @@ return {
         E.wait(E.num(0.04))
         E.set_bright(o, 100)
         E.broadcast_to_object(424, 2)
-        E.ask(o, "Введите ABC для подтверждения", function(answer) E.set_gv(0, answer) end)
+        E.ask(o, "Введите ABC для подтверждения", function(answer) E.set_lv(o, 1, answer) E.call_function(1) end)
       end,
     },
     { -- скрипт 4: function:1

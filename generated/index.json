@@ -27,6 +27,55 @@
    ]
   },
   {
+   "id": 77,
+   "name": "Регистрация",
+   "dir": "77",
+   "objects": [
+    {
+     "object_id": 161,
+     "name": "Фон",
+     "file": "obj_161.lua",
+     "scripts": 1
+    },
+    {
+     "object_id": 164,
+     "name": "Поле ввода визуал",
+     "file": "obj_164.lua",
+     "scripts": 1
+    },
+    {
+     "object_id": 165,
+     "name": "Поле ввода визуал 2",
+     "file": "obj_165.lua",
+     "scripts": 1
+    },
+    {
+     "object_id": 166,
+     "name": "Зарегистрироваться",
+     "file": "obj_166.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 167,
+     "name": "Войти",
+     "file": "obj_167.lua",
+     "scripts": 3
+    },
+    {
+     "object_id": 168,
+     "name": "Подтвердить",
+     "file": "obj_168.lua",
+     "scripts": 2
+    },
+    {
+     "object_id": 188,
+     "name": "Не хочу",
+     "file": "obj_188.lua",
+     "scripts": 2
+    }
+   ]
+  },
+  {
    "id": 1,
    "name": "Меню",
    "dir": "01",

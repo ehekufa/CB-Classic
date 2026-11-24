@@ -225,9 +225,18 @@ function M.start(opts)
   E.define_variables(project.variables or {})
   -- профиль (значения переменных до старта): нужен, чтобы пропустить регистрацию
   if opts.profile then
+    -- значения из профиля — не ввод игрока, поэтому вход из них не запоминаем
+    for id in pairs(opts.profile) do
+      E.account.frozen[tonumber(id)] = true
+    end
     for id, value in pairs(opts.profile) do
       E.set_gv(tonumber(id), value)
     end
+  end
+  -- «Читы» (71): в оригинале переменная стартует нулём, поэтому админские
+  -- кнопки экрана «Онлайн» скрыты, пока их не включит аккаунт админа.
+  if E.gv(71) == nil then
+    E.set_gv(71, 0)
   end
   for _, scene in ipairs(project.scenes) do
     -- Каталог сгенерированных скриптов = номер сцены, минимум две цифры
@@ -244,6 +253,27 @@ function M.start(opts)
     end
   end
   cb.finalize()
+
+  -- какие сцены реально есть в сборке (нужно движку: регистрация и старые
+  -- переходы вроде «Онлайн (1)» проверяются до открытия сцены)
+  E.has_scene = function(id)
+    return scene_index[math.floor(tonumber(id) or -1)] ~= nil
+  end
+
+  -- вход, набранный в прошлый раз, подставляется в поля «Регистрация»
+  -- (но значения из --profile важнее: ими тесты задают аккаунт)
+  local in_profile = {}
+  if opts.profile then
+    for id in pairs(opts.profile) do
+      in_profile[tonumber(id)] = true
+    end
+  end
+  for _, id in ipairs({ E.account.login_var, E.account.password_var }) do
+    local stored = cb.store_get("account:" .. tostring(id))
+    if not in_profile[id] and stored ~= nil and stored ~= "" then
+      E.set_gv(id, stored)
+    end
+  end
 
   local start_scene = opts.scene
   if not start_scene then

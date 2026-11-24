@@ -7,6 +7,12 @@ cd "$ROOT"
 BIN=build/cb-classic
 FAILED=0
 
+# сохранение и «firebase» — во временном файле: тесты идут с чистого листа и не
+# трогают прогресс игрока (saves/db.tsv)
+CB_STORE=/tmp/cb_saves_test.tsv
+rm -f "$CB_STORE"
+export CB_STORE
+
 step() { printf '\n== %s ==\n' "$1"; }
 check() {
   if [ "$1" -eq 0 ]; then
@@ -29,7 +35,7 @@ check $?
 step "инструменты: извлечение ассетов идемпотентно"
 python3 tools/extract_assets.py --src original --out /tmp/cb_assets_check >/tmp/cb_extract.log 2>&1
 check $?
-grep -q "PNG: 122" /tmp/cb_extract.log
+grep -q "PNG: 128" /tmp/cb_extract.log
 check $?
 
 step "инструменты: конвертер покрывает все блоки"
@@ -139,14 +145,16 @@ grep -q "Игрок .*0393_igrok_2.png" /tmp/cb_skin.log
 check $?
 
 step "кубки: победа даёт кубки, счёт сохраняется и виден в меню"
-rm -f saves/db.tsv
+rm -f "$CB_STORE"
 $BIN --frames 40 --scene 26 --profile "3=100,4=6,12=1" --set-var "4=0@10" \
      --out /tmp/cb_frames_cups --verbose >/tmp/cb_cups.log 2>&1
 check $?
 # в новой версии кубки начисляет сам проект: +10 за победу и сохранение
-grep -q "var:24[[:space:]]*10019" saves/db.tsv
+grep -q "var:24[[:space:]]*10019" "$CB_STORE"
 check $?
-$BIN --frames 200 --scene 42 --verbose >/tmp/cb_cups2.log 2>&1
+# после заставки открывается регистрация — «Не хочу» ведёт в меню (как в старой версии)
+$BIN --frames 200 --scene 42 --script tests/scripts/reg_skip.txt --verbose \
+     >/tmp/cb_cups2.log 2>&1
 check $?
 grep -q 'var:24 .*значение="10019"' /tmp/cb_cups2.log
 check $?
@@ -272,7 +280,6 @@ python3 tests/firebase_mock.py --port "$FB_PORT" --seed /tmp/cb_fb_seed.json \
     --dump /tmp/cb_fb_dump.json >/tmp/cb_fb_mock.log 2>&1 &
 FB_PID=$!
 sleep 1
-mv saves/db.tsv /tmp/cb_db_backup.tsv 2>/dev/null || true
 $BIN --scene 95 --frames 45 --fps 30 --realtime --out /tmp/cb_frames_fb \
      --fb-url "http://127.0.0.1:$FB_PORT/" --verbose >/tmp/cb_fb_read.log 2>&1
 check $?
@@ -289,7 +296,6 @@ check $?
 python3 tests/fb_check_write.py /tmp/cb_fb_dump.json "world/ScreenWidth" 1500
 check $?
 kill "$FB_PID" 2>/dev/null || true
-mv /tmp/cb_db_backup.tsv saves/db.tsv 2>/dev/null || true
 
 step "интро боя: в начале битвы идёт видео нужного кубика"
 $BIN --scene 26 --frames 100 --fps 30 --size 1500x720 --profile "3=100,4=6,12=1,47=4" \
@@ -367,16 +373,53 @@ check $?
 python3 tests/check_shot.py toast /tmp/cb_frames_toast/frame_0064.png
 check $?
 
-step "поля ввода: чёрный фон (кроме входа в аккаунт)"
+step "поля ввода: белая подложка, как в Pocket Code"
 $BIN --frames 8 --scene 31 --profile "24=100" --out /tmp/cb_frames_field >/dev/null 2>&1
 check $?
 python3 tests/check_shot.py field /tmp/cb_frames_field/frame_0007.png 300 -100
 check $?
 $BIN --frames 8 --scene 95 --out /tmp/cb_frames_ask >/dev/null 2>&1
 check $?
-# поле модального вопроса — тоже чёрное (точка левее каретки по центру)
+# поле модального вопроса — тоже белое (точка левее каретки по центру)
 python3 tests/check_shot.py field /tmp/cb_frames_ask/frame_0007.png -220 20
 check $?
+
+step "регистрация: как в старой версии — после заставки «Имя» и «Пароль»"
+$BIN --frames 220 --out /tmp/cb_frames_reg --verbose >/tmp/cb_reg.log 2>&1
+check $?
+grep -q "сцена 77 Регистрация" /tmp/cb_reg.log
+check $?
+grep -q "Имя .*placeholder=\"Имя\"" /tmp/cb_reg.log
+check $?
+grep -q "Пароль .*placeholder=\"Пароль\"" /tmp/cb_reg.log
+check $?
+# поля белые: точка левее середины, чтобы не попасть в подсказку и каретку
+python3 tests/check_shot.py field /tmp/cb_frames_reg/frame_0219.png -150 50
+check $?
+python3 tests/check_shot.py field /tmp/cb_frames_reg/frame_0219.png -150 -40
+check $?
+
+step "ивент: админ запускает ивент 2 — он появляется на экране"
+$BIN --frames 100 --scene 95 --profile "61=admin,62=Kenta2026" \
+     --script tests/scripts/event_start.txt --verbose >/tmp/cb_event.log 2>&1
+check $?
+grep -q "ответ: Введите номер ивента = \[2\]" /tmp/cb_event.log
+check $?
+grep -q "0884_kolonki.png" /tmp/cb_event.log
+check $?
+
+step "ивент: без аккаунта админа админ-панель не включается"
+$BIN --frames 60 --scene 95 --profile "61=Гость,62=123" \
+     --script tests/scripts/admin_denied.txt --verbose >/tmp/cb_admin_denied.log 2>&1
+check $?
+grep -q "Нужен аккаунт админа" /tmp/cb_admin_denied.log
+check $?
+if grep -q "ответ: Введите номер ивента" /tmp/cb_admin_denied.log; then
+  printf '   ПРОВАЛ: без админа можно запускать ивенты\n'
+  FAILED=$((FAILED + 1))
+else
+  printf '   OK ивент без админа не запускается\n'
+fi
 
 step "ввод: текст без Enter подтверждается кнопкой «Ввести»"
 $BIN --frames 40 --scene 31 --profile "24=100" \

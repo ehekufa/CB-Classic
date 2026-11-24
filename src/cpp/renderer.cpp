@@ -435,25 +435,25 @@ void Renderer::draw_scene(Engine &engine)
         unsigned color = parse_hex_color(field.color, 0xffffffffu);
 
         if (field.editable) {
-            // Полностью чёрная подложка (просьба: «все поля ввода чёрные, кроме
-            // входа в аккаунт») и белый текст — иначе на чёрном ничего не видно.
+            // Белая подложка поля ввода, как в Pocket Code (просьба: «поля
+            // должны быть белые»), и чёрный текст на ней.
             double w = field.width > 0.0 ? field.width : std::max(60.0, engine.text_width(field));
             double h = field.height > 0.0 ? field.height : std::max(28.0, field.size * 1.6);
-            unsigned frame = is_focused ? 0x3a90d0ffu : 0x5a5a5affu;
+            unsigned frame = is_focused ? 0x3a90d0ffu : 0x8a8a8affu;
             double left = field.x - w / 2.0;
             double top = field.y + h / 2.0;      // fill_rect рисует вниз от top
-            fill_rect(left, top, w, h, 0x000000ffu);
-            fill_rect(left, top, w, 2.0, frame);                  // верх
-            fill_rect(left, field.y - h / 2.0, w, 2.0, frame);    // низ
-            fill_rect(left, field.y - h / 2.0, 2.0, h, frame);    // лево
-            fill_rect(left + w - 2.0, field.y - h / 2.0, 2.0, h, frame);
-            color = 0xffffffffu;
+            fill_rect(left, top, w, h, 0xffffffffu);
+            fill_rect(left, top, w, 2.0, frame);                       // верх
+            fill_rect(left, field.y - h / 2.0 + 2.0, w, 2.0, frame);   // низ
+            fill_rect(left, top, 2.0, h, frame);                       // лево
+            fill_rect(left + w - 2.0, top, 2.0, h, frame);             // право
+            color = 0xff000000u;
         }
         if (text.empty() && !is_focused) {
             continue;
         }
         if (field.value.empty()) {
-            color = (color & 0xffffff00u) | 0x88u;                // placeholder — бледнее
+            color = 0x777777ffu;   // подсказка в пустом поле бледнее значения
         }
         if (!text.empty()) {
             draw_text(text, field.x, field.y, field.size, color, field.align);
@@ -595,7 +595,12 @@ void Renderer::draw_ask_panel(Engine &engine)
     const double sw = static_cast<double>(engine.stage_width());
     const double sh = static_cast<double>(engine.stage_height());
     // fill_rect принимает левый-ВЕРХНИЙ угол (y идёт вниз)
-    fill_rect(-sw / 2.0, sh / 2.0, sw, sh, 0x00000044u);
+    fill_rect(-sw / 2.0, sh / 2.0, sw, sh, 0x00000088u);
+    // тёмная карточка диалога: кнопки сцены не просвечивают сквозь вопрос
+    const double card_w = std::min(sw - 120.0, 780.0);
+    const double card_top = Engine::kAskPromptY + 70.0;
+    const double card_h = card_top - (Engine::kAskButtonY - Engine::kAskButtonH / 2.0) + 40.0;
+    pill(-card_w / 2.0, card_top, card_w, card_h, 0x101010f2u);
 
     const std::string &prompt = engine.ask_prompt();
     if (!prompt.empty()) {

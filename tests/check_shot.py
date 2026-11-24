@@ -115,15 +115,16 @@ def check_toast(path):
 
 
 def check_field(path, x, y):
-    """Поле ввода в сценических координатах — сплошная чёрная подложка."""
+    """Поле ввода в сценических координатах — сплошная БЕЛАЯ подложка
+    (просьба: «поля должны быть белые», как в Pocket Code)."""
     width, height, rows = read_png(path)
     px = int(round(x + width / 2.0))
     py = int(round(height / 2.0 - y))
     if not (0 <= px < width and 0 <= py < height):
         return f"точка {x},{y} вне кадра"
     r, g, b, a = pixel(rows, px, py)
-    if a < 200 or r > 16 or g > 16 or b > 16:
-        return f"фон поля не чёрный: rgba={r},{g},{b},{a}"
+    if a < 200 or r < 230 or g < 230 or b < 230:
+        return f"фон поля не белый: rgba={r},{g},{b},{a}"
     return None
 
 

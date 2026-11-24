@@ -461,8 +461,14 @@ class BrickGen:
 
         if name == "ask":
             question = formula(args[0], self.unsup) if args else '""'
-            use, _ = self.target(args[1]) if len(args) > 1 else ('""', "")
-            return f"E.ask(o, {question}, function(answer) E.set_gv({args[1][1] if len(args) > 1 and isinstance(args[1], list) and args[1][0] == 'globalVariable' else 0}, answer) end)"
+            _, setter = self.target(args[1]) if len(args) > 1 else ('""', "E.set_gv(0, %s)")
+            # третий параметр кирпича — функция, которую Pocket Code вызывает
+            # после ответа (fbSetValue «ивент»/«сообщение» живут именно там):
+            # без неё ответ никто не забирал и ивенты не запускались
+            cont = ""
+            if len(args) > 2 and isinstance(args[2], list) and args[2] and args[2][0] == "function":
+                cont = f" E.call_function({args[2][1]})"
+            return f"E.ask(o, {question}, function(answer) {setter % 'answer'}{cont} end)"
 
         if name == "showVariable2":
             varid = args[0][1] if args and isinstance(args[0], list) and args[0][0] == "globalVariable" else 0

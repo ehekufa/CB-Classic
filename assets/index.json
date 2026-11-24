@@ -70,6 +70,155 @@
    ]
   },
   {
+   "id": 77,
+   "name": "Регистрация",
+   "slug": "77_registraciya",
+   "objects": [
+    {
+     "id": 161,
+     "name": "Фон",
+     "slug": "161_fon",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [],
+     "sounds": [],
+     "default_image": null,
+     "vars": []
+    },
+    {
+     "id": 164,
+     "name": "Поле ввода визуал",
+     "slug": "164_pole_vvoda_vizual",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 235,
+       "name": "Поле ввода визуал",
+       "path": "scenes/77_registraciya/164_pole_vvoda_vizual/images/0235_pole_vvoda_vizual.png",
+       "bytes": 852,
+       "sha256": "fbd7542bd71f3f8a8e171126a2d9246674c593c72016ce5430700c698ca580ba"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/77_registraciya/164_pole_vvoda_vizual/images/0235_pole_vvoda_vizual.png",
+     "vars": []
+    },
+    {
+     "id": 165,
+     "name": "Поле ввода визуал 2",
+     "slug": "165_pole_vvoda_vizual_2",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 236,
+       "name": "Поле ввода визуал 2",
+       "path": "scenes/77_registraciya/165_pole_vvoda_vizual_2/images/0236_pole_vvoda_vizual_2.png",
+       "bytes": 852,
+       "sha256": "fbd7542bd71f3f8a8e171126a2d9246674c593c72016ce5430700c698ca580ba"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/77_registraciya/165_pole_vvoda_vizual_2/images/0236_pole_vvoda_vizual_2.png",
+     "vars": []
+    },
+    {
+     "id": 166,
+     "name": "Зарегистрироваться",
+     "slug": "166_zaregistrirovatsya",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 237,
+       "name": "Зарегистрироваться",
+       "path": "scenes/77_registraciya/166_zaregistrirovatsya/images/0237_zaregistrirovatsya.png",
+       "bytes": 13729,
+       "sha256": "e3937edfefd24e41599f9bb2684eb14601923d28f23a79df0285bff53747ed60"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/77_registraciya/166_zaregistrirovatsya/images/0237_zaregistrirovatsya.png",
+     "vars": []
+    },
+    {
+     "id": 167,
+     "name": "Войти",
+     "slug": "167_voyti",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 239,
+       "name": "Войти",
+       "path": "scenes/77_registraciya/167_voyti/images/0239_voyti.png",
+       "bytes": 10191,
+       "sha256": "a2845e6f8e71c2f972f51a78546dda62dba38c8ea499366f45d6942958e7dba4"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/77_registraciya/167_voyti/images/0239_voyti.png",
+     "vars": []
+    },
+    {
+     "id": 168,
+     "name": "Подтвердить",
+     "slug": "168_podtverdit",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 240,
+       "name": "Подтвердить",
+       "path": "scenes/77_registraciya/168_podtverdit/images/0240_podtverdit.png",
+       "bytes": 6903,
+       "sha256": "de7086683ea64a61b4efacba6162de61e2d1a42f1b68c848d771714a14cbaa29"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/77_registraciya/168_podtverdit/images/0240_podtverdit.png",
+     "vars": []
+    },
+    {
+     "id": 188,
+     "name": "Не хочу",
+     "slug": "188_ne_hochu",
+     "rotation": 0.0,
+     "size": 0.75,
+     "images": [
+      {
+       "id": 276,
+       "name": "Не хочу",
+       "path": "scenes/77_registraciya/188_ne_hochu/images/0276_ne_hochu.png",
+       "bytes": 13149,
+       "sha256": "c083a00930d2a879ba0a42aeffe55e42131c82000a26131f00b018187603a1c9"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/77_registraciya/188_ne_hochu/images/0276_ne_hochu.png",
+     "vars": []
+    }
+   ],
+   "functions": [
+    {
+     "id": 3,
+     "name": "Вверх",
+     "arity": 1
+    },
+    {
+     "id": 2,
+     "name": "Вниз",
+     "arity": 2
+    },
+    {
+     "id": 1,
+     "name": "Новый сигнал",
+     "arity": 1
+    }
+   ]
+  },
+  {
    "id": 1,
    "name": "Меню",
    "slug": "01_menyu",
@@ -2637,6 +2786,10 @@
  ],
  "missing": [],
  "duplicates": {
+  "fbd7542bd71f3f8a8e171126a2d9246674c593c72016ce5430700c698ca580ba": [
+   "scenes/77_registraciya/164_pole_vvoda_vizual/images/0235_pole_vvoda_vizual.png",
+   "scenes/77_registraciya/165_pole_vvoda_vizual_2/images/0236_pole_vvoda_vizual_2.png"
+  ],
   "a9015da05310a7a9a39c388f590daa95df121d16c90a4fdd400d8d81d4ea73d6": [
    "scenes/01_menyu/281_yayca/sounds/0011_nazhatie.mp3",
    "scenes/01_menyu/011_sily/sounds/0002_nazhatie.mp3",

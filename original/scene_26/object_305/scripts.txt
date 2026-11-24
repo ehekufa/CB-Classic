@@ -1,0 +1,1 @@
+[["start",[],"on"],["setPosition",[[["number",6],["number",5]],[["number",2],["number",2],["number",0]]],"on"],["hide",[],"on"],["removeObjectCamera",[],"on"],["function",[["function",11]],"on"],["show",[],"on"],["touchObject",[],"on"],["hide",[],"on"],["broadcastFun>object",[["objects",304],["function",12]],"on"],["broadcastFun>object",[["objects",309],["function",12]],"on"]]

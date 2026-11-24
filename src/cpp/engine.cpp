@@ -124,9 +124,20 @@ Engine::Engine(std::string asset_root) : asset_root_(std::move(asset_root))
     store_load();      // сохранения прошлых запусков (кубки, «firebase», переменные)
 }
 
+// Путь к сохранению. Переменная окружения CB_STORE уводит его в сторону —
+// так тесты идут с чистого сохранения и не трогают прогресс игрока.
+static std::string store_path_for(const std::string &asset_root)
+{
+    const char *override = std::getenv("CB_STORE");
+    if (override && *override) {
+        return override;
+    }
+    return asset_root + "/../saves/db.tsv";
+}
+
 void Engine::store_load()
 {
-    std::string path = asset_root_ + "/../saves/db.tsv";
+    std::string path = store_path_for(asset_root_);
     FILE *file = std::fopen(path.c_str(), "rb");
     if (!file) {
         return;
@@ -1003,7 +1014,7 @@ void Engine::store_flush()
     for (const auto &pair : store_) {
         data += "st\t" + pair.first + "\t" + pair.second + "\n";
     }
-    std::string path = asset_root_ + "/../saves/db.tsv";
+    std::string path = store_path_for(asset_root_);
     // каталог saves/ может отсутствовать (первый запуск на телефоне)
     std::error_code ec;
     std::filesystem::create_directories(std::filesystem::path(path).parent_path(), ec);

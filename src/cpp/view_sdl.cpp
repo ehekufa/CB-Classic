@@ -309,7 +309,12 @@ void SdlView::draw_ask_panel(Engine &engine)
     }
     const double sw = static_cast<double>(engine.stage_width());
     const double sh = static_cast<double>(engine.stage_height());
-    fill_rect(-sw / 2.0, sh / 2.0, sw, sh, 0x00000044u);
+    fill_rect(-sw / 2.0, sh / 2.0, sw, sh, 0x00000088u);
+    // тёмная карточка диалога: кнопки сцены не просвечивают сквозь вопрос
+    const double card_w = std::min(sw - 120.0, 780.0);
+    const double card_top = Engine::kAskPromptY + 70.0;
+    const double card_h = card_top - (Engine::kAskButtonY - Engine::kAskButtonH / 2.0) + 40.0;
+    pill(-card_w / 2.0, card_top, card_w, card_h, 0x101010f2u);
 
     const std::string &prompt = engine.ask_prompt();
     if (!prompt.empty()) {
@@ -429,22 +434,23 @@ void SdlView::draw_scene(Engine &engine)
                                                : std::max(60.0, engine.text_width(field));
             const double h = field.height > 0.0 ? field.height
                                                 : std::max(28.0, field.size * 1.6);
-            const unsigned frame = is_focused ? 0x3a90d0ffu : 0x5a5a5affu;
+            const unsigned frame = is_focused ? 0x3a90d0ffu : 0x8a8a8affu;
             const double left = field.x - w / 2.0;
             const double top = field.y + h / 2.0;
-            // полностью чёрная подложка поля ввода (кроме входа в аккаунт)
-            fill_rect(left, top, w, h, 0x000000ffu);
+            // белая подложка поля ввода, как в Pocket Code (просьба: «поля
+            // должны быть белые»); текст на ней чёрный
+            fill_rect(left, top, w, h, 0xffffffffu);
             fill_rect(left, top, w, 2.0, frame);
-            fill_rect(left, field.y - h / 2.0, w, 2.0, frame);
-            fill_rect(left, field.y - h / 2.0, 2.0, h, frame);
-            fill_rect(left + w - 2.0, field.y - h / 2.0, 2.0, h, frame);
-            color = 0xffffffffu;      // на чёрном фоне текст только белый
+            fill_rect(left, field.y - h / 2.0 + 2.0, w, 2.0, frame);
+            fill_rect(left, top, 2.0, h, frame);
+            fill_rect(left + w - 2.0, top, 2.0, h, frame);
+            color = 0xff000000u;      // на белом фоне текст только чёрный
         }
         if (text.empty() && !is_focused) {
             continue;
         }
         if (field.value.empty()) {
-            color = (color & 0xffffff00u) | 0x88u;
+            color = 0x777777ffu;   // подсказка в пустом поле
         }
         if (!text.empty()) {
             draw_text(text, field.x, field.y, field.size, color, field.align);

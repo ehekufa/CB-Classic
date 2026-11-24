@@ -65,7 +65,48 @@ end
 
 -- переменные
 function E.gv(id) return gvars[id] end
-function E.set_gv(id, value) gvars[id] = value end
+
+-- Аккаунт игрока (как в старой версии): 61 «Имя», 62 «Пароль». Логин и пароль
+-- вводились на экране «Регистрация» (сцена 77), админ — тот, чья пара совпала.
+E.account = {
+  login_var = 61,
+  password_var = 62,
+  scene = 77,
+  shown = false,          -- экран регистрации уже показан в этом запуске
+  -- логин и пароль админа (те же, что в правилах Firebase, см. README)
+  admin = { login = "admin", password = "Kenta2026" },
+  -- пара автора из оригинала: пусть продолжает работать
+  legacy = { { "1111", "1111" }, { "Dimasi4ek229", "5252" } },
+  frozen = {},            -- [id] = true: значение пришло из --profile, не запоминаем
+}
+
+function E.is_admin()
+  local login, password = str(gvars[E.account.login_var]), str(gvars[E.account.password_var])
+  if login == E.account.admin.login and password == E.account.admin.password then
+    return true
+  end
+  for _, pair in ipairs(E.account.legacy) do
+    if login == pair[1] and password == pair[2] then
+      return true
+    end
+  end
+  return false
+end
+
+function E.set_gv(id, value)
+  -- админский режим (71) включается только с аккаунтом админа: кнопка
+  -- «Админ панель» на экране «Онлайн» раньше открывала его любому
+  if id == 71 and E.truthy(value) and not E.is_admin() then
+    E.toast("Нужен аккаунт админа")
+    gvars[71] = 0
+    return
+  end
+  gvars[id] = value
+  if (id == E.account.login_var or id == E.account.password_var)
+      and not E.account.frozen[id] then
+    cb.store_set("account:" .. tostring(id), str(value))   -- вход запоминается
+  end
+end
 function E.add_gv(id, delta) gvars[id] = num(gvars[id]) + num(delta) end
 
 function E.lv(o, id)
@@ -393,7 +434,21 @@ end
 -- скрипта, и пересоздавать планировщик «на ходу» нельзя.
 local pending_scene = nil
 function E.run_scene(id)
-  pending_scene = math.floor(num(id))
+  id = math.floor(num(id))
+  -- После заставки старая версия показывала «Регистрацию» (сцена 77), и уже
+  -- оттуда шла в меню. Возвращаем этот шаг: первый переход «загрузка -> меню»
+  -- ведёт на регистрацию (кнопка «Не хочу» пропускает её сразу в меню).
+  if id == 1 and not E.account.shown and E.has_scene and E.has_scene(E.account.scene) then
+    E.account.shown = true
+    id = E.account.scene
+  end
+  -- Сцена 99 («Онлайн (1)») — админский экран старой версии, в новой версии её
+  -- нет. Скрытая кнопка «Онлайн (1)» на экране «Режимы» осталась от автора и
+  -- вела в пустоту; ведём её на новый экран «Онлайн», где админ-панель.
+  if id == 99 and E.has_scene and not E.has_scene(99) then
+    id = 95
+  end
+  pending_scene = id
   cb.log("runScene(" .. tostring(pending_scene) .. ") <- " ..
     string.gsub(debug.traceback("", 2), "\n", " | "))
 end
@@ -617,7 +672,7 @@ function E.ask(o, prompt, callback)
   ask_counter = ask_counter + 1
   local label = "Вопрос:" .. tostring(prompt) .. ":" .. tostring(ask_counter)
   cb.text_create(label, 0, ASK_FIELD_Y, ASK_FIELD_W, ASK_FIELD_H, "#ffffff", "center", 1)
-  cb.text_set(label, "size", 64)
+  cb.text_set(label, "size", 96)         -- крупный ответ в белом поле
   cb.text_set(label, "placeholder", "ответ")
   cb.text_set(label, "value", "")
   cb.ask_open(str(prompt), label, ASK_FIELD_W, ASK_FIELD_H)

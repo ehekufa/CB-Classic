@@ -35,7 +35,7 @@ return {
       trigger = "touch_down",
       body = function(o)
         E.set_gv(71, 0)
-        E.ask(o, "Введите номер ивента", function(answer) E.set_gv(86, answer) end)
+        E.ask(o, "Введите номер ивента", function(answer) E.set_gv(86, answer) E.call_function(13) end)
       end,
     },
     { -- скрипт 5: function:13

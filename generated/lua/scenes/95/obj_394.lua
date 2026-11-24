@@ -13,7 +13,7 @@ return {
         E.set_pos(o, E.op_neg(590), E.op_neg(150))
         E.camera_off(o)
         E.set_rot(o, E.op_neg(90))
-        E.ask(o, "Выберите игрока (1/3)", function(answer) E.set_gv(72, answer) end)
+        E.ask(o, "Выберите игрока (1/3)", function(answer) E.set_gv(72, answer) E.call_function(1) end)
       end,
     },
     { -- скрипт 2: touch_down

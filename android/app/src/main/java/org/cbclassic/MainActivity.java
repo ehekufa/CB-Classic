@@ -29,7 +29,7 @@ public class MainActivity extends SDLActivity {
     private static final String TAG = "cbclassic";
     // Версия распакованных ассетов: увеличивайте, когда меняются файлы внутри APK
     // (новый шрифт, правленые картинки) — иначе старая установка их не подхватит.
-    private static final int ASSETS_VERSION = 13;
+    private static final int ASSETS_VERSION = 14;
 
     @Override
     protected String[] getLibraries() {
