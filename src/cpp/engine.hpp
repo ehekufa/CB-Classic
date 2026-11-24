@@ -280,6 +280,14 @@ public:
     int unsupported_calls(const std::string &name);
 
     const ImageAsset *image(const std::string &path);
+
+    // Видео-интро (блоки createVideo/deleteVideo): кадр из assets/videos/...
+    // рисуется поверх сцены, декодируется по одному — чтобы 30-60 кадров
+    // ролика не занимали десятки мегабайт памяти на телефоне.
+    void video_frame(const std::string &path);
+    void video_stop();
+    const cb_image *video_image() const { return video_loaded_ ? &video_image_ : nullptr; }
+    const std::string &video_path() const { return video_path_; }
     std::string asset_root() const { return asset_root_; }
     void go_steps(Sprite &sprite, double steps);
 
@@ -298,6 +306,9 @@ private:
     int next_clone_handle_ = 100000;
 
     std::unordered_map<std::string, ImageAsset> images_;
+    cb_image video_image_{};              // текущий кадр интро
+    bool video_loaded_ = false;
+    std::string video_path_;
     std::map<int, ImageRef> project_images_;     // id картинки -> картинка (все объекты)
 
     bool touch_down_ = false;

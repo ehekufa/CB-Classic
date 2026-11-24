@@ -95,6 +95,11 @@ echo "== assets =="
 # уезжали картинки и звуки уже не существующих объектов.
 rm -rf "$ROOT/assets/scenes" "$ROOT/assets/icons"
 python3 "$ROOT/tools/extract_assets.py" --src "$ROOT/original" --out "$ROOT/assets"
+# Видео-интро боёв: MP4 движок не умеет, поэтому заранее режем их на кадры PNG
+# (assets/videos/… + assets/videos.lua). Нужен ffmpeg: системный или из
+# pip-пакета imageio-ffmpeg (pip install --break-system-packages imageio-ffmpeg).
+rm -rf "$ROOT/assets/videos"
+python3 "$ROOT/tools/extract_videos.py" --src "$ROOT/original" --out "$ROOT/assets"
 echo "== generated/lua =="
 python3 "$ROOT/tools/catrobat2lua.py" --src "$ROOT/original" --out "$ROOT/generated"
 

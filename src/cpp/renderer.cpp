@@ -469,6 +469,7 @@ void Renderer::draw_scene(Engine &engine)
                       (color & 0x00ffffffu) | 0xff000000u);
         }
     }
+    draw_video(engine);
     draw_toasts(engine);
 }
 
@@ -605,6 +606,20 @@ void Renderer::draw_ask_panel(Engine &engine)
         }
         return;
     }
+}
+
+void Renderer::draw_video(Engine &engine)
+{
+    const cb_image *frame = engine.video_image();
+    if (!frame || frame->width <= 0 || frame->height <= 0) {
+        return;
+    }
+    // как в Pocket Code: ролик растягивается на всю сцену, пропорции сохраняем
+    const double sw = static_cast<double>(engine.stage_width());
+    const double sh = static_cast<double>(engine.stage_height());
+    const double fit = std::max(sw / frame->width, sh / frame->height);
+    draw_image(*frame, 0.0, 0.0, frame->width * fit, frame->height * fit, 0.0, 100.0,
+               100.0);
 }
 
 void Renderer::draw_toasts(Engine &engine)

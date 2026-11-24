@@ -169,10 +169,18 @@ end
 function E.log10(v) return math.log(num(v), 10) end
 function E.truncate(v) return (num(v) >= 0) and math.floor(num(v)) or math.ceil(num(v)) end
 function E.atan2deg(y, x) return math.deg(math.atan(y, x)) end
+-- «random(1, 2)» в этом проекте значит «целое от 1 до 2»: им выбирают скин
+-- врага и редкость яйца, а результат сравнивают через «=» (random(1,2) = 1).
+-- Дробное значение не совпадало ни с одним целым, и, например, яйцо не давало
+-- ничего. Поэтому для целых границ берём целое включительно, для остальных —
+-- как в Pocket Code, дробное.
 function E.random(a, b)
   a, b = num(a), num(b)
   if a > b then a, b = b, a end
   if a == b then return a end
+  if a == math.floor(a) and b == math.floor(b) then
+    return math.random(math.floor(a), math.floor(b))
+  end
   return a + math.random() * (b - a)
 end
 
@@ -250,6 +258,8 @@ function E.bright(o) return cb.get(o, "brightness") end
 function E.layer(o) return cb.get(o, "layer") end
 function E.visible(o) return cb.get(o, "visible") == 1 end
 function E.obj_name(o) return cb.get(o, "name") end
+-- Номер образа в Pocket Code считается с единицы («Враг (1)» = 1) — движок
+-- уже отдаёт его так, поэтому здесь ничего не прибавляем.
 function E.image_number(o) return cb.get(o, "image_index") end
 function E.image_name(o) return cb.get(o, "image_name") end
 function E.sound_count(o) return cb.get(o, "sound_count") end
@@ -431,6 +441,56 @@ end
 function E.unknown_expr(name)
   cb.unsupported("expr:" .. str(name))
   return 0
+end
+
+-- Видео-интро: блоки createVideo/deleteVideo из новой версии. Сами ролики —
+-- MP4 (их движок не декодирует), поэтому tools/extract_videos.py заранее режет
+-- их на кадры в assets/videos/, а здесь мы просто листаем кадры по таймеру.
+E.videos = {}                 -- id видео -> { prefix, frames, fps }
+local video_token = 0         -- защита от двух роликов одновременно
+local video_current = nil
+
+function E.video_play(id)
+  id = math.floor(num(id))
+  local meta = E.videos and E.videos[id]
+  if not meta then
+    return
+  end
+  video_token = video_token + 1
+  local token = video_token
+  video_current = id
+  local fps = tonumber(meta.fps) or 12
+  local step = 1 / (fps > 0 and fps or 12)
+  local frames = tonumber(meta.frames) or 0
+  if frames < 1 then
+    return
+  end
+  cb.log(string.format("видео: ролик %d «%s», %d кадров", id, tostring(meta.title or ""),
+                       frames))
+  local play = function()
+    local i = 1
+    while video_token == token do
+      cb.video_frame(string.format(meta.prefix .. "f_%04d.png", i))
+      i = i + 1
+      if i > frames then
+        i = frames                    -- ролик кончился — держим последний кадр
+      end
+      E.wait(step)
+    end
+  end
+  if scheduler then
+    scheduler:spawn(play, nil, "video")
+  end
+end
+
+function E.video_stop(id)
+  video_token = video_token + 1     -- останавливает листание кадров
+  video_current = nil
+  cb.video_stop()
+end
+
+function E.video_playing()
+  return video_current ~= nil
 end
 
 -- «Firebase» эмулируется локальным хранилищем (см. engine.cpp: fb_*).

@@ -51,6 +51,7 @@ private:
     void fill_rect(double x, double y, double w, double h, unsigned rgba);
     void draw_ask_panel(Engine &engine);
     void draw_toasts(Engine &engine);
+    void draw_video(Engine &engine);
 
     SDL_Texture *image_texture(const ImageAsset &asset);
     const TextTexture *text_texture(const std::string &text, double size, unsigned rgba,
@@ -64,6 +65,9 @@ private:
     double scale_ = 1.0;
     // текстуры картинок: ключ — адрес ImageAsset (он живёт в std::map движка)
     std::unordered_map<const ImageAsset *, SDL_Texture *> image_cache_;
+    SDL_Texture *video_texture_ = nullptr;      // текущий кадр видео-интро
+    int video_width_ = 0;
+    int video_height_ = 0;
     std::unordered_map<std::string, TextTexture> text_cache_;
 };
 

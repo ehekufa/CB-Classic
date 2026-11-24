@@ -7,6 +7,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <ctime>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -481,7 +482,11 @@ bool App::run()
         }
         auto t0 = Clock::now();
         step(dt);
-        if (options.trace_object >= 0) {
+        if (!options.trace_objects.empty()) {
+            for (int id : options.trace_objects) {
+                trace_object(id, frame);
+            }
+        } else if (options.trace_object >= 0) {
             trace_object(options.trace_object, frame);
         }
         auto t1 = Clock::now();
@@ -608,13 +613,19 @@ int main(int argc, char **argv)
     opts.fb_auto = true;             // на телефоне база нужна всегда
 #endif
     std::vector<std::string> args(argv + 1, argv + argc);
+    bool seed_given = false;
 
     for (size_t i = 0; i < args.size(); ++i) {
         const std::string &a = args[i];
         auto next = [&](const char *def) -> std::string {
             return (i + 1 < args.size()) ? args[++i] : def;
         };
-        if (a == "--root") {
+        if (a == "--seed") {
+            // только для тестов: в игре зерно берётся из часов, иначе каждый бой
+            // выпадал бы один и тот же скин врага и один и тот же лут
+            opts.seed = static_cast<unsigned>(std::strtoul(next("0").c_str(), nullptr, 10));
+            seed_given = true;
+        } else if (a == "--root") {
             opts.root = next(".");
         } else if (a == "--scene") {
             opts.scene = std::atoi(next("0").c_str());
@@ -680,6 +691,7 @@ int main(int argc, char **argv)
             opts.realtime = true;        // кадры идут по часам, а не максимально быстро
         } else if (a == "--trace") {
             opts.trace_object = std::atoi(next("-1").c_str());
+            opts.trace_objects.push_back(opts.trace_object);
         } else if (a == "--verbose") {
             opts.verbose = true;
         } else if (a == "--help" || a == "-h") {
@@ -706,9 +718,18 @@ int main(int argc, char **argv)
                 "  --fb-on        включить сеть с адресом по умолчанию\n"
                 "  --fb-offline   без сети совсем\n"
                 "  --realtime     идти в реальном времени (нужно сети в headless-прогоне)\n"
+                "  --seed N       зерно случайности (по умолчанию — из часов)\n"
                 "  --verbose      подробный вывод\n");
             return 0;
         }
+    }
+
+    if (!seed_given && !opts.headless) {
+        // В игре зерно случайности берём из часов: иначе в каждом бою выпадал бы
+        // один и тот же скин врага (и одно и то же интро), а яйца — один и тот же
+        // лут. В headless-прогонах (тесты, снимки экрана) остаётся фиксированное
+        // зерно, чтобы проверки были повторяемыми.
+        opts.seed = static_cast<unsigned>(std::time(nullptr));
     }
 
     if (!opts.check_dir.empty()) {

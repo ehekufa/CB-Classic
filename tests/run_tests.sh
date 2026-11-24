@@ -1,6 +1,6 @@
 #!/bin/sh
 # Самотесты порта: C-часть (PNG/inflate), конвертер, Lua-синтаксис, движок.
-set -eu
+set -u           # без -e: каждый шаг сам сообщает о провале через check
 
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT"
@@ -55,14 +55,16 @@ grep -q "спрайтов на сцене: 9" /tmp/cb_run1.log
 check $?
 
 step "движок: игра (26) с профилем и вводом джойстика"
-$BIN --frames 60 --scene 26 --script tests/scripts/joystick.txt \
+# первые ~3 с боя занимает видео-интро, поэтому ввод в сценариях начинается
+# после кадра 100
+$BIN --frames 160 --scene 26 --script tests/scripts/joystick.txt \
      --profile "3=100,4=6,12=1" --out /tmp/cb_frames_26 >/tmp/cb_run26.log 2>&1
 check $?
 grep -q "ошибок: 0" /tmp/cb_run26.log
 check $?
 
 step "управление: джойстик ведёт игрока вправо, а не вверх"
-$BIN --frames 40 --scene 26 --script tests/scripts/joystick_move.txt \
+$BIN --frames 150 --scene 26 --script tests/scripts/joystick_move.txt \
      --profile "3=100,4=6,12=1" --out /tmp/cb_frames_joy --verbose \
      >/tmp/cb_joy.log 2>&1
 check $?
@@ -71,8 +73,9 @@ awk '/Игрок /{print $3}' /tmp/cb_joy.log | tail -1 | \
 check $?
 
 step "способности: кнопка «Супер атака» перезаряжается (своя пауза у всех классов)"
-$BIN --frames 520 --scene 26 --profile "3=100,4=600,12=1,47=2" \
-     --set-var "65=1@2" --script tests/scripts/super_attack.txt --trace 26 --bench 520 --no-sound \
+# 600 кадров: первые ~3 с занимает видео-интро, способность жмём после него
+$BIN --frames 600 --scene 26 --profile "3=100,4=600,12=1,47=2" \
+     --set-var "65=1@2" --script tests/scripts/super_attack.txt --trace 26 --bench 600 --no-sound \
      >/tmp/cb_cooldown.log 2>&1
 check $?
 grep -q "ярк= 85.0" /tmp/cb_cooldown.log
@@ -92,15 +95,15 @@ case "$LAST" in
 esac
 
 step "атака: кнопка А срабатывает на палец и не залипает"
-$BIN --frames 60 --scene 26 --profile "3=100,4=6,12=1,47=4" \
+$BIN --frames 160 --scene 26 --profile "3=100,4=6,12=1,47=4" \
      --script tests/scripts/attack_hold.txt --trace 25 --no-sound \
      >/tmp/cb_aim.log 2>&1
 check $?
 # кнопка погасла — атака пошла
-grep -q "trace   11 .*ярк= 85.0" /tmp/cb_aim.log
+grep -q "trace  111 .*ярк= 85.0" /tmp/cb_aim.log
 check $?
 # через полсекунды кнопка снова яркая: атака не залипает
-grep -q "trace   25 .*ярк=100.0" /tmp/cb_aim.log
+grep -q "trace  125 .*ярк=100.0" /tmp/cb_aim.log
 check $?
 
 step "изумруды: в меню счёт рядом с иконкой, белое число без подписи"
@@ -151,7 +154,7 @@ grep -q "шрифт: .*Roboto-Regular.ttf" /tmp/cb_font.log
 check $?
 
 step "звук: играют эффекты проекта, фоновой музыки нет"
-$BIN --frames 30 --scene 26 --script tests/scripts/joystick.txt \
+$BIN --frames 160 --scene 26 --script tests/scripts/joystick.txt \
      --profile "3=100,4=6,12=1" --out /tmp/cb_frames_snd \
      >/tmp/cb_snd.log 2>&1
 check $?
@@ -221,7 +224,7 @@ grep -q '= \[abc\]' /tmp/cb_ask.log
 check $?
 
 step "ввод: два пальца одновременно (джойстик + кнопка) не ломают игру"
-$BIN --frames 30 --scene 26 --script tests/scripts/multitouch.txt \
+$BIN --frames 130 --scene 26 --script tests/scripts/multitouch.txt \
      --profile "3=100,4=6,12=1" --out /tmp/cb_frames_mt >/tmp/cb_mt.log 2>&1
 check $?
 grep -q "ошибок: 0" /tmp/cb_mt.log
@@ -283,6 +286,53 @@ python3 tests/fb_check_write.py /tmp/cb_fb_dump.json "world/ScreenWidth" 1500
 check $?
 kill "$FB_PID" 2>/dev/null || true
 mv /tmp/cb_db_backup.tsv saves/db.tsv 2>/dev/null || true
+
+step "интро боя: в начале битвы идёт видео нужного кубика"
+$BIN --scene 26 --frames 100 --fps 30 --size 1500x720 --profile "3=100,4=6,12=1,47=4" \
+     --seed 11 --verbose >/tmp/cb_intro_1.log 2>&1
+check $?
+grep -q "видео: ролик 2 «Обычный кубик»" /tmp/cb_intro_1.log
+check $?
+$BIN --scene 26 --frames 100 --fps 30 --size 1500x720 --profile "3=100,4=6,12=1,47=4" \
+     --seed 13 --verbose >/tmp/cb_intro_2.log 2>&1
+check $?
+grep -q "видео: ролик 3 «Настя кубик»" /tmp/cb_intro_2.log
+check $?
+
+step "интро боя: во время видео джойстик и способности выключены"
+$BIN --scene 26 --frames 130 --fps 30 --size 1500x720 --profile "3=100,4=6,12=1,47=4" \
+     --seed 11 --script tests/scripts/intro_lock.txt --trace 21 --trace 24 \
+     >/tmp/cb_intro_lock.log 2>&1
+check $?
+python3 - <<'PY'
+import re, sys
+
+hero, joy = {}, {}
+for line in open("/tmp/cb_intro_lock.log"):
+    m = re.match(r"trace\s+(\d+).*id=(\d+)\s+x=\s*(-?[\d.]+).*vis=(\d)", line)
+    if not m:
+        continue
+    frame, oid = int(m.group(1)), int(m.group(2))
+    x, vis = float(m.group(3)), int(m.group(4))
+    (hero if oid == 21 else joy)[frame] = (x, vis)
+
+problems = []
+# во время ролика (первые ~3 секунды) джойстик скрыт и игрок не двигается
+for frame in (0, 30, 60, 90):
+    if joy.get(frame, (0, 1))[1] != 0:
+        problems.append(f"джойстик виден во время интро (кадр {frame})")
+    if abs(hero.get(frame, (0, 0))[0]) > 1.0:
+        problems.append(f"игрок поехал во время интро (кадр {frame})")
+# после интро джойстик появляется и игрок слушается
+if joy.get(110, (0, 0))[1] != 1:
+    problems.append("джойстик не появился после интро")
+if hero.get(120, (0, 0))[0] <= 20.0:
+    problems.append("игрок не двигается после интро")
+for p in problems:
+    print(p)
+sys.exit(1 if problems else 0)
+PY
+check $?
 
 step "движок: кадры — валидные PNG нужного размера"
 python3 - <<'PY'

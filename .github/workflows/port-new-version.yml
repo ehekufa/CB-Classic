@@ -46,6 +46,16 @@ jobs:
           ls -la /tmp/dl
           du -sh /tmp/dl
 
+      - name: Install ffmpeg (для кадров видео-интро)
+        # tools/extract_videos.py режет MP4 на PNG: сгодится либо системный
+        # ffmpeg, либо бинарник из пакета imageio-ffmpeg
+        run: |
+          if ! command -v ffmpeg >/dev/null; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg || \
+              pip install imageio-ffmpeg
+          fi
+          ffmpeg -version 2>/dev/null | head -1 || python3 -c "import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())"
+
       - name: Port project (original -> assets + generated)
         run: |
           Z=$(ls /tmp/dl/*.zip | head -1)

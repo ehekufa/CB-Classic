@@ -1,4 +1,4 @@
-f0: touch 1 -590 -150
-f0: touch 2 590 -150
-f2: lift 1
-f2: lift 2
+f100: touch 1 -590 -150
+f100: touch 2 590 -150
+f102: lift 1
+f102: lift 2

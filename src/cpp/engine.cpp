@@ -231,6 +231,31 @@ const ImageAsset *Engine::image(const std::string &path)
     return &res.first->second;
 }
 
+void Engine::video_frame(const std::string &path)
+{
+    if (path.empty() || path == video_path_) {
+        return;
+    }
+    video_stop();
+    std::string full = asset_root_ + "/" + path;
+    if (cb_png_load(full.c_str(), &video_image_) != 0) {
+        log("не удалось прочитать кадр видео: " + path);
+        return;
+    }
+    video_loaded_ = true;
+    video_path_ = path;
+}
+
+void Engine::video_stop()
+{
+    if (video_loaded_) {
+        cb_image_free(&video_image_);
+        video_image_ = cb_image{};
+        video_loaded_ = false;
+    }
+    video_path_.clear();
+}
+
 bool Engine::run_scene(int id)
 {
     for (const auto &scene : scenes_) {
@@ -239,6 +264,9 @@ bool Engine::run_scene(int id)
         }
         sprites_.clear();
         texts_.clear();
+        // кадр видео-интро не должен «переехать» в следующую сцену, если игрок
+        // вышел из боя до конца ролика
+        video_stop();
         next_handle_ = 1;
         next_clone_handle_ = 100000;
         current_scene_ = id;

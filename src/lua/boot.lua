@@ -32,6 +32,7 @@ local sched = new_scheduler()
 local project
 local layout = {}           -- стартовые позиции (assets/layout.lua)
 local modules = {}          -- [scene_id] = { [object_id] = module }
+local object_order = {}     -- [scene_id] = { object_id, ... } — как в Pocket Code
 local scene_index = {}      -- [scene_id] = { dir = "26", name = "Игра" }
 local active_scene = 0
 local truth_prev = {}       -- [ключ] = было ли условие истинным
@@ -74,10 +75,11 @@ end
 
 local function load_scene_modules(scene_id)
   if modules[scene_id] then
-    return modules[scene_id]
+    return modules[scene_id], object_order[scene_id]
   end
   local info = scene_index[scene_id]
   local loaded = {}
+  local order = {}
   if info then
     local ok, index = pcall(require, "scenes." .. info.dir .. ".index")
     if ok and index then
@@ -86,6 +88,7 @@ local function load_scene_modules(scene_id)
           entry.file:gsub("%.lua$", ""))
         if ok2 and mod then
           loaded[entry.id] = mod
+          order[#order + 1] = entry.id
         else
           cb.log("не загрузился модуль " .. entry.file .. ": " .. tostring(mod))
         end
@@ -95,7 +98,8 @@ local function load_scene_modules(scene_id)
     end
   end
   modules[scene_id] = loaded
-  return loaded
+  object_order[scene_id] = order
+  return loaded, order
 end
 
 local function register_functions(scene_id, mods)
@@ -135,13 +139,17 @@ local function activate(scene_id)
     end
   end
 
-  local mods = load_scene_modules(scene_id)
+  local mods, order = load_scene_modules(scene_id)
   register_functions(scene_id, mods)
   emeralds.enter_scene(scene_id)
   abilities.enter_scene(scene_id)
-  for object_id, mod in pairs(mods) do
+  -- Порядок start-скриптов = порядок объектов в Pocket Code. Это важно:
+  -- «Интро» боя читает скин врага (переменная 28), а его выставляет скрипт
+  -- врага, поэтому запускать старты «как попало» (pairs) нельзя.
+  for _, object_id in ipairs(order or {}) do
+    local mod = mods[object_id]
     local handle = cb.obj_by_id(object_id)
-    if handle ~= 0 then
+    if mod and handle ~= 0 then
       for _, script in ipairs(mod.scripts or {}) do
         if script.trigger == "start" then
           spawn(script, handle, "start")
@@ -194,6 +202,12 @@ function M.start(opts)
   math.randomseed(opts.seed or 20260802)
   local chunk = assert(loadfile(opts.project or "assets/project.lua"))
   project = chunk()
+
+  local videos_path = (opts.project or "assets/project.lua"):gsub("project%.lua$", "videos.lua")
+  local ok_videos, loaded_videos = pcall(loadfile, videos_path)
+  if ok_videos and loaded_videos then
+    E.videos = loaded_videos() or {}
+  end
 
   local layout_path = opts.layout or ((opts.project or "assets/project.lua"):gsub("project%.lua$", "layout.lua"))
   local ok_layout, loaded_layout = pcall(loadfile, layout_path)

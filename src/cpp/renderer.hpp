@@ -49,6 +49,7 @@ private:
                     double rotation_deg, double alpha_pct, double brightness_pct);
     void draw_sprite(Engine &engine, const Sprite &sprite);
     void draw_toasts(Engine &engine);
+    void draw_video(Engine &engine);
     void draw_ask_panel(Engine &engine);
     void draw_particles(Engine &engine);
 

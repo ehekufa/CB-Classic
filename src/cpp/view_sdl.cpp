@@ -46,6 +46,10 @@ void SdlView::free_caches()
         }
     }
     image_cache_.clear();
+    if (video_texture_) {
+        SDL_DestroyTexture(video_texture_);
+        video_texture_ = nullptr;
+    }
     for (auto &entry : text_cache_) {
         if (entry.second.texture) {
             SDL_DestroyTexture(entry.second.texture);
@@ -319,6 +323,43 @@ void SdlView::draw_ask_panel(Engine &engine)
     }
 }
 
+void SdlView::draw_video(Engine &engine)
+{
+    const cb_image *frame = engine.video_image();
+    if (!frame || frame->width <= 0 || frame->height <= 0) {
+        return;
+    }
+    // Текстуру держим одну на весь ролик: кадры интро идут 12 раз в секунду, и
+    // создавать/уничтожать текстуру на каждый кадр — лишние рывки на телефоне.
+    if (!video_texture_ || video_width_ != frame->width || video_height_ != frame->height) {
+        if (video_texture_) {
+            SDL_DestroyTexture(video_texture_);
+            video_texture_ = nullptr;
+        }
+        video_texture_ = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGBA32,
+                                           SDL_TEXTUREACCESS_STREAMING, frame->width,
+                                           frame->height);
+        if (!video_texture_) {
+            return;
+        }
+        SDL_SetTextureBlendMode(video_texture_, SDL_BLENDMODE_BLEND);
+        video_width_ = frame->width;
+        video_height_ = frame->height;
+    }
+    SDL_UpdateTexture(video_texture_, nullptr, frame->pixels, frame->width * 4);
+    const double sw = static_cast<double>(engine.stage_width());
+    const double sh = static_cast<double>(engine.stage_height());
+    const double fit = std::max(sw / frame->width, sh / frame->height);
+    const double w = frame->width * fit * scale_;
+    const double h = frame->height * fit * scale_;
+    SDL_Rect dst;
+    dst.x = static_cast<int>(std::lround(width_ / 2.0 - w / 2.0));
+    dst.y = static_cast<int>(std::lround(height_ / 2.0 - h / 2.0));
+    dst.w = static_cast<int>(std::lround(w));
+    dst.h = static_cast<int>(std::lround(h));
+    SDL_RenderCopy(renderer_, video_texture_, nullptr, &dst);
+}
+
 void SdlView::draw_toasts(Engine &engine)
 {
     const auto &messages = engine.toasts();
@@ -395,6 +436,7 @@ void SdlView::draw_scene(Engine &engine)
                       (color & 0x00ffffffu) | 0xff000000u);
         }
     }
+    draw_video(engine);
     draw_toasts(engine);
 }
 

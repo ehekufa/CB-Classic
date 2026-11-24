@@ -1,0 +1,8 @@
+f2:press -590 -150
+f30:move -450 -60
+f60:move -350 -60
+f70:release
+f96:press -590 -150
+f104:move -420 -80
+f118:move -330 -80
+f125:release

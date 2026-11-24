@@ -496,9 +496,13 @@ class BrickGen:
             return f"E.text_set({label}, 'size', {size})"
 
         if name in ("createVideo", "deleteVideo"):
-            # запись видео с экрана из модифицированной Pocket Code: в порте
-            # не пишем видео, но и не считаем блок неподдержанным
-            return "E.noop()"
+            # видео-интро боя: кадры ролика заранее нарезаны tools/extract_videos.py,
+            # движок листает их поверх сцены (E.video_play / E.video_stop)
+            vid = "0"
+            if args and isinstance(args[0], list) and len(args[0]) > 1:
+                vid = str(args[0][1])
+            call = "E.video_play" if name == "createVideo" else "E.video_stop"
+            return f"{call}({vid})"
 
         if name == "createTextField":
             label = formula(args[0], self.unsup) if args else '""'

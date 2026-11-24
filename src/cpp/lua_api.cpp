@@ -678,6 +678,24 @@ int l_firebase_get(lua_State *L)
     return 1;
 }
 
+int l_video_frame(lua_State *L)
+{
+    engine_of(L)->video_frame(luaL_optstring(L, 1, ""));
+    return 0;
+}
+
+int l_video_stop(lua_State *L)
+{
+    engine_of(L)->video_stop();
+    return 0;
+}
+
+int l_video_active(lua_State *L)
+{
+    lua_pushinteger(L, engine_of(L)->video_image() ? 1 : 0);
+    return 1;
+}
+
 int l_store_set(lua_State *L)
 {
     engine_of(L)->store_set(luaL_checkstring(L, 1), lua_tostring(L, 2) ? lua_tostring(L, 2) : "");
@@ -762,6 +780,9 @@ const luaL_Reg kApi[] = {
     {"text_delete", l_text_delete},
     {"firebase_url", l_firebase_url},
     {"firebase_set", l_firebase_set},
+    {"video_frame", l_video_frame},
+    {"video_stop", l_video_stop},
+    {"video_active", l_video_active},
     {"firebase_get", l_firebase_get},
     {"store_set", l_store_set},
     {"store_get", l_store_get},

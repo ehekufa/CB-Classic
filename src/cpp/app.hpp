@@ -36,6 +36,7 @@ struct AppOptions {
     std::string screenshot;              // сохранить последний кадр окна в PNG
     bool no_sound = false;               // без звука вообще
     int trace_object = -1;               // --trace ID: печатать состояние объекта по кадрам
+    std::vector<int> trace_objects;      // несколько --trace ID сразу (тесты)
     // Сеть (Firebase Realtime Database): адрес базы и режим.
     std::string fb_url;                  // --fb-url URL (на десктопе включает сеть)
     bool fb_offline = false;             // --fb-offline: без сети совсем
