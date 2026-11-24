@@ -334,6 +334,62 @@ sys.exit(1 if problems else 0)
 PY
 check $?
 
+step "сцены 101/104/105/106: скрипты загружаются (номер сцены в каталоге)"
+for id in 101 104 105 106; do
+  $BIN --frames 6 --scene "$id" --verbose >/tmp/cb_scene_$id.log 2>&1
+  check $?
+  if grep -q "нет index.lua" /tmp/cb_scene_$id.log; then
+    printf '   ПРОВАЛ: сцена %s без скриптов\n' "$id"
+    FAILED=$((FAILED + 1))
+  else
+    printf '   OK сцена %s\n' "$id"
+  fi
+done
+
+step "яйцо: три тапа — лопается, выдаёт яйца и возвращает в меню"
+$BIN --frames 175 --scene 104 --profile "80=44" --seed 11 \
+     --script tests/scripts/egg_pop.txt --verbose >/tmp/cb_egg.log 2>&1
+check $?
+grep -q "toast: Вам выпало... 1 Яйцо!" /tmp/cb_egg.log
+check $?
+# награда дошла до счётчика: в меню 44 + 1
+grep -q 'var:80 .*значение="45"' /tmp/cb_egg.log
+check $?
+
+step "уведомление: тост снизу — тёмная скруглённая плашка с белым текстом"
+$BIN --frames 70 --scene 104 --profile "80=44" --seed 11 \
+     --script tests/scripts/egg_pop.txt --out /tmp/cb_frames_toast >/tmp/cb_toast.log 2>&1
+check $?
+python3 tests/check_shot.py toast /tmp/cb_frames_toast/frame_0064.png
+check $?
+
+step "поля ввода: чёрный фон (кроме входа в аккаунт)"
+$BIN --frames 8 --scene 31 --profile "24=100" --out /tmp/cb_frames_field >/dev/null 2>&1
+check $?
+python3 tests/check_shot.py field /tmp/cb_frames_field/frame_0007.png 300 -100
+check $?
+$BIN --frames 8 --scene 95 --out /tmp/cb_frames_ask >/dev/null 2>&1
+check $?
+# поле модального вопроса — тоже чёрное (точка левее каретки по центру)
+python3 tests/check_shot.py field /tmp/cb_frames_ask/frame_0007.png -250 -55
+check $?
+
+step "ввод: текст без Enter подтверждается кнопкой «Ввести»"
+$BIN --frames 40 --scene 31 --profile "24=100" \
+     --script tests/scripts/promo_no_enter.txt --verbose >/tmp/cb_promo_noenter.log 2>&1
+check $?
+grep -q "ввод подтверждён: Промокод = \[MurderOfLove\]" /tmp/cb_promo_noenter.log
+check $?
+grep -q 'var:24 .*значение="145"' /tmp/cb_promo_noenter.log
+check $?
+
+step "ввод: модальный вопрос закрывается нажатием, но не пустым"
+$BIN --frames 26 --scene 95 --script tests/scripts/ask_confirm.txt --verbose \
+     >/tmp/cb_ask_confirm.log 2>&1
+check $?
+grep -q "ввод подтверждён: Вопрос:Выберите игрока (1/3):1 = \[1\]" /tmp/cb_ask_confirm.log
+check $?
+
 step "движок: кадры — валидные PNG нужного размера"
 python3 - <<'PY'
 import struct, sys, glob

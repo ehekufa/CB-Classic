@@ -230,7 +230,13 @@ function M.start(opts)
     end
   end
   for _, scene in ipairs(project.scenes) do
-    scene_index[scene.id] = { dir = scene.slug:sub(1, 2), name = scene.name }
+    -- Каталог сгенерированных скриптов = номер сцены, минимум две цифры
+    -- (tools/catrobat2lua.py: f"{scene_id:02d}"). Раньше брались первые два
+    -- символа слага, и у трёхзначных сцен (101, 104, 105, 106) получалось «10»:
+    -- их скрипты не загружались вообще — яйцо не лопалась, магазин яиц и
+    -- новогодние сцены были мёртвыми.
+    scene_index[scene.id] = { dir = string.format("%02d", tonumber(scene.id) or 0),
+                             name = scene.name }
     cb.scene_define(scene.id, scene.name)
     for _, object in ipairs(scene.objects) do
       cb.object_define(scene.id, object.id, object.name, 0, 0, 0,
@@ -309,11 +315,33 @@ end
 
 -- Нажатие: сначала текстовые поля (они всегда поверх спрайтов),
 -- потом скрипты объектов.
+-- Забрать подтверждённые значения полей ввода и разложить их по переменным.
+local function drain_text_commits()
+  while true do
+    local label, value = cb.poll_text_commit()
+    if label == nil then
+      break
+    end
+    E.on_text_commit(label, value)
+  end
+end
+
 local function handle_press(x, y)
   if cb.text_focus_at(x, y) == 1 then
     return
   end
+  -- Модальный вопрос («Выберите игрока (1/3)») без ответа случайным нажатием не
+  -- закрываем: иначе нечаянный тап отправлял пустой ответ.
+  local focused = cb.text_focused()
+  if focused and E.text_pending(focused) and (cb.text_value(focused) or "") == "" then
+    return
+  end
+  -- Нажатие мимо поля = «готово»: значение уходит в переменную ДО того, как
+  -- сработают кнопки. Раньше ввод без Enter терялся: кнопка («Ввести»,
+  -- «Выбрать», слот игрока) читала ещё старое значение, и повторное нажатие
+  -- не срабатывало — приходилось заново нажимать поле и жать Enter.
   cb.text_blur()
+  drain_text_commits()
   fire_touch_triggers(x, y)
 end
 
@@ -340,13 +368,7 @@ local function poll_releases()
 end
 
 local function poll_text_commits()
-  while true do
-    local label, value = cb.poll_text_commit()
-    if label == nil then
-      break
-    end
-    E.on_text_commit(label, value)
-  end
+  drain_text_commits()
 end
 local function fire_back()
   back_pressed = true
@@ -411,8 +433,9 @@ function M.debug_set_var(id, value)
   E.set_gv(tonumber(id), value)
 end
 
--- Сцена «Больше» (31): поле промокода — белая плашка без подсказки-слова
--- («Промокод» не пишем), текст внутри тёмный, чтобы читался на белом.
+-- Сцена «Больше» (31): поле промокода — чёрная плашка без подсказки-слова
+-- («Промокод» не пишем). Фон поля рисует движок (все поля ввода чёрные),
+-- здесь только гасим подсказку и подгоняем текст.
 -- Поле создаёт скрипт объекта «Ввести», поэтому правим его каждый кадр:
 -- text_set по несуществующему полю молча ничего не делает.
 local function style_promo_field(scene_id)
@@ -423,7 +446,7 @@ local function style_promo_field(scene_id)
   E.cb.text_set("Промокод", "placeholder", "")
   E.cb.text_set("Промокод", "align", "center")
   E.cb.text_set("Промокод", "size", 56)
-  E.cb.text_set("Промокод", "color", "#1b3c5a")
+  E.cb.text_set("Промокод", "color", "#ffffff")
 end
 
 function M.frame(dt)

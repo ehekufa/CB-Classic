@@ -360,20 +360,36 @@ void SdlView::draw_video(Engine &engine)
     SDL_RenderCopy(renderer_, video_texture_, nullptr, &dst);
 }
 
+void SdlView::pill(double x, double top, double w, double h, unsigned rgba)
+{
+    // top — верхняя кромка в сценических координатах (ось Y вверх), а
+    // fill_rect рисует вниз от переданной точки.
+    const double r = std::min(10.0, h / 2.0);
+    fill_rect(x + r, top, w - 2.0 * r, h, rgba);
+    fill_rect(x + r / 2.0, top - r / 2.0, w - r, h - r, rgba);
+    fill_rect(x, top - r, w, h - 2.0 * r, rgba);
+}
+
 void SdlView::draw_toasts(Engine &engine)
 {
     const auto &messages = engine.toasts();
     if (messages.empty()) {
         return;
     }
-    const double bottom = -static_cast<double>(engine.stage_height()) / 2.0 + 34.0;
+    // Системное уведомление Android (Toast) снизу по центру: тёмно-серая
+    // скруглённая плашка, белый текст, стопкой вверх.
+    // размер шрифта — высота поля, буква ≈ 0.38 от неё (Font::pixel_size)
+    const double text_size = 64.0;
+    const double h = 56.0;
+    const double pad = 30.0;
+    const double bottom = -static_cast<double>(engine.stage_height()) / 2.0 + 74.0 + h / 2.0;
     const size_t count = messages.size();
     for (size_t i = 0; i < count; ++i) {
         const std::string &msg = messages[count - 1 - i];
-        const double y = bottom + static_cast<double>(i) * 34.0;
-        const double w = metrics_.text_width(msg, 20.0) + 28.0;
-        fill_rect(-w / 2.0, y + 16.0, w, 32.0, 0x1b3c5ab0u);
-        draw_text(msg, 0.0, y, 20.0, 0xffffffffu, "center");
+        const double y = bottom + static_cast<double>(i) * (h + 12.0);
+        const double w = metrics_.text_width(msg, text_size) + 2.0 * pad;
+        pill(-w / 2.0, y + h / 2.0, w, h, 0x323232f2u);
+        draw_text(msg, 0.0, y, text_size, 0xffffffffu, "center");
     }
 }
 
@@ -405,14 +421,16 @@ void SdlView::draw_scene(Engine &engine)
                                                : std::max(60.0, engine.text_width(field));
             const double h = field.height > 0.0 ? field.height
                                                 : std::max(28.0, field.size * 1.6);
-            const unsigned frame = is_focused ? 0x3a90d0ffu : 0x9aa0a880u;
+            const unsigned frame = is_focused ? 0x3a90d0ffu : 0x5a5a5affu;
             const double left = field.x - w / 2.0;
             const double top = field.y + h / 2.0;
-            fill_rect(left, top, w, h, is_focused ? 0xffffffe6u : 0xffffffb4u);
+            // полностью чёрная подложка поля ввода (кроме входа в аккаунт)
+            fill_rect(left, top, w, h, 0x000000ffu);
             fill_rect(left, top, w, 2.0, frame);
             fill_rect(left, field.y - h / 2.0, w, 2.0, frame);
             fill_rect(left, field.y - h / 2.0, 2.0, h, frame);
             fill_rect(left + w - 2.0, field.y - h / 2.0, 2.0, h, frame);
+            color = 0xffffffffu;      // на чёрном фоне текст только белый
         }
         if (text.empty() && !is_focused) {
             continue;

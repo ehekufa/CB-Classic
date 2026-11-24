@@ -51,6 +51,7 @@ private:
     void fill_rect(double x, double y, double w, double h, unsigned rgba);
     void draw_ask_panel(Engine &engine);
     void draw_toasts(Engine &engine);
+    void pill(double x, double top, double w, double h, unsigned rgba);
     void draw_video(Engine &engine);
 
     SDL_Texture *image_texture(const ImageAsset &asset);

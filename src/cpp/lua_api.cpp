@@ -525,6 +525,18 @@ int l_text_focused(lua_State *L)
     return 1;
 }
 
+int l_text_value(lua_State *L)
+{
+    Eng *e = engine_of(L);
+    TextField *field = e->text(luaL_checkstring(L, 1));
+    if (!field) {
+        lua_pushnil(L);
+        return 1;
+    }
+    lua_pushstring(L, field->value.c_str());
+    return 1;
+}
+
 int l_poll_text_commit(lua_State *L)
 {
     std::string label;
@@ -762,6 +774,7 @@ const luaL_Reg kApi[] = {
     {"text_focus", l_text_focus},
     {"text_blur", l_text_blur},
     {"text_focused", l_text_focused},
+    {"text_value", l_text_value},
     {"poll_text_commit", l_poll_text_commit},
     {"text_input", l_text_input},
     {"text_backspace", l_text_backspace},

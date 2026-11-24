@@ -432,20 +432,19 @@ void Renderer::draw_scene(Engine &engine)
         unsigned color = parse_hex_color(field.color, 0xffffffffu);
 
         if (field.editable) {
-            // рамка редактируемого поля: видно, куда нажимать
+            // Полностью чёрная подложка (просьба: «все поля ввода чёрные, кроме
+            // входа в аккаунт») и белый текст — иначе на чёрном ничего не видно.
             double w = field.width > 0.0 ? field.width : std::max(60.0, engine.text_width(field));
             double h = field.height > 0.0 ? field.height : std::max(28.0, field.size * 1.6);
-            unsigned frame = is_focused ? 0x3a90d0ffu : 0x9aa0a880u;
+            unsigned frame = is_focused ? 0x3a90d0ffu : 0x5a5a5affu;
             double left = field.x - w / 2.0;
             double top = field.y + h / 2.0;      // fill_rect рисует вниз от top
-            // светлая подложка: текст читается на любом фоне
-            // плашка почти белая: поле ввода должно читаться как «белое» и на
-            // тёмном фоне, и на светлом
-            fill_rect(left, top, w, h, is_focused ? 0xffffffeeu : 0xffffffdeu);
+            fill_rect(left, top, w, h, 0x000000ffu);
             fill_rect(left, top, w, 2.0, frame);                  // верх
             fill_rect(left, field.y - h / 2.0, w, 2.0, frame);    // низ
             fill_rect(left, field.y - h / 2.0, 2.0, h, frame);    // лево
             fill_rect(left + w - 2.0, field.y - h / 2.0, 2.0, h, frame);
+            color = 0xffffffffu;
         }
         if (text.empty() && !is_focused) {
             continue;
@@ -622,22 +621,40 @@ void Renderer::draw_video(Engine &engine)
                100.0);
 }
 
+// Скруглённая плашка: три прямоугольника, вложенных друг в друга. Радиус
+// подбирается по высоте, чтобы уведомление читалось как системный toast.
+void Renderer::pill(double x, double top, double w, double h, unsigned rgba)
+{
+    // top — верхняя кромка в сценических координатах (ось Y вверх), а
+    // fill_rect рисует вниз от переданной точки.
+    const double r = std::min(10.0, h / 2.0);
+    fill_rect(x + r, top, w - 2.0 * r, h, rgba);
+    fill_rect(x + r / 2.0, top - r / 2.0, w - r, h - r, rgba);
+    fill_rect(x, top - r, w, h - 2.0 * r, rgba);
+}
+
 void Renderer::draw_toasts(Engine &engine)
 {
     const auto &messages = engine.toasts();
     if (messages.empty()) {
         return;
     }
-    // Внизу по центру: в оригинале тост всплывает поверх сцены, но не
-    // перекрывает кнопки. Несколько сообщений — стопкой вверх.
-    double bottom = -static_cast<double>(engine.stage_height()) / 2.0 + 34.0;
-    size_t count = messages.size();
+    // Как системное уведомление Android (Toast): тёмно-серая скруглённая
+    // плашка с белым текстом ВНИЗУ по центру, чуть выше кнопок сцены.
+    // Несколько сообщений — стопкой вверх, новые ближе к краю.
+    // Размер шрифта в порте — это высота поля, а буква ≈ 0.38 от неё
+    // (Font::pixel_size), поэтому 64 даёт привычные для toast ~24 px.
+    const double text_size = 64.0;
+    const double h = 56.0;
+    const double pad = 30.0;
+    const double bottom = -static_cast<double>(engine.stage_height()) / 2.0 + 74.0 + h / 2.0;
+    const size_t count = messages.size();
     for (size_t i = 0; i < count; ++i) {
         const std::string &msg = messages[count - 1 - i];   // новые сверху
-        double y = bottom + static_cast<double>(i) * 34.0;
-        double w = text_width(msg, 20.0) + 28.0;
-        fill_rect(-w / 2.0, y + 16.0, w, 32.0, 0x1b3c5ab0u);
-        draw_text(msg, 0.0, y, 20.0, 0xffffffffu, "center");
+        const double y = bottom + static_cast<double>(i) * (h + 12.0);
+        const double w = text_width(msg, text_size) + 2.0 * pad;
+        pill(-w / 2.0, y + h / 2.0, w, h, 0x323232f2u);
+        draw_text(msg, 0.0, y, text_size, 0xffffffffu, "center");
     }
 }
 
