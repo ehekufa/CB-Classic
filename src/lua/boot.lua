@@ -263,6 +263,16 @@ function M.start(opts)
   -- Ник и пароль НЕ подставляются из прошлого запуска: автор попросил, чтобы
   -- при каждом перезаходе они сбрасывались (см. E.clear_account).
 
+  -- Массивы (сцена 42 «Загрузка» в оригинале их читала, но в новой версии
+  -- она не запускается): без этого выпавшие кубы и промокоды терялись.
+  for array_id = 1, 6 do
+    E.array_load(array_id)
+    local items = E.array(array_id)
+    if #items > 0 then
+      cb.log("массив " .. tostring(array_id) .. ": " .. table.concat(items, ", "))
+    end
+  end
+
   -- «Регистрация» (сцена 77) всегда открывается с пустыми полями
   function fresh_registration(scene_id)
     if E.clear_account and scene_id == E.account.scene then

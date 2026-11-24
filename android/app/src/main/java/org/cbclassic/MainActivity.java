@@ -29,7 +29,7 @@ public class MainActivity extends SDLActivity {
     private static final String TAG = "cbclassic";
     // Версия распакованных ассетов: увеличивайте, когда меняются файлы внутри APK
     // (новый шрифт, правленые картинки) — иначе старая установка их не подхватит.
-    private static final int ASSETS_VERSION = 14;
+    private static final int ASSETS_VERSION = 15;
 
     @Override
     protected String[] getLibraries() {
@@ -40,7 +40,16 @@ public class MainActivity extends SDLActivity {
     protected void onCreate(Bundle savedInstanceState) {
         extractAssets();
         super.onCreate(savedInstanceState);
+        // настоящие окна Android (AlertDialog/Toast) для вопросов и уведомлений
+        NativeUi.attach(this);
         applyImmersiveMode();
+    }
+
+    @Override
+    protected void onPause() {
+        // окно вопроса не должно висеть поверх чужого приложения
+        NativeUi.dismiss();
+        super.onPause();
     }
 
     @Override

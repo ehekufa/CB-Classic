@@ -422,7 +422,9 @@ void Renderer::draw_scene(Engine &engine)
     draw_particles(engine);
     auto &fields = engine.texts();
     const std::string focused = engine.focused_text();
-    draw_ask_panel(engine);
+    if (!engine.ask_native()) {
+        draw_ask_panel(engine);       // на Android вопрос показывает само окно
+    }
     // мигающая каретка: 0.5 с видна, 0.5 с нет
     bool caret_visible = std::fmod(engine.time(), 1.0) < 0.6;
     for (auto &pair : fields) {

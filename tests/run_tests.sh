@@ -454,6 +454,23 @@ check $?
 python3 tests/check_shot.py emptyfield /tmp/cb_frames_reenter/frame_0109.png 0 -40
 check $?
 
+step "пасхальник: выпавший куб засчитывается и не теряется после перезапуска"
+rm -f /tmp/cb_egg.tsv
+CB_STORE=/tmp/cb_egg.tsv $BIN --frames 220 --fps 30 --scene 104 --seed 3 \
+    --script tests/scripts/egg_open.txt --verbose >/tmp/cb_egg.log 2>&1
+check $?
+grep -q "Вам выпал... Пасхальник!" /tmp/cb_egg.log
+check $?
+# куб сразу пишется в сохранение (раньше нужен был ручной «Сохранить прогресс»)
+grep -q "EasterClass" /tmp/cb_egg.tsv
+check $?
+# второй запуск: класс уже открыт и его можно взять
+CB_STORE=/tmp/cb_egg.tsv $BIN --frames 60 --fps 30 --scene 80 \
+    --script tests/scripts/pashalnik_tap.txt --verbose >/tmp/cb_pash.log 2>&1
+check $?
+grep -q 'Класс "пасхальника" экипирован' /tmp/cb_pash.log
+check $?
+
 step "ивент: админ запускает ивент 2 — он появляется на экране"
 $BIN --frames 100 --scene 95 --profile "61=admin,62=Kenta2026" \
      --script tests/scripts/event_start.txt --verbose >/tmp/cb_event.log 2>&1
@@ -477,12 +494,19 @@ else
 fi
 
 step "ввод: текст без Enter подтверждается кнопкой «Ввести»"
-$BIN --frames 40 --scene 31 --profile "24=100" \
+rm -f /tmp/cb_promo.tsv
+CB_STORE=/tmp/cb_promo.tsv $BIN --frames 40 --scene 31 --profile "24=100" \
      --script tests/scripts/promo_no_enter.txt --verbose >/tmp/cb_promo_noenter.log 2>&1
 check $?
 grep -q "ввод подтверждён: Промокод = \[MurderOfLove\]" /tmp/cb_promo_noenter.log
 check $?
 grep -q 'var:24 .*значение="145"' /tmp/cb_promo_noenter.log
+check $?
+# промокод одноразовый, как в оригинале: второй раз изумрудов не даёт
+CB_STORE=/tmp/cb_promo.tsv $BIN --frames 40 --scene 31 --profile "24=100" \
+     --script tests/scripts/promo_no_enter.txt --verbose >/tmp/cb_promo_twice.log 2>&1
+check $?
+grep -q 'var:24 .*значение="100"' /tmp/cb_promo_twice.log
 check $?
 
 step "ввод: диалог спрашивает по-настоящему — «Принять» отвечает, «Отмена» нет"

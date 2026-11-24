@@ -160,9 +160,17 @@ end
 function E.array_add(id, value)
   local a = E.array(id)
   a[#a + 1] = value
+  -- сразу пишем на диск: иначе выпавший в яйце куб («Пасхальник», «Заяц куб»)
+  -- пропадал при перезапуске и не засчитывался
+  E.array_save(id)
 end
+-- Конвертер зовёт это из выражения как E.array_contains(E.array(1), "..."),
+-- то есть первым аргументом приходит уже сама таблица (а не id). Раньше это
+-- создавало пустой массив по ключу-таблице и всегда возвращало false —
+-- из-за чего выпавший «Пасхальник» и «Заяц куб» не засчитывались.
 function E.array_contains(id, value)
-  for _, item in ipairs(E.array(id)) do
+  local list = type(id) == "table" and id or E.array(id)
+  for _, item in ipairs(list) do
     if str(item) == str(value) then return true end
   end
   return false
@@ -749,6 +757,7 @@ function E.array_clear(id)
   for i = #list, 1, -1 do
     list[i] = nil
   end
+  E.array_save(id)      -- очистка прогресса тоже должна остаться на диске
 end
 
 -- Вызывается из boot.lua, когда пользователь закончил ввод (Enter или

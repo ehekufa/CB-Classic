@@ -202,6 +202,10 @@ public:
                   double field_h);
     void ask_close();
     void ask_accept() { if (ask_active_) ask_result_ = 1; }   // Enter = «Принять»
+    // Вопрос показывается настоящим окном Android (AlertDialog с EditText),
+    // а не нарисованной карточкой; ответ приходит из Java.
+    bool ask_native() const { return ask_native_; }
+    void ask_native_poll();
     bool ask_active() const { return ask_active_; }
     int ask_state() const { return ask_result_; }     // 0 ждём, 1 принято, -1 отмена
     bool ask_touch(double x, double y);               // true — нажатие съедено диалогом
@@ -255,6 +259,7 @@ public:
         dt_ = dt;
         tick_toasts(dt);
         particles_update(dt);
+        ask_native_poll();
         fb_tick();
     }
     int stage_width() const { return stage_w_; }
@@ -370,6 +375,7 @@ private:
 
     // диалог E.ask
     bool ask_active_ = false;
+    bool ask_native_ = false;      // сейчас открыто системное окно Android
     int ask_result_ = 0;
     std::string ask_prompt_;
     std::string ask_label_;

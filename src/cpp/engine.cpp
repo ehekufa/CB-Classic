@@ -1,6 +1,8 @@
 // engine.cpp — реализация состояния мира.
 #include "engine.hpp"
 
+#include "native_ui.hpp"
+
 #include <filesystem>
 
 #include <algorithm>
@@ -629,10 +631,26 @@ void Engine::ask_open(const std::string &prompt, const std::string &label, doubl
         field->visible = true;
         field->editable = true;
     }
+    // На Android вопрос — настоящее окно (AlertDialog + EditText): системная
+    // клавиатура, выделение и удаление текста. Поле движка при этом спрятано,
+    // оно нужно только как место для ответа.
+    ask_native_ = native_ui_available();
+    if (ask_native_) {
+        if (field) {
+            field->visible = false;
+        }
+        std::string hint = field ? field->placeholder : std::string();
+        std::string initial = field ? field->value : std::string();
+        native_ask(ask_prompt_, hint.empty() ? "ответ" : hint, initial, "Принять", "Отмена");
+    }
 }
 
 void Engine::ask_close()
 {
+    if (ask_native_) {
+        native_ask_dismiss();
+        ask_native_ = false;
+    }
     if (!focus_.empty() && focus_ == ask_label_) {
         // Диалог закрылся: снимаем фокус молча — ответ уже прочитан в E.ask,
         // а «Отмена» не должна ничего записывать в переменную.
@@ -644,10 +662,32 @@ void Engine::ask_close()
     ask_label_.clear();
 }
 
+// Ответ из системного окна Android: кладём его в то же поле, что и при вводе
+// в игре, и ставим результат («Принять»/«Отмена»), как будто нажали кнопку.
+void Engine::ask_native_poll()
+{
+    if (!ask_native_) {
+        return;
+    }
+    std::string value;
+    bool accepted = false;
+    if (!native_ask_result(&value, &accepted)) {
+        return;
+    }
+    TextField *field = text(ask_label_);
+    if (field && accepted) {
+        field->value = value;
+    }
+    ask_result_ = accepted ? 1 : -1;
+}
+
 bool Engine::ask_touch(double x, double y)
 {
     if (!ask_active_) {
         return false;
+    }
+    if (ask_native_) {
+        return true;      // окно Android само ловит касания
     }
     TextField *field = text(ask_label_);
     if (field) {
@@ -861,6 +901,13 @@ void Engine::text_remove(const std::string &label)
 
 void Engine::toast(const std::string &msg)
 {
+    // На телефоне уведомление показывает сам Android (android.widget.Toast),
+    // на десктопе — нарисованная плашка внизу кадра.
+    if (native_ui_available()) {
+        log("toast (android): " + msg);
+        native_toast(msg);
+        return;
+    }
     // Оригинал умеет выдать одно и то же сообщение несколько раз подряд
     // (по ветке на каждый промокод) — в кадре оно должно быть одно.
     for (auto &existing : toasts_) {

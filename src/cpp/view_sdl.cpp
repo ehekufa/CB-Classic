@@ -420,7 +420,9 @@ void SdlView::draw_scene(Engine &engine)
 
     const std::string focused = engine.focused_text();
     const bool caret_visible = std::fmod(engine.time(), 1.0) < 0.6;
-    draw_ask_panel(engine);
+    if (!engine.ask_native()) {
+        draw_ask_panel(engine);       // на Android вопрос показывает само окно
+    }
     for (auto &pair : engine.texts()) {
         TextField &field = pair.second;
         if (!field.visible) {
