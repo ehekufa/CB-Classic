@@ -1,24 +1,24 @@
 # Отчёт сборки APK
 
-- дата: 2026-11-24T05:41:20Z
+- дата: 2026-11-24T07:46:33Z
 - SDL: release-2.30.9
 - NDK: 26.1.10909125
 - Gradle: 8.7
-- запуск: https://github.com/ehekufa/CB-Classic/actions/runs/45334803570
+- запуск: https://github.com/ehekufa/CB-Classic/actions/runs/45350321479
 - APK в запуске: артефакт `cb-classic-debug-apk`
 
 ## APK
 
 ```
--rw-r--r-- 1 runner runner 19344476 Nov 24 05:41 dist/cb-classic-debug.apk
-d75d1833afb066d7556ef3d7d021c85ba700901ffc9bbd0df080ec2e10a208fb  dist/cb-classic-debug.apk
+-rw-r--r-- 1 runner runner 19400579 Nov 24 07:46 dist/cb-classic-debug.apk
+714e93f3b5c595d53d0b03dcdb4ffccb4c446c186063d1dc6f83a7d5824c1e9c  dist/cb-classic-debug.apk
      1056  1981-01-01 01:01   classes.dex
   1309008  1981-01-01 01:01   lib/arm64-v8a/libSDL2.so
   1330832  1981-01-01 01:01   lib/arm64-v8a/libc++_shared.so
-   739552  1981-01-01 01:01   lib/arm64-v8a/libmain.so
+   744456  1981-01-01 01:01   lib/arm64-v8a/libmain.so
    918044  1981-01-01 01:01   lib/armeabi-v7a/libSDL2.so
   1109732  1981-01-01 01:01   lib/armeabi-v7a/libc++_shared.so
-   497620  1981-01-01 01:01   lib/armeabi-v7a/libmain.so
+   501436  1981-01-01 01:01   lib/armeabi-v7a/libmain.so
     35614  1981-01-01 01:01   assets/assets/project.lua
   4086673  1981-01-01 01:01   assets/assets/scenes/26_igra/016_fon/images/0222_fon_1.png
    742511  1981-01-01 01:01   assets/assets/scenes/26_igra/016_fon/images/1121_fon_2.png
@@ -33,12 +33,12 @@ d75d1833afb066d7556ef3d7d021c85ba700901ffc9bbd0df080ec2e10a208fb  dist/cb-classi
      1012  1981-01-01 01:01   assets/assets/scenes/26_igra/021_igrok/images/0393_igrok_2.png
      1903  1981-01-01 01:01   assets/assets/scenes/26_igra/021_igrok/images/0829_igrok_7.png
 ...
-    43660  1981-01-01 01:01   META-INF/MANIFEST.MF
+    50596  1981-01-01 01:01   META-INF/MANIFEST.MF
 ---------                     -------
- 23850418                     360 files
+ 23961825                     421 files
 ```
 
-всего записей: 360
+всего записей: 421
 
 
 ## Проверка содержимого APK
@@ -59,12 +59,12 @@ classes3.dex: 97980 байт
   MainActivity:            0
 
 ### ресурсы
-всего записей: 360
-assets/:        345
+всего записей: 421
+assets/:        406
   png:          200
   mp3:          16
-  generated/lua:116
-  src/lua:      5
+  generated/lua:175
+  src/lua:      7
   project.lua:  1
   index.json:   1
   layout.lua:   1
@@ -87,9 +87,9 @@ activity/action в манифесте:
 
 подпись:
 V2 Signer: certificate DN: C=US, O=Android, CN=Android Debug
-V2 Signer: certificate SHA-256 digest: 85837c018c8d1b0a33aace138890b399991ced6c457c1da098ba1c46b411acbc
-V2 Signer: certificate SHA-1 digest: 444345f31983b6a19e7551320215d69a9ceb69b3
-V2 Signer: certificate MD5 digest: ef92c0003aa22872d04ea87f1aa472d9
+V2 Signer: certificate SHA-256 digest: 258e05f9498bdbe70c5850b94454c54634a1385132375c2f5c78d4d45c70a61e
+V2 Signer: certificate SHA-1 digest: f4f0d7485a6086a5a7fafd0161b0bb9e8e5b61d2
+V2 Signer: certificate MD5 digest: 4506bee5b0e2bd6b1e65e925775cba77
 WARNING: META-INF/com/android/build/gradle/app-metadata.properties not protected by signature. Unauthorized modifications to this JAR entry will not be detected. Delete or move the entry outside of META-INF/.
 
 ### основные lua-модули
@@ -144,14 +144,14 @@ Note: Recompile with -Xlint:deprecation for details.
 > Task :app:dexBuilderDebug
 > Task :app:processDebugJavaRes NO-SOURCE
 > Task :app:mergeDebugGlobalSynthetics
-> Task :app:checkDebugDuplicateClasses
 > Task :app:mergeDebugStartupProfile
-> Task :app:mergeExtDexDebug
 > Task :app:preReleaseBuild UP-TO-DATE
-> Task :app:mergeLibDexDebug
+> Task :app:checkDebugDuplicateClasses
 > Task :app:mergeDebugJavaResource
-> Task :app:mergeProjectDexDebug
 > Task :app:configureCMakeRelease[arm64-v8a]
+> Task :app:mergeExtDexDebug
+> Task :app:mergeLibDexDebug
+> Task :app:mergeProjectDexDebug
 > Task :app:buildCMakeRelease[arm64-v8a]
 > Task :app:configureCMakeRelease[armeabi-v7a]
 > Task :app:buildCMakeRelease[armeabi-v7a]
@@ -165,7 +165,7 @@ Note: Recompile with -Xlint:deprecation for details.
 > Task :app:createDebugApkListingFileRedirect
 > Task :app:assembleDebug
 
-BUILD SUCCESSFUL in 1m 39s
+BUILD SUCCESSFUL in 1m 30s
 39 actionable tasks: 39 executed
 код возврата gradle: 0
 ```
