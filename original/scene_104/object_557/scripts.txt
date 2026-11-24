@@ -1,0 +1,1 @@
+[["start",[],"on"],["removeAdaptiveSizeDevice",[],"on"],["touchBack",[],"on"],["runScene",[["scenes",31]],"on"]]

@@ -1,0 +1,8 @@
+f2: press 400 -100
+f3: release
+f4: type MurderOfLove
+f5: key enter
+f6: press 400 -230
+f7: release
+f20: scene 1
+f24: scene 1

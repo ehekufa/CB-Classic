@@ -1,0 +1,2873 @@
+{
+ "project": "CB In New Colors",
+ "stage": [
+  720,
+  1500
+ ],
+ "orientation": "horizontal",
+ "scenes": [
+  {
+   "id": 42,
+   "name": "Загрузка",
+   "slug": "42_zagruzka",
+   "objects": [
+    {
+     "id": 1,
+     "name": "Фон",
+     "slug": "001_fon",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [],
+     "sounds": [],
+     "default_image": null,
+     "vars": []
+    },
+    {
+     "id": 2,
+     "name": "Текст",
+     "slug": "002_tekst",
+     "rotation": 0.0,
+     "size": 1.292,
+     "images": [
+      {
+       "id": 1,
+       "name": "Текст",
+       "path": "scenes/42_zagruzka/002_tekst/images/0001_tekst.png",
+       "bytes": 28374,
+       "sha256": "552cc534b44bd059ccd9c8066b3e36993e628b423f8fd5bbd3513afff5288cda"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/42_zagruzka/002_tekst/images/0001_tekst.png",
+     "vars": []
+    },
+    {
+     "id": 186,
+     "name": "Спасибо",
+     "slug": "186_spasibo",
+     "rotation": 0.0,
+     "size": 1.292,
+     "images": [
+      {
+       "id": 720,
+       "name": "Спасибо",
+       "path": "scenes/42_zagruzka/186_spasibo/images/0720_spasibo.png",
+       "bytes": 38981,
+       "sha256": "2cd9f026da72e5127c944bd08f695e1e3abd15657a6979736b80b051b53fefc3"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/42_zagruzka/186_spasibo/images/0720_spasibo.png",
+     "vars": []
+    }
+   ],
+   "functions": [
+    {
+     "id": 1,
+     "name": "Новый сигнал",
+     "arity": 2
+    }
+   ]
+  },
+  {
+   "id": 77,
+   "name": "Регистрация",
+   "slug": "77_registraciya",
+   "objects": [
+    {
+     "id": 161,
+     "name": "Фон",
+     "slug": "161_fon",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [],
+     "sounds": [],
+     "default_image": null,
+     "vars": []
+    },
+    {
+     "id": 164,
+     "name": "Поле ввода визуал",
+     "slug": "164_pole_vvoda_vizual",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 235,
+       "name": "Поле ввода визуал",
+       "path": "scenes/77_registraciya/164_pole_vvoda_vizual/images/0235_pole_vvoda_vizual.png",
+       "bytes": 852,
+       "sha256": "fbd7542bd71f3f8a8e171126a2d9246674c593c72016ce5430700c698ca580ba"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/77_registraciya/164_pole_vvoda_vizual/images/0235_pole_vvoda_vizual.png",
+     "vars": []
+    },
+    {
+     "id": 165,
+     "name": "Поле ввода визуал 2",
+     "slug": "165_pole_vvoda_vizual_2",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 236,
+       "name": "Поле ввода визуал 2",
+       "path": "scenes/77_registraciya/165_pole_vvoda_vizual_2/images/0236_pole_vvoda_vizual_2.png",
+       "bytes": 852,
+       "sha256": "fbd7542bd71f3f8a8e171126a2d9246674c593c72016ce5430700c698ca580ba"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/77_registraciya/165_pole_vvoda_vizual_2/images/0236_pole_vvoda_vizual_2.png",
+     "vars": []
+    },
+    {
+     "id": 166,
+     "name": "Зарегистрироваться",
+     "slug": "166_zaregistrirovatsya",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 237,
+       "name": "Зарегистрироваться",
+       "path": "scenes/77_registraciya/166_zaregistrirovatsya/images/0237_zaregistrirovatsya.png",
+       "bytes": 13729,
+       "sha256": "e3937edfefd24e41599f9bb2684eb14601923d28f23a79df0285bff53747ed60"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/77_registraciya/166_zaregistrirovatsya/images/0237_zaregistrirovatsya.png",
+     "vars": []
+    },
+    {
+     "id": 167,
+     "name": "Войти",
+     "slug": "167_voyti",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 239,
+       "name": "Войти",
+       "path": "scenes/77_registraciya/167_voyti/images/0239_voyti.png",
+       "bytes": 10191,
+       "sha256": "a2845e6f8e71c2f972f51a78546dda62dba38c8ea499366f45d6942958e7dba4"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/77_registraciya/167_voyti/images/0239_voyti.png",
+     "vars": []
+    },
+    {
+     "id": 168,
+     "name": "Подтвердить",
+     "slug": "168_podtverdit",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 240,
+       "name": "Подтвердить",
+       "path": "scenes/77_registraciya/168_podtverdit/images/0240_podtverdit.png",
+       "bytes": 6903,
+       "sha256": "de7086683ea64a61b4efacba6162de61e2d1a42f1b68c848d771714a14cbaa29"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/77_registraciya/168_podtverdit/images/0240_podtverdit.png",
+     "vars": []
+    },
+    {
+     "id": 188,
+     "name": "Не хочу",
+     "slug": "188_ne_hochu",
+     "rotation": 0.0,
+     "size": 0.75,
+     "images": [
+      {
+       "id": 276,
+       "name": "Не хочу",
+       "path": "scenes/77_registraciya/188_ne_hochu/images/0276_ne_hochu.png",
+       "bytes": 13149,
+       "sha256": "c083a00930d2a879ba0a42aeffe55e42131c82000a26131f00b018187603a1c9"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/77_registraciya/188_ne_hochu/images/0276_ne_hochu.png",
+     "vars": []
+    }
+   ],
+   "functions": [
+    {
+     "id": 3,
+     "name": "Вверх",
+     "arity": 1
+    },
+    {
+     "id": 2,
+     "name": "Вниз",
+     "arity": 2
+    },
+    {
+     "id": 1,
+     "name": "Новый сигнал",
+     "arity": 1
+    }
+   ]
+  },
+  {
+   "id": 1,
+   "name": "Меню",
+   "slug": "01_menyu",
+   "objects": [
+    {
+     "id": 3,
+     "name": "Фон",
+     "slug": "003_fon",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [],
+     "sounds": [],
+     "default_image": null,
+     "vars": []
+    },
+    {
+     "id": 4,
+     "name": "Надпись",
+     "slug": "004_nadpis",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 2,
+       "name": "Надпись",
+       "path": "scenes/01_menyu/004_nadpis/images/0002_nadpis.png",
+       "bytes": 28224,
+       "sha256": "171eee424167ccd405e8a382146bdd0728226160ed6620b2fb03d05bc120b9a0"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/01_menyu/004_nadpis/images/0002_nadpis.png",
+     "vars": []
+    },
+    {
+     "id": 5,
+     "name": "Режимы",
+     "slug": "005_rezhimy",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 683,
+       "name": "Режимы",
+       "path": "scenes/01_menyu/005_rezhimy/images/0683_rezhimy.png",
+       "bytes": 9405,
+       "sha256": "084198ac763ff8d169d492eff007bc15a154f4f85ac417c400f9f2bdd7f9f069"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/01_menyu/005_rezhimy/images/0683_rezhimy.png",
+     "vars": []
+    },
+    {
+     "id": 426,
+     "name": "Достижения",
+     "slug": "426_dostizheniya",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 742,
+       "name": "Достижения",
+       "path": "scenes/01_menyu/426_dostizheniya/images/0742_dostizheniya.png",
+       "bytes": 11101,
+       "sha256": "7973b4fe5f36534296093e76c9f3a1316d85499bec74597b3f046120cfa43fd7"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/01_menyu/426_dostizheniya/images/0742_dostizheniya.png",
+     "vars": []
+    },
+    {
+     "id": 6,
+     "name": "Больше",
+     "slug": "006_bolshe",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 681,
+       "name": "Больше",
+       "path": "scenes/01_menyu/006_bolshe/images/0681_bolshe.png",
+       "bytes": 7803,
+       "sha256": "8957e6ff0be6d263bb197c25d0ea334ff512a983267e8aa00654130abba6f3c9"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/01_menyu/006_bolshe/images/0681_bolshe.png",
+     "vars": []
+    },
+    {
+     "id": 281,
+     "name": "Яйца",
+     "slug": "281_yayca",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 1037,
+       "name": "Яйца",
+       "path": "scenes/01_menyu/281_yayca/images/1037_yayca.png",
+       "bytes": 13819,
+       "sha256": "59355b3ba746213c2bfa72f724fd386828ceb13b47fba195def6718a527ef499"
+      }
+     ],
+     "sounds": [
+      {
+       "id": 11,
+       "name": "Нажатие",
+       "path": "scenes/01_menyu/281_yayca/sounds/0011_nazhatie.mp3",
+       "bytes": 15782,
+       "sha256": "a9015da05310a7a9a39c388f590daa95df121d16c90a4fdd400d8d81d4ea73d6"
+      }
+     ],
+     "default_image": "scenes/01_menyu/281_yayca/images/1037_yayca.png",
+     "vars": []
+    },
+    {
+     "id": 8,
+     "name": "Путь к богатству",
+     "slug": "008_put_k_bogatstvu",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 6,
+       "name": "Путь к богатству",
+       "path": "scenes/01_menyu/008_put_k_bogatstvu/images/0006_put_k_bogatstvu.png",
+       "bytes": 6844,
+       "sha256": "192d233a0af1f92ec18533077170898662f2c42041318d6ddac8639dc52f3aed"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/01_menyu/008_put_k_bogatstvu/images/0006_put_k_bogatstvu.png",
+     "vars": []
+    },
+    {
+     "id": 11,
+     "name": "Силы",
+     "slug": "011_sily",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 732,
+       "name": "Клсссы",
+       "path": "scenes/01_menyu/011_sily/images/0732_klsssy.png",
+       "bytes": 8562,
+       "sha256": "aad730bff0b43496fb65dfc6cba7380c2a21f4c60c623c44a8e6c0398227744b"
+      }
+     ],
+     "sounds": [
+      {
+       "id": 2,
+       "name": "Нажатие",
+       "path": "scenes/01_menyu/011_sily/sounds/0002_nazhatie.mp3",
+       "bytes": 15782,
+       "sha256": "a9015da05310a7a9a39c388f590daa95df121d16c90a4fdd400d8d81d4ea73d6"
+      }
+     ],
+     "default_image": "scenes/01_menyu/011_sily/images/0732_klsssy.png",
+     "vars": []
+    },
+    {
+     "id": 593,
+     "name": "Изумруды",
+     "slug": "593_izumrudy",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 1123,
+       "name": "Изумруды",
+       "path": "scenes/01_menyu/593_izumrudy/images/1123_izumrudy.png",
+       "bytes": 7065,
+       "sha256": "404e52330749ff6f3a6dacda6f04a90b5106074817452f60a80413184f8b7597"
+      }
+     ],
+     "sounds": [
+      {
+       "id": 67,
+       "name": "Нажатие",
+       "path": "scenes/01_menyu/593_izumrudy/sounds/0067_nazhatie.mp3",
+       "bytes": 15782,
+       "sha256": "a9015da05310a7a9a39c388f590daa95df121d16c90a4fdd400d8d81d4ea73d6"
+      }
+     ],
+     "default_image": "scenes/01_menyu/593_izumrudy/images/1123_izumrudy.png",
+     "vars": []
+    }
+   ],
+   "functions": [
+    {
+     "id": 4,
+     "name": "Ок",
+     "arity": 4
+    },
+    {
+     "id": 3,
+     "name": "Новый фон",
+     "arity": 2
+    },
+    {
+     "id": 2,
+     "name": "Ошибка",
+     "arity": 3
+    },
+    {
+     "id": 1,
+     "name": "Новый сигнал",
+     "arity": 4
+    }
+   ]
+  },
+  {
+   "id": 70,
+   "name": "Режимы",
+   "slug": "70_rezhimy",
+   "objects": [
+    {
+     "id": 95,
+     "name": "Фон",
+     "slug": "095_fon",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [],
+     "sounds": [],
+     "default_image": null,
+     "vars": []
+    },
+    {
+     "id": 96,
+     "name": "Назад",
+     "slug": "096_nazad",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 687,
+       "name": "Назад",
+       "path": "scenes/70_rezhimy/096_nazad/images/0687_nazad.png",
+       "bytes": 7295,
+       "sha256": "23ba6456260fb0e177fd13b28beac9426371b2e8d70e79c93283ca2e0ba30fc0"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/70_rezhimy/096_nazad/images/0687_nazad.png",
+     "vars": []
+    },
+    {
+     "id": 99,
+     "name": "Обычный режим",
+     "slug": "099_obychnyy_rezhim",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 707,
+       "name": "Обычный режим",
+       "path": "scenes/70_rezhimy/099_obychnyy_rezhim/images/0707_obychnyy_rezhim.png",
+       "bytes": 13976,
+       "sha256": "a450e4e64a06be171f5a2d0930d09980d6a1fe5668872e65d0090fdc5963f46b"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/70_rezhimy/099_obychnyy_rezhim/images/0707_obychnyy_rezhim.png",
+     "vars": []
+    },
+    {
+     "id": 411,
+     "name": "Онлайн",
+     "slug": "411_onlayn",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 708,
+       "name": "Онлайн",
+       "path": "scenes/70_rezhimy/411_onlayn/images/0708_onlayn.png",
+       "bytes": 17865,
+       "sha256": "8a5bfadc289fd4cd58cd427a33f42d331bb55983a75593d3d730eae68ddba8e7"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/70_rezhimy/411_onlayn/images/0708_onlayn.png",
+     "vars": []
+    }
+   ],
+   "functions": [
+    {
+     "id": 1,
+     "name": "Новый сигнал",
+     "arity": 0
+    }
+   ]
+  },
+  {
+   "id": 26,
+   "name": "Игра",
+   "slug": "26_igra",
+   "objects": [
+    {
+     "id": 16,
+     "name": "Фон",
+     "slug": "016_fon",
+     "rotation": 0.0,
+     "size": 1.05,
+     "images": [
+      {
+       "id": 222,
+       "name": "Фон (1)",
+       "path": "scenes/26_igra/016_fon/images/0222_fon_1.png",
+       "bytes": 4086673,
+       "sha256": "13b9048ee375f6fda1e7af2fbf2abeb51f1826890cd1075eb2ab7a0764df5db9"
+      },
+      {
+       "id": 1121,
+       "name": "Фон (2)",
+       "path": "scenes/26_igra/016_fon/images/1121_fon_2.png",
+       "bytes": 742511,
+       "sha256": "7fa6d753d0b2aeee984cf88e79177b1e913a589dd3cf19017abfea200c448fad"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/26_igra/016_fon/images/1121_fon_2.png",
+     "vars": []
+    },
+    {
+     "id": 19,
+     "name": "Кровь",
+     "slug": "019_krov",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 605,
+       "name": "Кровь",
+       "path": "scenes/26_igra/019_krov/images/0605_krov.png",
+       "bytes": 4677,
+       "sha256": "314c247bdd86e0e9a94fb4729ef432eb6859beea6ee133dba90dac9cc0f9c623"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/26_igra/019_krov/images/0605_krov.png",
+     "vars": []
+    },
+    {
+     "id": 17,
+     "name": "Тень игрока",
+     "slug": "017_ten_igroka",
+     "rotation": 105.89527130127,
+     "size": 3.5,
+     "images": [
+      {
+       "id": 15,
+       "name": "Тень игрока",
+       "path": "scenes/26_igra/017_ten_igroka/images/0015_ten_igroka.png",
+       "bytes": 274,
+       "sha256": "ef53dc48da9198f6ddfd044f4dfaecccb7ee43013dff2e5f73fbf45e5a760ca1"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/26_igra/017_ten_igroka/images/0015_ten_igroka.png",
+     "vars": []
+    },
+    {
+     "id": 18,
+     "name": "Тень врага",
+     "slug": "018_ten_vraga",
+     "rotation": 106.06875610352,
+     "size": 3.5,
+     "images": [
+      {
+       "id": 16,
+       "name": "тень врага",
+       "path": "scenes/26_igra/018_ten_vraga/images/0016_ten_vraga.png",
+       "bytes": 274,
+       "sha256": "ef53dc48da9198f6ddfd044f4dfaecccb7ee43013dff2e5f73fbf45e5a760ca1"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/26_igra/018_ten_vraga/images/0016_ten_vraga.png",
+     "vars": []
+    },
+    {
+     "id": 412,
+     "name": "Яйцо-мина",
+     "slug": "412_yayco_mina",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 1066,
+       "name": "Яйцо-мина (1)",
+       "path": "scenes/26_igra/412_yayco_mina/images/1066_yayco_mina_1.png",
+       "bytes": 13819,
+       "sha256": "59355b3ba746213c2bfa72f724fd386828ceb13b47fba195def6718a527ef499"
+      },
+      {
+       "id": 1074,
+       "name": "Яйцо-мина (2)",
+       "path": "scenes/26_igra/412_yayco_mina/images/1074_yayco_mina_2.png",
+       "bytes": 13808,
+       "sha256": "6083b3d2d0a3f928e3b4d45bdad3689f8410f90f06ad3b3db34994a15c057b87"
+      }
+     ],
+     "sounds": [
+      {
+       "id": 63,
+       "name": "Подрыв",
+       "path": "scenes/26_igra/412_yayco_mina/sounds/0063_podryv.mp3",
+       "bytes": 2400,
+       "sha256": "bd964e0bc5e5539c2143634919fc3cd7966668f10191f92dd03a183a76164ffa"
+      }
+     ],
+     "default_image": "scenes/26_igra/412_yayco_mina/images/1066_yayco_mina_1.png",
+     "vars": []
+    },
+    {
+     "id": 581,
+     "name": "Яйцо",
+     "slug": "581_yayco",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 1091,
+       "name": "Яйцо (1)",
+       "path": "scenes/26_igra/581_yayco/images/1091_yayco_1.png",
+       "bytes": 13819,
+       "sha256": "59355b3ba746213c2bfa72f724fd386828ceb13b47fba195def6718a527ef499"
+      },
+      {
+       "id": 1092,
+       "name": "Яйцо (2)",
+       "path": "scenes/26_igra/581_yayco/images/1092_yayco_2.png",
+       "bytes": 13808,
+       "sha256": "6083b3d2d0a3f928e3b4d45bdad3689f8410f90f06ad3b3db34994a15c057b87"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/26_igra/581_yayco/images/1091_yayco_1.png",
+     "vars": []
+    },
+    {
+     "id": 594,
+     "name": "Изумруд",
+     "slug": "594_izumrud",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 1126,
+       "name": "Изумруд",
+       "path": "scenes/26_igra/594_izumrud/images/1126_izumrud.png",
+       "bytes": 7065,
+       "sha256": "404e52330749ff6f3a6dacda6f04a90b5106074817452f60a80413184f8b7597"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/26_igra/594_izumrud/images/1126_izumrud.png",
+     "vars": []
+    },
+    {
+     "id": 20,
+     "name": "Прицел",
+     "slug": "020_pricel",
+     "rotation": 105.89527130127,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 910,
+       "name": "Прицел",
+       "path": "scenes/26_igra/020_pricel/images/0910_pricel.png",
+       "bytes": 504,
+       "sha256": "52ce471bae440bd8711a63d2aee0388f2c530933b47b1c5c183f8683c9ab8077"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/26_igra/020_pricel/images/0910_pricel.png",
+     "vars": []
+    },
+    {
+     "id": 21,
+     "name": "Игрок",
+     "slug": "021_igrok",
+     "rotation": 105.89527130127,
+     "size": 3.5,
+     "images": [
+      {
+       "id": 19,
+       "name": "Игрок (1)",
+       "path": "scenes/26_igra/021_igrok/images/0019_igrok_1.png",
+       "bytes": 274,
+       "sha256": "ef53dc48da9198f6ddfd044f4dfaecccb7ee43013dff2e5f73fbf45e5a760ca1"
+      },
+      {
+       "id": 393,
+       "name": "Игрок (2)",
+       "path": "scenes/26_igra/021_igrok/images/0393_igrok_2.png",
+       "bytes": 1012,
+       "sha256": "dbf00ab5adaee1b94b7a26681a8f2783cba1dd66132c1a63b4c529af40dc0076"
+      },
+      {
+       "id": 21,
+       "name": "Игрок (3)",
+       "path": "scenes/26_igra/021_igrok/images/0021_igrok_3.png",
+       "bytes": 5505,
+       "sha256": "665e0e558ab0fd9e30dd297bfb50acd7f9441ec9b1ee7e3e995ceb87c47b8ac6"
+      },
+      {
+       "id": 1031,
+       "name": "Игрок (4)",
+       "path": "scenes/26_igra/021_igrok/images/1031_igrok_4.png",
+       "bytes": 753,
+       "sha256": "eb3196d3b20c32d9992562282497a8bfb8db4f4877d98515d565bfb484752257"
+      },
+      {
+       "id": 23,
+       "name": "Игрок (5)",
+       "path": "scenes/26_igra/021_igrok/images/0023_igrok_5.png",
+       "bytes": 1011,
+       "sha256": "7a166e81153349f5eb1dcb0e68d1db12d24c981d5879a8495aa44cc1314c6f19"
+      },
+      {
+       "id": 1029,
+       "name": "Игрок (6)",
+       "path": "scenes/26_igra/021_igrok/images/1029_igrok_6.png",
+       "bytes": 989,
+       "sha256": "7eea55e2628ceafe22f76327d64e8e121d0697af9d4795038ee651ad5e4feefe"
+      },
+      {
+       "id": 829,
+       "name": "Игрок (7)",
+       "path": "scenes/26_igra/021_igrok/images/0829_igrok_7.png",
+       "bytes": 1903,
+       "sha256": "a875dd3904d9a2ac3174ec3fdecc1370bcd3e7c96dc70eadb0ff5eaa924a8d24"
+      },
+      {
+       "id": 26,
+       "name": "Игрок (8)",
+       "path": "scenes/26_igra/021_igrok/images/0026_igrok_8.png",
+       "bytes": 1037,
+       "sha256": "6acd1a297bd144ce2465667678853f3845ab937b5b6fc668418f628d83a0bb84"
+      },
+      {
+       "id": 888,
+       "name": "Игрок (9)",
+       "path": "scenes/26_igra/021_igrok/images/0888_igrok_9.png",
+       "bytes": 881,
+       "sha256": "bd690148fa3952e29a50fe3b110e408ed081788c882081414371a45af8621ba1"
+      },
+      {
+       "id": 1061,
+       "name": "Игрок (10)",
+       "path": "scenes/26_igra/021_igrok/images/1061_igrok_10.png",
+       "bytes": 938,
+       "sha256": "22a136a089368226f7c50d6e2cfa4639f4fcb94daceac16f67de243293dd13fd"
+      },
+      {
+       "id": 1141,
+       "name": "Игроу (11)",
+       "path": "scenes/26_igra/021_igrok/images/1141_igrou_11.png",
+       "bytes": 387,
+       "sha256": "48f6cc09dd43ab424e6cbe9b8f1a245aa1328ded90374c40eea92a4a67716e77"
+      },
+      {
+       "id": 985,
+       "name": "Админский кубик",
+       "path": "scenes/26_igra/021_igrok/images/0985_adminskiy_kubik.png",
+       "bytes": 2603,
+       "sha256": "9ae1ce3204dcd03f3296523caf04d5754cfb9d9ad0879d9bce1ec5068e5c5440"
+      }
+     ],
+     "sounds": [
+      {
+       "id": 52,
+       "name": "Нож Азума",
+       "path": "scenes/26_igra/021_igrok/sounds/0052_nozh_azuma.mp3",
+       "bytes": 19710,
+       "sha256": "90237d684f03257a8ff45c8a4b5c48db038b779bc7672037290c3d07439adbcb"
+      },
+      {
+       "id": 58,
+       "name": "Фраза Насти 1",
+       "path": "scenes/26_igra/021_igrok/sounds/0058_fraza_nasti_1.mp3",
+       "bytes": 30447,
+       "sha256": "200af57f8ab6f9688d356ff3fedc98f89af8b1cd72971ebbd26840a0ce3acc7b"
+      },
+      {
+       "id": 59,
+       "name": "Фраза Насти 2",
+       "path": "scenes/26_igra/021_igrok/sounds/0059_fraza_nasti_2.mp3",
+       "bytes": 37135,
+       "sha256": "6d4916cf76b25eb810d13754d8f5b32b82954a8c5a8b81969d0b7cbba2b81cf7"
+      },
+      {
+       "id": 60,
+       "name": "Фраза Азума 1",
+       "path": "scenes/26_igra/021_igrok/sounds/0060_fraza_azuma_1.mp3",
+       "bytes": 103719,
+       "sha256": "f65b05c41fdbcf9ca04c4b4a85c1a40bfe6a481bce77a74ceb049cf8b053762b"
+      },
+      {
+       "id": 61,
+       "name": "Фраза Азума 2",
+       "path": "scenes/26_igra/021_igrok/sounds/0061_fraza_azuma_2.mp3",
+       "bytes": 98704,
+       "sha256": "b303fd65d0772d92301c6ffde36ea1b1400ab6515d262d80eb04634554a476ad"
+      }
+     ],
+     "default_image": "scenes/26_igra/021_igrok/images/1141_igrou_11.png",
+     "vars": []
+    },
+    {
+     "id": 246,
+     "name": "Пушка",
+     "slug": "246_pushka",
+     "rotation": 105.89527130127,
+     "size": 1.15,
+     "images": [
+      {
+       "id": 1082,
+       "name": "Пушка",
+       "path": "scenes/26_igra/246_pushka/images/1082_pushka.png",
+       "bytes": 3231,
+       "sha256": "ce140334f52de02639523eaeaf3ac7d220e79c77e6c482d4c69b091ddb5415ef"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/26_igra/246_pushka/images/1082_pushka.png",
+     "vars": []
+    },
+    {
+     "id": 247,
+     "name": "Пуля",
+     "slug": "247_pulya",
+     "rotation": 0.0,
+     "size": 1.8,
+     "images": [
+      {
+       "id": 369,
+       "name": "Пуля",
+       "path": "scenes/26_igra/247_pulya/images/0369_pulya.png",
+       "bytes": 758,
+       "sha256": "7ab60a8b3cf4e1b5dd919a51d0f879bfa28ad06fa9a7cf785215526a78aeb780"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/26_igra/247_pulya/images/0369_pulya.png",
+     "vars": []
+    },
+    {
+     "id": 418,
+     "name": "Лазер",
+     "slug": "418_lazer",
+     "rotation": -73.93123626709,
+     "size": 1.1,
+     "images": [
+      {
+       "id": 702,
+       "name": "Лазер не активен",
+       "path": "scenes/26_igra/418_lazer/images/0702_lazer_ne_aktiven.png",
+       "bytes": 3840,
+       "sha256": "ce055730a350241e88fef83aac8b3a40209b6b275907c2a3f1d2f3d9890a7c9d"
+      },
+      {
+       "id": 699,
+       "name": "Лазер активен",
+       "path": "scenes/26_igra/418_lazer/images/0699_lazer_aktiven.png",
+       "bytes": 5249,
+       "sha256": "c440b484984339f54ae8ae9102cee8d58f6129d5dd254357ee0b8599a4975f6e"
+      },
+      {
+       "id": 701,
+       "name": "Лазер взорвался",
+       "path": "scenes/26_igra/418_lazer/images/0701_lazer_vzorvalsya.png",
+       "bytes": 11360,
+       "sha256": "a418b126208835925aa5224923cef91886feaa90ece96683e23a4af0ec3ac546"
+      }
+     ],
+     "sounds": [
+      {
+       "id": 20,
+       "name": "Выстрел",
+       "path": "scenes/26_igra/418_lazer/sounds/0020_vystrel.mp3",
+       "bytes": 8358,
+       "sha256": "20d98e1744751f3a6e73ada9fd8bf05d4fb18337ce62b2aeb217e5d8b54b6791"
+      },
+      {
+       "id": 17,
+       "name": "Взрыв",
+       "path": "scenes/26_igra/418_lazer/sounds/0017_vzryv.mp3",
+       "bytes": 334495,
+       "sha256": "2f7ea4b674dd26e4d9c2fefd5b61a24698243bd2a9b47fd4724b0ba47c1c6493"
+      }
+     ],
+     "default_image": "scenes/26_igra/418_lazer/images/0702_lazer_ne_aktiven.png",
+     "vars": []
+    },
+    {
+     "id": 22,
+     "name": "Враг",
+     "slug": "022_vrag",
+     "rotation": 106.06876373291,
+     "size": 3.5,
+     "images": [
+      {
+       "id": 27,
+       "name": "Враг (1)",
+       "path": "scenes/26_igra/022_vrag/images/0027_vrag_1.png",
+       "bytes": 274,
+       "sha256": "ef53dc48da9198f6ddfd044f4dfaecccb7ee43013dff2e5f73fbf45e5a760ca1"
+      },
+      {
+       "id": 830,
+       "name": "Враг (2)",
+       "path": "scenes/26_igra/022_vrag/images/0830_vrag_2.png",
+       "bytes": 1903,
+       "sha256": "a875dd3904d9a2ac3174ec3fdecc1370bcd3e7c96dc70eadb0ff5eaa924a8d24"
+      }
+     ],
+     "sounds": [
+      {
+       "id": 31,
+       "name": "Murder Of Love",
+       "path": "scenes/26_igra/022_vrag/sounds/0031_murder_of_love.mp3",
+       "bytes": 963462,
+       "sha256": "08c0b4355957f7176bb8b26d80d1d30ad1445852353c47bbaf0f1cff5f87fd51"
+      },
+      {
+       "id": 34,
+       "name": "77X0X",
+       "path": "scenes/26_igra/022_vrag/sounds/0034_77x0x.mp3",
+       "bytes": 1075649,
+       "sha256": "2a58af9b388f1f733e712cc559593979b49192a74a5e7235f4977cd14f764fa1"
+      }
+     ],
+     "default_image": "scenes/26_igra/022_vrag/images/0830_vrag_2.png",
+     "vars": []
+    },
+    {
+     "id": 24,
+     "name": "Джойстик",
+     "slug": "024_dzhoystik",
+     "rotation": -90.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 997,
+       "name": "Джойстик",
+       "path": "scenes/26_igra/024_dzhoystik/images/0997_dzhoystik.png",
+       "bytes": 20642,
+       "sha256": "659dabef63082f2c8ebb9b42366f02ca7bbb453b5b171637be3943a93164e472"
+      },
+      {
+       "id": 996,
+       "name": "Джойстик Ванька",
+       "path": "scenes/26_igra/024_dzhoystik/images/0996_dzhoystik_vanka.png",
+       "bytes": 28619,
+       "sha256": "e2870c654cf8342052afcc437d29999b83cc94742fbea63d6fd5d71255a07125"
+      }
+     ],
+     "sounds": [
+      {
+       "id": 50,
+       "name": "Ходьба",
+       "path": "scenes/26_igra/024_dzhoystik/sounds/0050_hodba.mp3",
+       "bytes": 7589,
+       "sha256": "1164bb40220075067df26a3dc0f4827c97623bd02f23bdeda5dd603e68010c00"
+      }
+     ],
+     "default_image": "scenes/26_igra/024_dzhoystik/images/0997_dzhoystik.png",
+     "vars": []
+    },
+    {
+     "id": 25,
+     "name": "Атака",
+     "slug": "025_ataka",
+     "rotation": 0.0,
+     "size": 0.52,
+     "images": [
+      {
+       "id": 33,
+       "name": "Атака",
+       "path": "scenes/26_igra/025_ataka/images/0033_ataka.png",
+       "bytes": 20324,
+       "sha256": "695de474fd48e2a6924a2f7b3faf9f389ddef644f8cc9e67f218b7827924452c"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/26_igra/025_ataka/images/0033_ataka.png",
+     "vars": []
+    },
+    {
+     "id": 26,
+     "name": "Супер атака",
+     "slug": "026_super_ataka",
+     "rotation": 0.0,
+     "size": 0.52,
+     "images": [
+      {
+       "id": 34,
+       "name": "Супер атака",
+       "path": "scenes/26_igra/026_super_ataka/images/0034_super_ataka.png",
+       "bytes": 24334,
+       "sha256": "526fe896ef89300a1953606fa347f12a55cc4939fb385ab5c974d20286032572"
+      }
+     ],
+     "sounds": [
+      {
+       "id": 53,
+       "name": "Хакинг CodeCracker'а",
+       "path": "scenes/26_igra/026_super_ataka/sounds/0053_haking_codecrackera.mp3",
+       "bytes": 23889,
+       "sha256": "4755ea78b09b45b0d005759706a1b389ff4a094ae81ff1833304898065e1b665"
+      }
+     ],
+     "default_image": "scenes/26_igra/026_super_ataka/images/0034_super_ataka.png",
+     "vars": []
+    },
+    {
+     "id": 555,
+     "name": "Рука",
+     "slug": "555_ruka",
+     "rotation": 105.89527130127,
+     "size": 0.73,
+     "images": [
+      {
+       "id": 1080,
+       "name": "Рука (1)",
+       "path": "scenes/26_igra/555_ruka/images/1080_ruka_1.png",
+       "bytes": 4337,
+       "sha256": "31c7381194cb1932a9870f65d7dd80b955117b24fa288b7988eedc99228488ad"
+      },
+      {
+       "id": 1081,
+       "name": "Рука (2)",
+       "path": "scenes/26_igra/555_ruka/images/1081_ruka_2.png",
+       "bytes": 4871,
+       "sha256": "09983acb9570cabe3aa34ef7dc1c1017570b405db1394f977f409d5adeaaac35"
+      },
+      {
+       "id": 1079,
+       "name": "Рука (3)",
+       "path": "scenes/26_igra/555_ruka/images/1079_ruka_3.png",
+       "bytes": 6212,
+       "sha256": "0e7332e25e3268c4ea36545d80ab8a16b9172ef1b553275ffd680610d32637f7"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/26_igra/555_ruka/images/1080_ruka_1.png",
+     "vars": []
+    },
+    {
+     "id": 538,
+     "name": "Интро",
+     "slug": "538_intro",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [],
+     "sounds": [],
+     "default_image": null,
+     "vars": []
+    },
+    {
+     "id": 29,
+     "name": "Назад",
+     "slug": "029_nazad",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 689,
+       "name": "Назад",
+       "path": "scenes/26_igra/029_nazad/images/0689_nazad.png",
+       "bytes": 7295,
+       "sha256": "23ba6456260fb0e177fd13b28beac9426371b2e8d70e79c93283ca2e0ba30fc0"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/26_igra/029_nazad/images/0689_nazad.png",
+     "vars": []
+    }
+   ],
+   "functions": [
+    {
+     "id": 19,
+     "name": "Включить (2)",
+     "arity": 3
+    },
+    {
+     "id": 18,
+     "name": "Отключиться (2)",
+     "arity": 3
+    },
+    {
+     "id": 17,
+     "name": "Включить (1)",
+     "arity": -1
+    },
+    {
+     "id": 16,
+     "name": "Спрятать UI",
+     "arity": 2
+    },
+    {
+     "id": 15,
+     "name": "Отключить джойстик",
+     "arity": 2
+    },
+    {
+     "id": 14,
+     "name": "Остановить интро",
+     "arity": 2
+    },
+    {
+     "id": 13,
+     "name": "Лазер",
+     "arity": 1
+    },
+    {
+     "id": 12,
+     "name": "Скрыть",
+     "arity": 2
+    },
+    {
+     "id": 11,
+     "name": "Показать",
+     "arity": 3
+    },
+    {
+     "id": 10,
+     "name": "Мультитатч",
+     "arity": 7
+    },
+    {
+     "id": 9,
+     "name": "Остановка времени",
+     "arity": 6
+    },
+    {
+     "id": 8,
+     "name": "Рывок",
+     "arity": 5
+    },
+    {
+     "id": 7,
+     "name": "Отталкивание",
+     "arity": 2
+    },
+    {
+     "id": 6,
+     "name": "Мод меню",
+     "arity": 4
+    },
+    {
+     "id": 5,
+     "name": "Рывок лошади",
+     "arity": 5
+    },
+    {
+     "id": 4,
+     "name": "Атака",
+     "arity": 4
+    },
+    {
+     "id": 3,
+     "name": "Откидывание",
+     "arity": 4
+    },
+    {
+     "id": 2,
+     "name": "Идти",
+     "arity": -2
+    },
+    {
+     "id": 1,
+     "name": "Новый сигнал",
+     "arity": 22
+    }
+   ]
+  },
+  {
+   "id": 95,
+   "name": "Онлайн",
+   "slug": "95_onlayn",
+   "objects": [
+    {
+     "id": 385,
+     "name": "Фон",
+     "slug": "385_fon",
+     "rotation": 0.0,
+     "size": 1.05,
+     "images": [
+      {
+       "id": 614,
+       "name": "Фон (1)",
+       "path": "scenes/95_onlayn/385_fon/images/0614_fon_1.png",
+       "bytes": 4086673,
+       "sha256": "13b9048ee375f6fda1e7af2fbf2abeb51f1826890cd1075eb2ab7a0764df5db9"
+      },
+      {
+       "id": 1133,
+       "name": "Фон (2)",
+       "path": "scenes/95_onlayn/385_fon/images/1133_fon_2.png",
+       "bytes": 742511,
+       "sha256": "7fa6d753d0b2aeee984cf88e79177b1e913a589dd3cf19017abfea200c448fad"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/95_onlayn/385_fon/images/0614_fon_1.png",
+     "vars": []
+    },
+    {
+     "id": 390,
+     "name": "Игрок 1",
+     "slug": "390_igrok_1",
+     "rotation": 0.0,
+     "size": 3.5,
+     "images": [
+      {
+       "id": 971,
+       "name": "Игрок 1",
+       "path": "scenes/95_onlayn/390_igrok_1/images/0971_igrok_1.png",
+       "bytes": 218,
+       "sha256": "e4ab707f5bb4a92b2c46a017773b8065aa1beb713004c018bf556fcdd0d687e9"
+      },
+      {
+       "id": 980,
+       "name": "Игрок 1 с BHop'ом",
+       "path": "scenes/95_onlayn/390_igrok_1/images/0980_igrok_1_s_bhopom.png",
+       "bytes": 334,
+       "sha256": "5a87cf0f364bcc50c36caa4500931f6a32b38014d8ff72c1b55029eae13c6a4e"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/95_onlayn/390_igrok_1/images/0971_igrok_1.png",
+     "vars": []
+    },
+    {
+     "id": 409,
+     "name": "Игрок 2",
+     "slug": "409_igrok_2",
+     "rotation": 0.0,
+     "size": 3.5,
+     "images": [
+      {
+       "id": 974,
+       "name": "Игрок 2",
+       "path": "scenes/95_onlayn/409_igrok_2/images/0974_igrok_2.png",
+       "bytes": 218,
+       "sha256": "e4ab707f5bb4a92b2c46a017773b8065aa1beb713004c018bf556fcdd0d687e9"
+      },
+      {
+       "id": 981,
+       "name": "Игрок 2 с BHop'ом",
+       "path": "scenes/95_onlayn/409_igrok_2/images/0981_igrok_2_s_bhopom.png",
+       "bytes": 334,
+       "sha256": "5a87cf0f364bcc50c36caa4500931f6a32b38014d8ff72c1b55029eae13c6a4e"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/95_onlayn/409_igrok_2/images/0974_igrok_2.png",
+     "vars": []
+    },
+    {
+     "id": 410,
+     "name": "Игрок 3",
+     "slug": "410_igrok_3",
+     "rotation": 0.0,
+     "size": 2.7,
+     "images": [
+      {
+       "id": 976,
+       "name": "Игрок 3",
+       "path": "scenes/95_onlayn/410_igrok_3/images/0976_igrok_3.png",
+       "bytes": 218,
+       "sha256": "e4ab707f5bb4a92b2c46a017773b8065aa1beb713004c018bf556fcdd0d687e9"
+      },
+      {
+       "id": 982,
+       "name": "Игрок 3 с BHop'ом",
+       "path": "scenes/95_onlayn/410_igrok_3/images/0982_igrok_3_s_bhopom.png",
+       "bytes": 334,
+       "sha256": "5a87cf0f364bcc50c36caa4500931f6a32b38014d8ff72c1b55029eae13c6a4e"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/95_onlayn/410_igrok_3/images/0982_igrok_3_s_bhopom.png",
+     "vars": []
+    },
+    {
+     "id": 511,
+     "name": "Птицетошка",
+     "slug": "511_pticetoshka",
+     "rotation": -39.600006103516,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 880,
+       "name": "Птицетошка",
+       "path": "scenes/95_onlayn/511_pticetoshka/images/0880_pticetoshka.png",
+       "bytes": 14181,
+       "sha256": "6344cdffaf9df898c6dfbaf9df616f676f45c7dcff6d8e32170e669917ccd717"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/95_onlayn/511_pticetoshka/images/0880_pticetoshka.png",
+     "vars": []
+    },
+    {
+     "id": 505,
+     "name": "Колонки",
+     "slug": "505_kolonki",
+     "rotation": 0.0,
+     "size": 2.2,
+     "images": [
+      {
+       "id": 860,
+       "name": "Колонки",
+       "path": "scenes/95_onlayn/505_kolonki/images/0860_kolonki.png",
+       "bytes": 16106,
+       "sha256": "d3966fd0218f280da1d58de939d1c0197af8de44b6fc1a1311db4be4b3fd7428"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/95_onlayn/505_kolonki/images/0860_kolonki.png",
+     "vars": []
+    },
+    {
+     "id": 596,
+     "name": "Яйцо",
+     "slug": "596_yayco",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 1136,
+       "name": "Яйцо",
+       "path": "scenes/95_onlayn/596_yayco/images/1136_yayco.png",
+       "bytes": 13069,
+       "sha256": "5cfa179fc482c62a35e4a0853b2df78a5fa0169c36d0d645bf05687b4b68d97d"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/95_onlayn/596_yayco/images/1136_yayco.png",
+     "vars": []
+    },
+    {
+     "id": 512,
+     "name": "Ивент",
+     "slug": "512_ivent",
+     "rotation": 0.0,
+     "size": 0.5,
+     "images": [
+      {
+       "id": 883,
+       "name": "Птицетошка",
+       "path": "scenes/95_onlayn/512_ivent/images/0883_pticetoshka.png",
+       "bytes": 12330,
+       "sha256": "7a80e1fac5f903ed1ef299606ec3675a4701a0cd043ff2907a39a400b2d59347"
+      },
+      {
+       "id": 884,
+       "name": "Колонки",
+       "path": "scenes/95_onlayn/512_ivent/images/0884_kolonki.png",
+       "bytes": 7034,
+       "sha256": "0d7d5b1031bcf2d9228d8d5e67b3d1ab85b1a5c1c6b5db26bc2a99a8f29baf11"
+      },
+      {
+       "id": 1134,
+       "name": "Пасхальный ивент",
+       "path": "scenes/95_onlayn/512_ivent/images/1134_pashalnyy_ivent.png",
+       "bytes": 26579,
+       "sha256": "adc344cac153fe98f69d570059996b43c16358a530419a8a1d8aa8bff0107532"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/95_onlayn/512_ivent/images/1134_pashalnyy_ivent.png",
+     "vars": []
+    },
+    {
+     "id": 394,
+     "name": "Джойстик",
+     "slug": "394_dzhoystik",
+     "rotation": -90.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 632,
+       "name": "Джойстик",
+       "path": "scenes/95_onlayn/394_dzhoystik/images/0632_dzhoystik.png",
+       "bytes": 20642,
+       "sha256": "659dabef63082f2c8ebb9b42366f02ca7bbb453b5b171637be3943a93164e472"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/95_onlayn/394_dzhoystik/images/0632_dzhoystik.png",
+     "vars": []
+    },
+    {
+     "id": 503,
+     "name": "Админское сообщение",
+     "slug": "503_adminskoe_soobschenie",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [],
+     "sounds": [],
+     "default_image": null,
+     "vars": []
+    },
+    {
+     "id": 539,
+     "name": "Эмоции",
+     "slug": "539_emocii",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 966,
+       "name": "Эмоция выключена",
+       "path": "scenes/95_onlayn/539_emocii/images/0966_emociya_vyklyuchena.png",
+       "bytes": 4150,
+       "sha256": "513b881b326482a92b680c3dccd2a2123590963ddd4ea021237112bfc888ff26"
+      },
+      {
+       "id": 967,
+       "name": "Эмоция включена",
+       "path": "scenes/95_onlayn/539_emocii/images/0967_emociya_vklyuchena.png",
+       "bytes": 4150,
+       "sha256": "513b881b326482a92b680c3dccd2a2123590963ddd4ea021237112bfc888ff26"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/95_onlayn/539_emocii/images/0966_emociya_vyklyuchena.png",
+     "vars": []
+    },
+    {
+     "id": 489,
+     "name": "Фон мод меню",
+     "slug": "489_fon_mod_menyu",
+     "rotation": 0.0,
+     "size": 1.4,
+     "images": [
+      {
+       "id": 1130,
+       "name": "Фон мод меню",
+       "path": "scenes/95_onlayn/489_fon_mod_menyu/images/1130_fon_mod_menyu.png",
+       "bytes": 5585,
+       "sha256": "28bbeae9728c531b3a2552e0830883dacf2e448162541dbac2325a58dbdd4d91"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/95_onlayn/489_fon_mod_menyu/images/1130_fon_mod_menyu.png",
+     "vars": []
+    },
+    {
+     "id": 490,
+     "name": "Написать",
+     "slug": "490_napisat",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 1132,
+       "name": "Написать",
+       "path": "scenes/95_onlayn/490_napisat/images/1132_napisat.png",
+       "bytes": 9843,
+       "sha256": "64e52d38b9cbb8b731f8bf33ebd5535ce0cbc42bc3bb7db978b508c8804766e4"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/95_onlayn/490_napisat/images/1132_napisat.png",
+     "vars": []
+    },
+    {
+     "id": 491,
+     "name": "Запустить ивент",
+     "slug": "491_zapustit_ivent",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 1131,
+       "name": "Запустить ивент",
+       "path": "scenes/95_onlayn/491_zapustit_ivent/images/1131_zapustit_ivent.png",
+       "bytes": 13073,
+       "sha256": "9c2a89e7b5e87f06ba606de1954842869929d2ef73854d47042f3da36ca71265"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/95_onlayn/491_zapustit_ivent/images/1131_zapustit_ivent.png",
+     "vars": []
+    },
+    {
+     "id": 501,
+     "name": "Админ панель",
+     "slug": "501_admin_panel",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 849,
+       "name": "Админ панель",
+       "path": "scenes/95_onlayn/501_admin_panel/images/0849_admin_panel.png",
+       "bytes": 28935,
+       "sha256": "f55d2a7533eaeadbb2d0867dd9694ef778adc334f34df34bfc7dc7c04522859a"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/95_onlayn/501_admin_panel/images/0849_admin_panel.png",
+     "vars": []
+    },
+    {
+     "id": 404,
+     "name": "Назад",
+     "slug": "404_nazad",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 709,
+       "name": "Назад",
+       "path": "scenes/95_onlayn/404_nazad/images/0709_nazad.png",
+       "bytes": 7260,
+       "sha256": "1300df5cd0d1e30a9cdfb2f9e9dbbc7cb59e3e949c2415bf481067b66509da66"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/95_onlayn/404_nazad/images/0709_nazad.png",
+     "vars": []
+    }
+   ],
+   "functions": [
+    {
+     "id": 13,
+     "name": "Запуск ивента",
+     "arity": 2
+    },
+    {
+     "id": 12,
+     "name": "Скрыть",
+     "arity": 2
+    },
+    {
+     "id": 11,
+     "name": "Показать",
+     "arity": 3
+    },
+    {
+     "id": 10,
+     "name": "Мультитатч",
+     "arity": 7
+    },
+    {
+     "id": 9,
+     "name": "Идти врагу",
+     "arity": 4
+    },
+    {
+     "id": 8,
+     "name": "Рывок",
+     "arity": 3
+    },
+    {
+     "id": 7,
+     "name": "Отталкивание",
+     "arity": 2
+    },
+    {
+     "id": 6,
+     "name": "Мод меню",
+     "arity": 3
+    },
+    {
+     "id": 5,
+     "name": "11 лет",
+     "arity": 6
+    },
+    {
+     "id": 4,
+     "name": "Атака",
+     "arity": 2
+    },
+    {
+     "id": 3,
+     "name": "Написать",
+     "arity": 4
+    },
+    {
+     "id": 2,
+     "name": "Идти",
+     "arity": -2
+    },
+    {
+     "id": 1,
+     "name": "Новый сигнал",
+     "arity": 21
+    }
+   ]
+  },
+  {
+   "id": 89,
+   "name": "Магазин ивента",
+   "slug": "89_magazin_iventa",
+   "objects": [
+    {
+     "id": 285,
+     "name": "Фон",
+     "slug": "285_fon",
+     "rotation": 0.0,
+     "size": 1.5,
+     "images": [],
+     "sounds": [],
+     "default_image": null,
+     "vars": []
+    },
+    {
+     "id": 286,
+     "name": "Назад",
+     "slug": "286_nazad",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 706,
+       "name": "Назад",
+       "path": "scenes/89_magazin_iventa/286_nazad/images/0706_nazad.png",
+       "bytes": 7260,
+       "sha256": "1300df5cd0d1e30a9cdfb2f9e9dbbc7cb59e3e949c2415bf481067b66509da66"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/89_magazin_iventa/286_nazad/images/0706_nazad.png",
+     "vars": []
+    },
+    {
+     "id": 578,
+     "name": "Открыть яйцо",
+     "slug": "578_otkryt_yayco",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 1078,
+       "name": "Открыть яйцо",
+       "path": "scenes/89_magazin_iventa/578_otkryt_yayco/images/1078_otkryt_yayco.png",
+       "bytes": 15806,
+       "sha256": "02ac79e599d5c20a22958354af78d5d3caf67b7828aef302300a9de93eb272b6"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/89_magazin_iventa/578_otkryt_yayco/images/1078_otkryt_yayco.png",
+     "vars": []
+    },
+    {
+     "id": 595,
+     "name": "Открыть яйцо за 3 изумруда",
+     "slug": "595_otkryt_yayco_za_3_izumruda",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 1128,
+       "name": "Открыть яйцо за 3 изумруда",
+       "path": "scenes/89_magazin_iventa/595_otkryt_yayco_za_3_izumruda/images/1128_otkryt_yayco_za_3_izumruda.png",
+       "bytes": 20145,
+       "sha256": "d4817d268ef478e1bd4bd59d3e6b65afbe38e5e6a9325bb29759999fb5d90790"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/89_magazin_iventa/595_otkryt_yayco_za_3_izumruda/images/1128_otkryt_yayco_za_3_izumruda.png",
+     "vars": []
+    }
+   ],
+   "functions": [
+    {
+     "id": 3,
+     "name": "Вверх",
+     "arity": 1
+    },
+    {
+     "id": 2,
+     "name": "Вниз",
+     "arity": 2
+    },
+    {
+     "id": 1,
+     "name": "Новый сигнал",
+     "arity": 1
+    }
+   ]
+  },
+  {
+   "id": 31,
+   "name": "Больше",
+   "slug": "31_bolshe",
+   "objects": [
+    {
+     "id": 30,
+     "name": "Фон",
+     "slug": "030_fon",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [],
+     "sounds": [],
+     "default_image": null,
+     "vars": []
+    },
+    {
+     "id": 31,
+     "name": "Назад",
+     "slug": "031_nazad",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 712,
+       "name": "Назад",
+       "path": "scenes/31_bolshe/031_nazad/images/0712_nazad.png",
+       "bytes": 7260,
+       "sha256": "1300df5cd0d1e30a9cdfb2f9e9dbbc7cb59e3e949c2415bf481067b66509da66"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/31_bolshe/031_nazad/images/0712_nazad.png",
+     "vars": []
+    },
+    {
+     "id": 33,
+     "name": "Кубы",
+     "slug": "033_kuby",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 728,
+       "name": "Кубы",
+       "path": "scenes/31_bolshe/033_kuby/images/0728_kuby.png",
+       "bytes": 7115,
+       "sha256": "573f86d8421393fc66a8c40673b736e75e76c615dc673e9d4c5ac76a4d1b5eb3"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/31_bolshe/033_kuby/images/0728_kuby.png",
+     "vars": []
+    },
+    {
+     "id": 34,
+     "name": "Босс",
+     "slug": "034_boss",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 727,
+       "name": "Босс",
+       "path": "scenes/31_bolshe/034_boss/images/0727_boss.png",
+       "bytes": 9313,
+       "sha256": "dc6837ea710857badb36099b9356e134c75ce0624de99b69f0eb21a9d628a975"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/31_bolshe/034_boss/images/0727_boss.png",
+     "vars": []
+    },
+    {
+     "id": 579,
+     "name": "Сохранить прогресс",
+     "slug": "579_sohranit_progress",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 1084,
+       "name": "Сохранить прогресс",
+       "path": "scenes/31_bolshe/579_sohranit_progress/images/1084_sohranit_progress.png",
+       "bytes": 14501,
+       "sha256": "9b1392af99048d9e1856063d37c87610f6e9ccfbd7af429705af1b00e660e004"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/31_bolshe/579_sohranit_progress/images/1084_sohranit_progress.png",
+     "vars": []
+    },
+    {
+     "id": 580,
+     "name": "Очистить прогресс",
+     "slug": "580_ochistit_progress",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 1086,
+       "name": "Очистить прогресс",
+       "path": "scenes/31_bolshe/580_ochistit_progress/images/1086_ochistit_progress.png",
+       "bytes": 17850,
+       "sha256": "52c6535db4b352700535f8c197f09d2265449d216f0053ce29a90841de85554d"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/31_bolshe/580_ochistit_progress/images/1086_ochistit_progress.png",
+     "vars": [
+      {
+       "id": 1,
+       "name": "Что введено?"
+      }
+     ]
+    },
+    {
+     "id": 424,
+     "name": "Ввести",
+     "slug": "424_vvesti",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 721,
+       "name": "Ввести",
+       "path": "scenes/31_bolshe/424_vvesti/images/0721_vvesti.png",
+       "bytes": 7658,
+       "sha256": "26c8dd1f580a2ab48263dab6eb2ce115e570f7e52d41ca6e052cc5c74b871253"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/31_bolshe/424_vvesti/images/0721_vvesti.png",
+     "vars": []
+    }
+   ],
+   "functions": [
+    {
+     "id": 2,
+     "name": "Убрать поле ввода",
+     "arity": 7
+    },
+    {
+     "id": 1,
+     "name": "ABC введён",
+     "arity": 3
+    }
+   ]
+  },
+  {
+   "id": 27,
+   "name": "Кубы",
+   "slug": "27_kuby",
+   "objects": [
+    {
+     "id": 37,
+     "name": "Фон",
+     "slug": "037_fon",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [],
+     "sounds": [],
+     "default_image": null,
+     "vars": []
+    },
+    {
+     "id": 38,
+     "name": "Назад",
+     "slug": "038_nazad",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 885,
+       "name": "Назад",
+       "path": "scenes/27_kuby/038_nazad/images/0885_nazad.png",
+       "bytes": 7260,
+       "sha256": "1300df5cd0d1e30a9cdfb2f9e9dbbc7cb59e3e949c2415bf481067b66509da66"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/27_kuby/038_nazad/images/0885_nazad.png",
+     "vars": []
+    },
+    {
+     "id": 39,
+     "name": "Куб",
+     "slug": "039_kub",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 45,
+       "name": "Куб",
+       "path": "scenes/27_kuby/039_kub/images/0045_kub.png",
+       "bytes": 6685,
+       "sha256": "dcad009a816458f82b831b7cf62664d9b28a037f9a382b36619bf1e3db407282"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/27_kuby/039_kub/images/0045_kub.png",
+     "vars": []
+    },
+    {
+     "id": 40,
+     "name": "Куб-мясник",
+     "slug": "040_kub_myasnik",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 729,
+       "name": "Куб-мясник",
+       "path": "scenes/27_kuby/040_kub_myasnik/images/0729_kub_myasnik.png",
+       "bytes": 12279,
+       "sha256": "9bd9f6c39342803ab1c0c65dc9477d665c0a382d1c6d96bc74de8e9ad07c24f1"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/27_kuby/040_kub_myasnik/images/0729_kub_myasnik.png",
+     "vars": []
+    },
+    {
+     "id": 41,
+     "name": "Галактик-куб",
+     "slug": "041_galaktik_kub",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 47,
+       "name": "Галактик-куб",
+       "path": "scenes/27_kuby/041_galaktik_kub/images/0047_galaktik_kub.png",
+       "bytes": 18278,
+       "sha256": "1bf0f0c8f27f08be8efe59e9f5c90fc9b93c91e23bea12653a786aaeaf189af1"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/27_kuby/041_galaktik_kub/images/0047_galaktik_kub.png",
+     "vars": []
+    },
+    {
+     "id": 42,
+     "name": "Золотой_куб",
+     "slug": "042_zolotoy_kub",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 48,
+       "name": "Золотой_куб",
+       "path": "scenes/27_kuby/042_zolotoy_kub/images/0048_zolotoy_kub.png",
+       "bytes": 11408,
+       "sha256": "6fab143232c140892e91d9a10887048edca4fb254bd8fa25566881f659ec1ed2"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/27_kuby/042_zolotoy_kub/images/0048_zolotoy_kub.png",
+     "vars": []
+    },
+    {
+     "id": 43,
+     "name": "Куб Games",
+     "slug": "043_kub_games",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 49,
+       "name": "Куб Games",
+       "path": "scenes/27_kuby/043_kub_games/images/0049_kub_games.png",
+       "bytes": 12712,
+       "sha256": "fc65cf80e4c3e9d2a403da46fee152fd9d2f96648135a79dcf0010d812dc86ed"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/27_kuby/043_kub_games/images/0049_kub_games.png",
+     "vars": []
+    },
+    {
+     "id": 44,
+     "name": "[Ультра-куб]",
+     "slug": "044_ultra_kub",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 1027,
+       "name": "[Ультра-куб]",
+       "path": "scenes/27_kuby/044_ultra_kub/images/1027_ultra_kub.png",
+       "bytes": 12765,
+       "sha256": "6eb338505b269f2ed51f121ff0856930f0e73b6143c64e4445f5e69d4d29b3bd"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/27_kuby/044_ultra_kub/images/1027_ultra_kub.png",
+     "vars": []
+    },
+    {
+     "id": 45,
+     "name": "Настя-куб",
+     "slug": "045_nastya_kub",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 828,
+       "name": "Настя-куб",
+       "path": "scenes/27_kuby/045_nastya_kub/images/0828_nastya_kub.png",
+       "bytes": 17482,
+       "sha256": "f16956073f680b339d1e4ea4556ff7c8ab7346b51c42a5bc334d52dd8c6f4684"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/27_kuby/045_nastya_kub/images/0828_nastya_kub.png",
+     "vars": []
+    },
+    {
+     "id": 46,
+     "name": "Неко-куб",
+     "slug": "046_neko_kub",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 52,
+       "name": "Неко-куб",
+       "path": "scenes/27_kuby/046_neko_kub/images/0052_neko_kub.png",
+       "bytes": 13706,
+       "sha256": "4713e4f79154705af7a86c3f4f46363e532b126bc9bd6fc9b45a5f40c1a3e747"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/27_kuby/046_neko_kub/images/0052_neko_kub.png",
+     "vars": []
+    },
+    {
+     "id": 574,
+     "name": "Заяц-куб",
+     "slug": "574_zayac_kub",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 1065,
+       "name": "Заяц-куб",
+       "path": "scenes/27_kuby/574_zayac_kub/images/1065_zayac_kub.png",
+       "bytes": 13663,
+       "sha256": "9554cdfde2d1f00f95bed47a93eff3a2931e60387ee8d7faacf2b0a09a991471"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/27_kuby/574_zayac_kub/images/1065_zayac_kub.png",
+     "vars": []
+    },
+    {
+     "id": 599,
+     "name": "Змейка-куб",
+     "slug": "599_zmeyka_kub",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 1143,
+       "name": "Змейка-куб",
+       "path": "scenes/27_kuby/599_zmeyka_kub/images/1143_zmeyka_kub.png",
+       "bytes": 21109,
+       "sha256": "2e505f1aeecc20d2ac1c3f7321ea3199b0e625e818a997c9b0d27f3a3479f8fc"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/27_kuby/599_zmeyka_kub/images/1143_zmeyka_kub.png",
+     "vars": []
+    },
+    {
+     "id": 47,
+     "name": "Пасхалка",
+     "slug": "047_pashalka",
+     "rotation": 0.0,
+     "size": 0.12,
+     "images": [
+      {
+       "id": 267,
+       "name": "Пасхалка",
+       "path": "scenes/27_kuby/047_pashalka/images/0267_pashalka.png",
+       "bytes": 71273,
+       "sha256": "01a66ecf37a570215b60bdd4dc1cea8fb004575798042f3943371b8205a9d50f"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/27_kuby/047_pashalka/images/0267_pashalka.png",
+     "vars": []
+    },
+    {
+     "id": 48,
+     "name": "Скролл",
+     "slug": "048_skroll",
+     "rotation": 180.0,
+     "size": 1.25,
+     "images": [
+      {
+       "id": 54,
+       "name": "Скролл",
+       "path": "scenes/27_kuby/048_skroll/images/0054_skroll.png",
+       "bytes": 2197,
+       "sha256": "78f2d56b56f0292e8540e6ead21df86e2286338c4a87d57f8428a1f42858456a"
+      },
+      {
+       "id": 55,
+       "name": "Скролл (2)",
+       "path": "scenes/27_kuby/048_skroll/images/0055_skroll_2.png",
+       "bytes": 2197,
+       "sha256": "78f2d56b56f0292e8540e6ead21df86e2286338c4a87d57f8428a1f42858456a"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/27_kuby/048_skroll/images/0055_skroll_2.png",
+     "vars": []
+    },
+    {
+     "id": 49,
+     "name": "Камера",
+     "slug": "049_kamera",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [],
+     "sounds": [],
+     "default_image": null,
+     "vars": []
+    }
+   ],
+   "functions": [
+    {
+     "id": 3,
+     "name": "Вверх",
+     "arity": 1
+    },
+    {
+     "id": 2,
+     "name": "Вниз",
+     "arity": 2
+    },
+    {
+     "id": 1,
+     "name": "Новый сигнал",
+     "arity": 1
+    }
+   ]
+  },
+  {
+   "id": 80,
+   "name": "Классы",
+   "slug": "80_klassy",
+   "objects": [
+    {
+     "id": 189,
+     "name": "Фон",
+     "slug": "189_fon",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [],
+     "sounds": [],
+     "default_image": null,
+     "vars": []
+    },
+    {
+     "id": 190,
+     "name": "Назад",
+     "slug": "190_nazad",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 717,
+       "name": "Назад",
+       "path": "scenes/80_klassy/190_nazad/images/0717_nazad.png",
+       "bytes": 7260,
+       "sha256": "1300df5cd0d1e30a9cdfb2f9e9dbbc7cb59e3e949c2415bf481067b66509da66"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/80_klassy/190_nazad/images/0717_nazad.png",
+     "vars": []
+    },
+    {
+     "id": 191,
+     "name": "Скролл",
+     "slug": "191_skroll",
+     "rotation": 90.0,
+     "size": 70.0,
+     "images": [
+      {
+       "id": 280,
+       "name": "Скролл",
+       "path": "scenes/80_klassy/191_skroll/images/0280_skroll.png",
+       "bytes": 73,
+       "sha256": "0afb77d637067665b234ed7a01dfffb22b61c6f06d7fd7fdf77a120edb5129a9"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/80_klassy/191_skroll/images/0280_skroll.png",
+     "vars": []
+    },
+    {
+     "id": 193,
+     "name": "Азум",
+     "slug": "193_azum",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 723,
+       "name": "Азум",
+       "path": "scenes/80_klassy/193_azum/images/0723_azum.png",
+       "bytes": 15077,
+       "sha256": "68f3763318c68942eff39b6310bb1f261c53b598680872e7fd9377c5496e6e9c"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/80_klassy/193_azum/images/0723_azum.png",
+     "vars": []
+    },
+    {
+     "id": 207,
+     "name": "Титан",
+     "slug": "207_titan",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 724,
+       "name": "Титан",
+       "path": "scenes/80_klassy/207_titan/images/0724_titan.png",
+       "bytes": 14068,
+       "sha256": "37fccabcfa3a34702ebf6a47b03f974f88440d21dab012aa1fa13b4762e37146"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/80_klassy/207_titan/images/0724_titan.png",
+     "vars": []
+    },
+    {
+     "id": 420,
+     "name": "Настя",
+     "slug": "420_nastya",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 726,
+       "name": "Настя",
+       "path": "scenes/80_klassy/420_nastya/images/0726_nastya.png",
+       "bytes": 21263,
+       "sha256": "c0ffa0d0620571f4b0dd38bd3e857ac6e06f15631e55c32d809de9b5264e3984"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/80_klassy/420_nastya/images/0726_nastya.png",
+     "vars": []
+    },
+    {
+     "id": 510,
+     "name": "CodeCracker",
+     "slug": "510_codecracker",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 1137,
+       "name": "CodeCracker",
+       "path": "scenes/80_klassy/510_codecracker/images/1137_codecracker.png",
+       "bytes": 18684,
+       "sha256": "8c3c32fa614b604cc6cda5e297dbfb549762d6d3129e17caebc54fd7ef691226"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/80_klassy/510_codecracker/images/1137_codecracker.png",
+     "vars": []
+    },
+    {
+     "id": 576,
+     "name": "Пасхальник",
+     "slug": "576_pashalnik",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 1071,
+       "name": "Пасхальник",
+       "path": "scenes/80_klassy/576_pashalnik/images/1071_pashalnik.png",
+       "bytes": 16420,
+       "sha256": "4416d61a226c571ec58458437dbc4dd7a4047bf2e8ab0bac79cda339171dfde4"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/80_klassy/576_pashalnik/images/1071_pashalnik.png",
+     "vars": []
+    },
+    {
+     "id": 422,
+     "name": "Лошадь",
+     "slug": "422_loshad",
+     "rotation": -90.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 719,
+       "name": "Лошадь",
+       "path": "scenes/80_klassy/422_loshad/images/0719_loshad.png",
+       "bytes": 50529,
+       "sha256": "37e4b4c2b9c52f994a15a85580e157428834fe8b75f29a179e3a85a8d1322b3b"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/80_klassy/422_loshad/images/0719_loshad.png",
+     "vars": []
+    }
+   ],
+   "functions": [
+    {
+     "id": 3,
+     "name": "Вправо",
+     "arity": 2
+    },
+    {
+     "id": 2,
+     "name": "Двигать",
+     "arity": 5
+    },
+    {
+     "id": 1,
+     "name": "Новый сигнал",
+     "arity": 1
+    }
+   ]
+  },
+  {
+   "id": 96,
+   "name": "Достижения",
+   "slug": "96_dostizheniya",
+   "objects": [
+    {
+     "id": 427,
+     "name": "Фон",
+     "slug": "427_fon",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [],
+     "sounds": [],
+     "default_image": null,
+     "vars": []
+    },
+    {
+     "id": 428,
+     "name": "Назад",
+     "slug": "428_nazad",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 734,
+       "name": "Назад",
+       "path": "scenes/96_dostizheniya/428_nazad/images/0734_nazad.png",
+       "bytes": 7260,
+       "sha256": "1300df5cd0d1e30a9cdfb2f9e9dbbc7cb59e3e949c2415bf481067b66509da66"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/96_dostizheniya/428_nazad/images/0734_nazad.png",
+     "vars": []
+    },
+    {
+     "id": 429,
+     "name": "Скролл",
+     "slug": "429_skroll",
+     "rotation": 90.0,
+     "size": 70.0,
+     "images": [
+      {
+       "id": 735,
+       "name": "Скролл",
+       "path": "scenes/96_dostizheniya/429_skroll/images/0735_skroll.png",
+       "bytes": 73,
+       "sha256": "0afb77d637067665b234ed7a01dfffb22b61c6f06d7fd7fdf77a120edb5129a9"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/96_dostizheniya/429_skroll/images/0735_skroll.png",
+     "vars": []
+    },
+    {
+     "id": 556,
+     "name": "Easter Egg Battle",
+     "slug": "556_easter_egg_battle",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 1060,
+       "name": "Easter Egg Battle",
+       "path": "scenes/96_dostizheniya/556_easter_egg_battle/images/1060_easter_egg_battle.png",
+       "bytes": 23529,
+       "sha256": "a263a8855a9f749571b7d57fc362765f0a71692083726e745e5f8c037e907073"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/96_dostizheniya/556_easter_egg_battle/images/1060_easter_egg_battle.png",
+     "vars": []
+    },
+    {
+     "id": 582,
+     "name": "Saturday's Sacrifice",
+     "slug": "582_saturdays_sacrifice",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 1094,
+       "name": "Saturday's Sacrifice",
+       "path": "scenes/96_dostizheniya/582_saturdays_sacrifice/images/1094_saturdays_sacrifice.png",
+       "bytes": 23793,
+       "sha256": "beba1b3bba7ecb11c43528481ed5a49473895e33ef65b9872c295d1c01be7ac3"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/96_dostizheniya/582_saturdays_sacrifice/images/1094_saturdays_sacrifice.png",
+     "vars": []
+    }
+   ],
+   "functions": [
+    {
+     "id": 3,
+     "name": "Вправо",
+     "arity": 2
+    },
+    {
+     "id": 2,
+     "name": "Двигать",
+     "arity": 5
+    },
+    {
+     "id": 1,
+     "name": "Новый сигнал",
+     "arity": 1
+    }
+   ]
+  },
+  {
+   "id": 104,
+   "name": "Яйцо",
+   "slug": "104_yayco",
+   "objects": [
+    {
+     "id": 557,
+     "name": "Фон",
+     "slug": "557_fon",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [],
+     "sounds": [],
+     "default_image": null,
+     "vars": []
+    },
+    {
+     "id": 571,
+     "name": "Яйцо",
+     "slug": "571_yayco",
+     "rotation": 0.0,
+     "size": 1.5,
+     "images": [
+      {
+       "id": 1053,
+       "name": "Яйцо (1)",
+       "path": "scenes/104_yayco/571_yayco/images/1053_yayco_1.png",
+       "bytes": 13819,
+       "sha256": "59355b3ba746213c2bfa72f724fd386828ceb13b47fba195def6718a527ef499"
+      },
+      {
+       "id": 1054,
+       "name": "Яйцо (2)",
+       "path": "scenes/104_yayco/571_yayco/images/1054_yayco_2.png",
+       "bytes": 10237,
+       "sha256": "2b73a1fc48772f4cbe18ecf3e42ed29c64d3fd8cfd8920eb149f7c4d83e25bd7"
+      },
+      {
+       "id": 1055,
+       "name": "Яйцо (3)",
+       "path": "scenes/104_yayco/571_yayco/images/1055_yayco_3.png",
+       "bytes": 6440,
+       "sha256": "d21240a35fad3079f563be065a76924d09c50ab6296ad5ad58e172fd4cd58c9c"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/104_yayco/571_yayco/images/1055_yayco_3.png",
+     "vars": [
+      {
+       "id": 1,
+       "name": "Рандом яиц"
+      }
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "id": 3,
+     "name": "Вверх",
+     "arity": 1
+    },
+    {
+     "id": 2,
+     "name": "Вниз",
+     "arity": 2
+    },
+    {
+     "id": 1,
+     "name": "Новый сигнал",
+     "arity": 1
+    }
+   ]
+  },
+  {
+   "id": 105,
+   "name": "GoldenEgg",
+   "slug": "105_goldenegg",
+   "objects": [
+    {
+     "id": 585,
+     "name": "Фон",
+     "slug": "585_fon",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [],
+     "sounds": [],
+     "default_image": null,
+     "vars": []
+    },
+    {
+     "id": 586,
+     "name": "Яйцо",
+     "slug": "586_yayco",
+     "rotation": 0.0,
+     "size": 1.5,
+     "images": [
+      {
+       "id": 1103,
+       "name": "Яйцо (1)",
+       "path": "scenes/105_goldenegg/586_yayco/images/1103_yayco_1.png",
+       "bytes": 13069,
+       "sha256": "5cfa179fc482c62a35e4a0853b2df78a5fa0169c36d0d645bf05687b4b68d97d"
+      },
+      {
+       "id": 1102,
+       "name": "Яйцо (2)",
+       "path": "scenes/105_goldenegg/586_yayco/images/1102_yayco_2.png",
+       "bytes": 10630,
+       "sha256": "8152d7a531822b6b2ca6b34088a8b5185603a663ea8207d2e7a7ee628a486a76"
+      },
+      {
+       "id": 1104,
+       "name": "Яйцо (3)",
+       "path": "scenes/105_goldenegg/586_yayco/images/1104_yayco_3.png",
+       "bytes": 7528,
+       "sha256": "be8cc512561b5aa14ed3f1849cab3cd413f587add05435b9a250283fbf193778"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/105_goldenegg/586_yayco/images/1104_yayco_3.png",
+     "vars": [
+      {
+       "id": 1,
+       "name": "Рандом яиц"
+      }
+     ]
+    }
+   ],
+   "functions": [
+    {
+     "id": 3,
+     "name": "Вверх",
+     "arity": 1
+    },
+    {
+     "id": 2,
+     "name": "Вниз",
+     "arity": 2
+    },
+    {
+     "id": 1,
+     "name": "Новый сигнал",
+     "arity": 1
+    }
+   ]
+  },
+  {
+   "id": 106,
+   "name": "Плохая концовка",
+   "slug": "106_plohaya_koncovka",
+   "objects": [
+    {
+     "id": 587,
+     "name": "Фон",
+     "slug": "587_fon",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 1116,
+       "name": "Фон",
+       "path": "scenes/106_plohaya_koncovka/587_fon/images/1116_fon.png",
+       "bytes": 70,
+       "sha256": "f0db85fc3e8d3cccd590a4ba46a3dabfef6386156940c3bca66200fc84a9f2cd"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/106_plohaya_koncovka/587_fon/images/1116_fon.png",
+     "vars": []
+    },
+    {
+     "id": 588,
+     "name": "Пианино",
+     "slug": "588_pianino",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 1115,
+       "name": "Пианино",
+       "path": "scenes/106_plohaya_koncovka/588_pianino/images/1115_pianino.png",
+       "bytes": 10395,
+       "sha256": "0d188f987f13e45b6ba1f8d65f5e3dfb8f536f22f5c7e116c4776d7771d407ce"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/106_plohaya_koncovka/588_pianino/images/1115_pianino.png",
+     "vars": []
+    },
+    {
+     "id": 592,
+     "name": "???",
+     "slug": "592_object",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 1118,
+       "name": "???",
+       "path": "scenes/106_plohaya_koncovka/592_object/images/1118_image.png",
+       "bytes": 20343,
+       "sha256": "e1922bbf0cadfcf828d684e061072342609a62f4fe547f39835b257db0a208d7"
+      }
+     ],
+     "sounds": [
+      {
+       "id": 66,
+       "name": "Пианино",
+       "path": "scenes/106_plohaya_koncovka/592_object/sounds/0066_pianino.mp3",
+       "bytes": 27895,
+       "sha256": "6d1df6e8cca832058fb0877ceb0f286bc4460a90364f2edb0585bfdb946f9ff9"
+      }
+     ],
+     "default_image": "scenes/106_plohaya_koncovka/592_object/images/1118_image.png",
+     "vars": []
+    }
+   ],
+   "functions": [
+    {
+     "id": 1,
+     "name": "Новый сигнал",
+     "arity": 0
+    }
+   ]
+  },
+  {
+   "id": 101,
+   "name": "Конец",
+   "slug": "101_konec",
+   "objects": [
+    {
+     "id": 513,
+     "name": "Фон",
+     "slug": "513_fon",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 912,
+       "name": "Фон",
+       "path": "scenes/101_konec/513_fon/images/0912_fon.png",
+       "bytes": 31253,
+       "sha256": "66c9a4b88ea5b69f047a0c30515ea31098fcd07b11b6d2a5562cabd6ac965eb2"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/101_konec/513_fon/images/0912_fon.png",
+     "vars": []
+    },
+    {
+     "id": 514,
+     "name": "Куб",
+     "slug": "514_kub",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 913,
+       "name": "Куб",
+       "path": "scenes/101_konec/514_kub/images/0913_kub.png",
+       "bytes": 2109,
+       "sha256": "e78dd39a068a6e902d5d72aaa40f3a3dd78bf1048f958bf47db72796b0f76e58"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/101_konec/514_kub/images/0913_kub.png",
+     "vars": []
+    },
+    {
+     "id": 515,
+     "name": "буК",
+     "slug": "515_buk",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 915,
+       "name": "буК",
+       "path": "scenes/101_konec/515_buk/images/0915_buk.png",
+       "bytes": 2110,
+       "sha256": "ddc2c4766afc4ee59903c156d3c000e7c5b97791f209256b763481e7f4b66f64"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/101_konec/515_buk/images/0915_buk.png",
+     "vars": []
+    },
+    {
+     "id": 516,
+     "name": "Диалог",
+     "slug": "516_dialog",
+     "rotation": 0.0,
+     "size": 1.0,
+     "images": [
+      {
+       "id": 916,
+       "name": "Диалог (1)",
+       "path": "scenes/101_konec/516_dialog/images/0916_dialog_1.png",
+       "bytes": 63802,
+       "sha256": "93ad3c44aab958ff0d19e49e83bdd022d35432a9830e2cc40d9e83ce27ae9bdd"
+      },
+      {
+       "id": 917,
+       "name": "Диалог (2)",
+       "path": "scenes/101_konec/516_dialog/images/0917_dialog_2.png",
+       "bytes": 32039,
+       "sha256": "3d6f778282b71c63c86828fcd2f89eb9f627eb35147d1693db66db157fb030bc"
+      }
+     ],
+     "sounds": [],
+     "default_image": "scenes/101_konec/516_dialog/images/0917_dialog_2.png",
+     "vars": []
+    }
+   ],
+   "functions": [
+    {
+     "id": 1,
+     "name": "Новый сигнал",
+     "arity": 0
+    }
+   ]
+  }
+ ],
+ "missing": [],
+ "duplicates": {
+  "fbd7542bd71f3f8a8e171126a2d9246674c593c72016ce5430700c698ca580ba": [
+   "scenes/77_registraciya/164_pole_vvoda_vizual/images/0235_pole_vvoda_vizual.png",
+   "scenes/77_registraciya/165_pole_vvoda_vizual_2/images/0236_pole_vvoda_vizual_2.png"
+  ],
+  "a9015da05310a7a9a39c388f590daa95df121d16c90a4fdd400d8d81d4ea73d6": [
+   "scenes/01_menyu/281_yayca/sounds/0011_nazhatie.mp3",
+   "scenes/01_menyu/011_sily/sounds/0002_nazhatie.mp3",
+   "scenes/01_menyu/593_izumrudy/sounds/0067_nazhatie.mp3"
+  ],
+  "ef53dc48da9198f6ddfd044f4dfaecccb7ee43013dff2e5f73fbf45e5a760ca1": [
+   "scenes/26_igra/017_ten_igroka/images/0015_ten_igroka.png",
+   "scenes/26_igra/018_ten_vraga/images/0016_ten_vraga.png",
+   "scenes/26_igra/021_igrok/images/0019_igrok_1.png",
+   "scenes/26_igra/022_vrag/images/0027_vrag_1.png"
+  ],
+  "59355b3ba746213c2bfa72f724fd386828ceb13b47fba195def6718a527ef499": [
+   "scenes/01_menyu/281_yayca/images/1037_yayca.png",
+   "scenes/26_igra/412_yayco_mina/images/1066_yayco_mina_1.png",
+   "scenes/26_igra/581_yayco/images/1091_yayco_1.png",
+   "scenes/104_yayco/571_yayco/images/1053_yayco_1.png"
+  ],
+  "6083b3d2d0a3f928e3b4d45bdad3689f8410f90f06ad3b3db34994a15c057b87": [
+   "scenes/26_igra/412_yayco_mina/images/1074_yayco_mina_2.png",
+   "scenes/26_igra/581_yayco/images/1092_yayco_2.png"
+  ],
+  "404e52330749ff6f3a6dacda6f04a90b5106074817452f60a80413184f8b7597": [
+   "scenes/01_menyu/593_izumrudy/images/1123_izumrudy.png",
+   "scenes/26_igra/594_izumrud/images/1126_izumrud.png"
+  ],
+  "a875dd3904d9a2ac3174ec3fdecc1370bcd3e7c96dc70eadb0ff5eaa924a8d24": [
+   "scenes/26_igra/021_igrok/images/0829_igrok_7.png",
+   "scenes/26_igra/022_vrag/images/0830_vrag_2.png"
+  ],
+  "23ba6456260fb0e177fd13b28beac9426371b2e8d70e79c93283ca2e0ba30fc0": [
+   "scenes/70_rezhimy/096_nazad/images/0687_nazad.png",
+   "scenes/26_igra/029_nazad/images/0689_nazad.png"
+  ],
+  "13b9048ee375f6fda1e7af2fbf2abeb51f1826890cd1075eb2ab7a0764df5db9": [
+   "scenes/26_igra/016_fon/images/0222_fon_1.png",
+   "scenes/95_onlayn/385_fon/images/0614_fon_1.png"
+  ],
+  "7fa6d753d0b2aeee984cf88e79177b1e913a589dd3cf19017abfea200c448fad": [
+   "scenes/26_igra/016_fon/images/1121_fon_2.png",
+   "scenes/95_onlayn/385_fon/images/1133_fon_2.png"
+  ],
+  "e4ab707f5bb4a92b2c46a017773b8065aa1beb713004c018bf556fcdd0d687e9": [
+   "scenes/95_onlayn/390_igrok_1/images/0971_igrok_1.png",
+   "scenes/95_onlayn/409_igrok_2/images/0974_igrok_2.png",
+   "scenes/95_onlayn/410_igrok_3/images/0976_igrok_3.png"
+  ],
+  "5a87cf0f364bcc50c36caa4500931f6a32b38014d8ff72c1b55029eae13c6a4e": [
+   "scenes/95_onlayn/390_igrok_1/images/0980_igrok_1_s_bhopom.png",
+   "scenes/95_onlayn/409_igrok_2/images/0981_igrok_2_s_bhopom.png",
+   "scenes/95_onlayn/410_igrok_3/images/0982_igrok_3_s_bhopom.png"
+  ],
+  "659dabef63082f2c8ebb9b42366f02ca7bbb453b5b171637be3943a93164e472": [
+   "scenes/26_igra/024_dzhoystik/images/0997_dzhoystik.png",
+   "scenes/95_onlayn/394_dzhoystik/images/0632_dzhoystik.png"
+  ],
+  "513b881b326482a92b680c3dccd2a2123590963ddd4ea021237112bfc888ff26": [
+   "scenes/95_onlayn/539_emocii/images/0966_emociya_vyklyuchena.png",
+   "scenes/95_onlayn/539_emocii/images/0967_emociya_vklyuchena.png"
+  ],
+  "1300df5cd0d1e30a9cdfb2f9e9dbbc7cb59e3e949c2415bf481067b66509da66": [
+   "scenes/95_onlayn/404_nazad/images/0709_nazad.png",
+   "scenes/89_magazin_iventa/286_nazad/images/0706_nazad.png",
+   "scenes/31_bolshe/031_nazad/images/0712_nazad.png",
+   "scenes/27_kuby/038_nazad/images/0885_nazad.png",
+   "scenes/80_klassy/190_nazad/images/0717_nazad.png",
+   "scenes/96_dostizheniya/428_nazad/images/0734_nazad.png"
+  ],
+  "78f2d56b56f0292e8540e6ead21df86e2286338c4a87d57f8428a1f42858456a": [
+   "scenes/27_kuby/048_skroll/images/0054_skroll.png",
+   "scenes/27_kuby/048_skroll/images/0055_skroll_2.png"
+  ],
+  "0afb77d637067665b234ed7a01dfffb22b61c6f06d7fd7fdf77a120edb5129a9": [
+   "scenes/80_klassy/191_skroll/images/0280_skroll.png",
+   "scenes/96_dostizheniya/429_skroll/images/0735_skroll.png"
+  ],
+  "5cfa179fc482c62a35e4a0853b2df78a5fa0169c36d0d645bf05687b4b68d97d": [
+   "scenes/95_onlayn/596_yayco/images/1136_yayco.png",
+   "scenes/105_goldenegg/586_yayco/images/1103_yayco_1.png"
+  ]
+ }
+}

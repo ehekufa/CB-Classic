@@ -1,0 +1,11 @@
+# без аккаунта админа: отвечаем на вопрос, жмём «Админ панель» и «Запустить ивент»
+f3: type 1
+f8: press 155 -150
+f9: release
+f14: press -600 160
+f15: release
+f22: press 0 -90
+f23: release
+f30: type 2
+f34: press 155 -150
+f35: release

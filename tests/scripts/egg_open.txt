@@ -1,0 +1,9 @@
+# разбиваем яйцо (сцена 104): три тапа по яйцу и тап, чтобы забрать дроп
+f20: press 0 0
+f22: release
+f60: press 0 0
+f62: release
+f100: press 0 0
+f102: release
+f160: press 0 0
+f162: release

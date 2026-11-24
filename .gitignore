@@ -1,0 +1,23 @@
+# сборка
+build/
+*.o
+*.d
+
+# кадры и прочий вывод прогонов
+out/
+saves/
+
+# временные файлы инструментов
+__pycache__/
+*.pyc
+
+# Android / Gradle
+android/local.properties
+android/.gradle/
+android/app/build/
+android/app/src/main/assets/
+android/app/src/main/java/org/libsdl/
+third_party/SDL/
+android-build.log
+dist/
+*.apk

@@ -1,0 +1,54 @@
+name: asset-import (ручной)
+# Запускается вручную: сам скачивает 214 МБ из релиза и коммитит результат в ветку.
+# Автозапуск по push отключён, чтобы не качать архив на каждый коммит.
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Download release asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p /tmp/dl
+          gh release download "YOU_DON'T_NEED_IT" --repo "$GITHUB_REPOSITORY" -D /tmp/dl
+          ls -la /tmp/dl
+      - name: Extract
+        run: |
+          Z=$(ls /tmp/dl/*.zip | head -1)
+          mkdir -p /tmp/proj
+          unzip -q "$Z" -d /tmp/proj
+          echo "extracted: $(find /tmp/proj -type f | wc -l) files"
+      - name: Manifest and copy (skip >50MB)
+        run: |
+          mkdir -p original ops
+          : > ops/excluded-large-files.txt
+          find /tmp/proj -type f | while read -r f; do
+            rel=${f#/tmp/proj/}
+            sz=$(stat -c%s "$f")
+            if [ "$sz" -gt 52428800 ]; then
+              echo "$rel	$sz	$(sha256sum "$f" | cut -d' ' -f1)" >> ops/excluded-large-files.txt
+            else
+              mkdir -p "original/$(dirname "$rel")"
+              cp -p "$f" "original/$rel"
+            fi
+          done
+          ( cd /tmp/proj && find . -type f -print0 | sort -z | xargs -0 sha256sum ) > ops/sha256-all.txt
+          unzip -l "$(ls /tmp/dl/*.zip | head -1)" > ops/zip-listing.txt
+          ( cd original && find . -type f -print0 | sort -z | xargs -0 sha256sum ) > ops/sha256-imported.txt
+          du -sh original; find original -type f | wc -l
+          cat ops/excluded-large-files.txt
+      - name: Commit import
+        run: |
+          git config user.name "asset-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add -A original ops
+          git commit -m "feat: import original Scratch 2 project assets from release asset" || echo "nothing to commit"
+          git pull --rebase origin "${GITHUB_REF_NAME}" || true
+          git push origin "HEAD:${GITHUB_REF_NAME}"

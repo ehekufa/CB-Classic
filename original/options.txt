@@ -1,0 +1,1 @@
+{"displayHeight":1500,"displayWidth":720,"name":"CB In New Colors","orientation":"horizontal","description":"Игра про кубиков.\n\nНовый скрыть ЯйцУИ","note":"Dimasi4ek229","aspectRatio":false}

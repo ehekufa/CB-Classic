@@ -1,0 +1,293 @@
+name: android-apk
+
+# Собирает APK нативной версии (C/C++ + Lua + SDL2) и публикует его в релизе.
+# В песочнице Android SDK/NDK нет, поэтому сборка идёт на раннере GitHub Actions.
+on:
+  workflow_dispatch:
+  push:
+    branches: [arena/f69adc32-cb-classic]
+    paths:
+      - 'android/**'
+      - 'src/**'
+      - 'assets/**'
+      - 'generated/**'
+      - 'third_party/lua-5.4/**'
+      - '.github/workflows/android.yml'
+
+permissions:
+  contents: write
+
+env:
+  SDL_VERSION: release-2.30.9
+  NDK_VERSION: 26.1.10909125
+  GRADLE_VERSION: 8.7
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Android SDK и NDK
+        run: |
+          set -x
+          if [ ! -d "${ANDROID_HOME:-/nonexistent}" ]; then
+            export ANDROID_HOME="$HOME/android-sdk"
+            mkdir -p "$ANDROID_HOME/cmdline-tools"
+            curl -sSL -o /tmp/cmdline.zip \
+              https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+            unzip -q /tmp/cmdline.zip -d "$ANDROID_HOME/cmdline-tools"
+            mv "$ANDROID_HOME/cmdline-tools/cmdline-tools" "$ANDROID_HOME/cmdline-tools/latest"
+            echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+          fi
+          SDKMANAGER="$(ls "$ANDROID_HOME"/cmdline-tools/*/bin/sdkmanager 2>/dev/null | head -1)"
+          echo "sdkmanager: $SDKMANAGER"
+          echo "PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH" >> "$GITHUB_ENV"
+          yes | "$SDKMANAGER" --licenses > /dev/null 2>&1 || true
+          "$SDKMANAGER" --install "ndk;${NDK_VERSION}" "cmake;3.22.1" \
+                                  "platforms;android-34" "build-tools;34.0.0" 2>&1 | tail -5
+          ls "$ANDROID_HOME/ndk"
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/${NDK_VERSION}" >> "$GITHUB_ENV"
+
+      - name: Исходники SDL2
+        run: |
+          curl -sSL -o /tmp/sdl.tar.gz \
+            "https://github.com/libsdl-org/SDL/archive/refs/tags/${SDL_VERSION}.tar.gz"
+          mkdir -p third_party/SDL
+          tar xzf /tmp/sdl.tar.gz -C third_party/SDL --strip-components=1
+          test -f third_party/SDL/CMakeLists.txt
+          echo "SDL2 $(cat third_party/SDL/include/SDL_version.h | grep -m1 MAJOR)"
+
+      - name: Java-классы SDL и упаковка ресурсов
+        run: |
+          mkdir -p android/app/src/main/java/org/libsdl/app
+          cp third_party/SDL/android-project/app/src/main/java/org/libsdl/app/*.java \
+             android/app/src/main/java/org/libsdl/app/
+
+          rm -rf android/app/src/main/assets
+          mkdir -p android/app/src/main/assets/src android/app/src/main/assets/generated
+          cp -r assets            android/app/src/main/assets/assets
+          cp -r src/lua           android/app/src/main/assets/src/lua
+          cp -r generated/lua     android/app/src/main/assets/generated/lua
+          # шрифт с кириллицей: MainActivity распаковывает его в filesDir/root/fonts
+          mkdir -p android/app/src/main/assets/fonts
+          cp third_party/fonts/Roboto-Regular.ttf android/app/src/main/assets/fonts/
+          cp third_party/fonts/DejaVuSans.ttf android/app/src/main/assets/fonts/
+          cp third_party/fonts/DejaVuSans-Bold.ttf android/app/src/main/assets/fonts/
+          du -sh android/app/src/main/assets
+
+      - name: Gradle
+        run: |
+          curl -sSL -o /tmp/gradle.zip \
+            "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip"
+          unzip -q /tmp/gradle.zip -d "$HOME"
+          echo "$HOME/gradle-${GRADLE_VERSION}/bin" >> "$GITHUB_PATH"
+
+      - name: Сборка APK
+        run: |
+          echo "sdk.dir=$ANDROID_HOME" > android/local.properties
+          set +e
+          (cd android && gradle assembleDebug --no-daemon --stacktrace) > android-build.log 2>&1
+          STATUS=$?
+          echo "код возврата gradle: $STATUS" >> android-build.log
+          if [ $STATUS -ne 0 ]; then
+            echo "СБОРКА НЕ УДАЛАСЬ" >> android-build.log
+          fi
+          tail -n 40 android-build.log
+          ls -la android/app/build/outputs/apk/debug/ 2>/dev/null || true
+
+      - name: Проверка APK
+        if: always()
+        run: |
+          : > /tmp/apk-check.txt
+          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          [ -f "$APK" ] || exit 0
+          exec 3>&1
+          exec >> /tmp/apk-check.txt 2>&1
+          echo "### dex"
+          for d in $(unzip -Z1 "$APK" | grep '\.dex$'); do
+            echo "$d: $(unzip -p "$APK" "$d" | wc -c) байт"
+            echo "  ссылок на org/cbclassic: $(unzip -p "$APK" "$d" | strings | grep -c 'org/cbclassic' || true)"
+            echo "  ссылок на org/libsdl:    $(unzip -p "$APK" "$d" | strings | grep -c 'org/libsdl' || true)"
+            echo "  MainActivity:            $(unzip -p "$APK" "$d" | strings | grep -c 'MainActivity' || true)"
+          done
+          echo
+          echo "### ресурсы"
+          echo "всего записей: $(unzip -Z1 "$APK" | wc -l)"
+          echo "assets/:        $(unzip -Z1 "$APK" | grep -c '^assets/')"
+          echo "  png:          $(unzip -Z1 "$APK" | grep -c '^assets/.*\.png$')"
+          echo "  mp3:          $(unzip -Z1 "$APK" | grep -c '^assets/.*\.mp3$')"
+          echo "  generated/lua:$(unzip -Z1 "$APK" | grep -c '^assets/generated/lua/')"
+          echo "  src/lua:      $(unzip -Z1 "$APK" | grep -c '^assets/src/lua/')"
+          echo "  project.lua:  $(unzip -Z1 "$APK" | grep -c '^assets/assets/project.lua$')"
+          echo "  index.json:   $(unzip -Z1 "$APK" | grep -c '^assets/assets/index.json$')"
+          echo "  layout.lua:   $(unzip -Z1 "$APK" | grep -c '^assets/assets/layout.lua$')"
+          echo "  font Roboto:  $(unzip -Z1 "$APK" | grep -c '^assets/fonts/Roboto-Regular\.ttf$')"
+          echo "  font DejaVu:  $(unzip -Z1 "$APK" | grep -c '^assets/fonts/DejaVuSans\.ttf$')"
+          echo
+          echo "### манифест"
+          AAPT="$(ls "$ANDROID_HOME"/build-tools/*/aapt2 2>/dev/null | tail -1)"
+          if [ -n "$AAPT" ]; then
+            "$AAPT" dump badging "$APK" 2>&1 | egrep \
+              "^(package|launchable-activity|sdkVersion|targetSdkVersion|native-code|application-label)" || true
+            echo
+            echo "activity/action в манифесте:"
+            "$AAPT" dump xmltree --file AndroidManifest.xml "$APK" 2>&1 | \
+              grep -E "E: activity|android:name|android:action|MAIN|LAUNCHER" | head -12 || true
+          else
+            echo "aapt2 недоступен"
+          fi
+          echo
+          echo "подпись:"
+          SIGNER="$(ls "$ANDROID_HOME"/build-tools/*/apksigner 2>/dev/null | tail -1)"
+          [ -n "$SIGNER" ] && "$SIGNER" verify --print-certs "$APK" 2>&1 | head -5 || echo "apksigner недоступен"
+          echo
+          echo "### основные lua-модули"
+          for f in $(unzip -Z1 "$APK" | grep '^assets/generated/lua/' | head -3); do
+            echo "$f: $(unzip -p "$APK" "$f" | wc -c) байт"
+          done
+          cat /tmp/apk-check.txt >&3
+
+      - name: Отчёт и APK в релиз
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          touch android-build.log
+          mkdir -p dist
+          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          if [ -f "$APK" ]; then
+            cp "$APK" dist/cb-classic-debug.apk
+          fi
+
+          {
+            echo "# Отчёт сборки APK"
+            echo
+            echo "- дата: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "- SDL: ${SDL_VERSION}"
+            echo "- NDK: ${NDK_VERSION}"
+            echo "- Gradle: ${GRADLE_VERSION}"
+            echo "- запуск: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo "- APK в запуске: артефакт \`cb-classic-debug-apk\`"
+            echo
+            if [ -f dist/cb-classic-debug.apk ]; then
+              echo "## APK"
+              echo
+              echo '```'
+              ls -la dist/cb-classic-debug.apk
+              sha256sum dist/cb-classic-debug.apk
+              unzip -l dist/cb-classic-debug.apk | egrep 'classes.dex|lib/|assets/project.lua|assets/scenes/26|AndroidManifest' | head -20
+              echo '...'
+              unzip -l dist/cb-classic-debug.apk | tail -3
+              echo '```'
+              echo
+              echo "всего записей: $(unzip -l dist/cb-classic-debug.apk | tail -1 | awk '{print $2}')"
+            else
+              echo "## APK не собрался"
+            fi
+            echo
+            if [ -s /tmp/apk-check.txt ]; then
+              echo
+              echo "## Проверка содержимого APK"
+              echo
+              echo '```'
+              cat /tmp/apk-check.txt
+              echo '```'
+            fi
+            echo
+            echo "## Хвост лога сборки"
+            echo
+            echo '```'
+            tail -n 120 android-build.log || true
+            echo '```'
+          } > ops/apk-report.md
+
+          # публикуем APK в релизе, чтобы его можно было скачать с GitHub
+          if [ -f dist/cb-classic-debug.apk ]; then
+            gh release view apk-latest >/dev/null 2>&1 || \
+              gh release create apk-latest --title "APK: Cubic battle (C/C++/Lua)" \
+                --notes "Отладочная сборка нативной версии. Установка: разрешить установку из неизвестных источников и открыть файл." \
+                dist/cb-classic-debug.apk
+            gh release upload apk-latest dist/cb-classic-debug.apk --clobber || true
+            gh release edit apk-latest --notes "Отладочная сборка нативной версии ($(date -u +%Y-%m-%d)). Установка: разрешить установку из неизвестных источников и открыть файл." || true
+          fi
+
+          git config user.name "apk-bot"
+          git config user.email "bot@users.noreply.github.com"
+          # зеркало APK прямо в репозитории: release-ассеты отдают с
+          # objects.githubusercontent.com, который в РФ часто недоступен,
+          # а файл в ветке качается как обычный файл репозитория
+          if [ -f dist/cb-classic-debug.apk ]; then
+            git add -f dist/cb-classic-debug.apk
+          fi
+          git add -f ops/apk-report.md
+          git add -f android-build.log || true
+          git commit -m "build(android): отчёт сборки APK" || echo "нечего коммитить"
+          git pull --rebase origin "${GITHUB_REF_NAME}" || true
+          git push origin "HEAD:${GITHUB_REF_NAME}" && echo "отчёт закоммичен" || \
+            echo "::warning title=git push::не удалось запушить отчёт"
+          # короткая выжимка в аннотацию проверки — единственный видимый снаружи канал логов
+          SUMMARY="$(tail -n 25 android-build.log | tr '\n' '|' | cut -c1-3000)"
+          echo "::warning title=хвост лога сборки::${SUMMARY}"
+          APKINFO="$( [ -f dist/cb-classic-debug.apk ] && ls -l dist/cb-classic-debug.apk && sha256sum dist/cb-classic-debug.apk || echo 'APK нет' )"
+          echo "::warning title=APK::${APKINFO}"
+
+      - name: Сводка запуска — где скачать APK
+        if: always()
+        run: |
+          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          REPO="${GITHUB_REPOSITORY}"
+          BRANCH="${GITHUB_REF_NAME}"
+          RUN_ID="${GITHUB_RUN_ID}"
+          {
+            echo "## APK этой сборки"
+            echo
+            if [ -f "$APK" ]; then
+              SIZE=$(stat -c %s "$APK")
+              SHA=$(sha256sum "$APK" | cut -d' ' -f1)
+              echo "**$(numfmt --to=iec --format=%.1f "$SIZE")** (\`$SIZE\` байт), sha256 \`$SHA\`"
+              echo
+              echo "| где взять | ссылка |"
+              echo "|---|---|"
+              echo "| **артефакт запуска** (лежит прямо на этой странице) | блок **Artifacts** справа вверху (или внизу страницы) → \`cb-classic-debug-apk\` |"
+              echo "| прямая ссылка на артефакт | https://github.com/${REPO}/actions/runs/${RUN_ID}#artifacts |"
+              echo "| файл в ветке | [\`dist/cb-classic-debug.apk\`](https://github.com/${REPO}/raw/${BRANCH}/dist/cb-classic-debug.apk) |"
+              echo "| релиз | [\`apk-latest\`](https://github.com/${REPO}/releases/tag/apk-latest) |"
+              echo "| отчёт сборки (sha256, содержимое, лог) | [\`ops/apk-report.md\`](https://github.com/${REPO}/blob/${BRANCH}/ops/apk-report.md) |"
+            else
+              echo "**APK не собрался.** Лог — в артефакте \`cb-classic-debug-apk\` (\`android-build.log\`) и в [\`ops/apk-report.md\`](https://github.com/${REPO}/blob/${BRANCH}/ops/apk-report.md)."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ -f "$APK" ]; then
+            echo "::notice title=APK::$(ls -l "$APK" | awk '{print $5}') байт, sha256 $(sha256sum "$APK" | cut -d' ' -f1)"
+            echo "::notice title=APK::скачать: вкладка Artifacts этого запуска -> cb-classic-debug-apk; файл в ветке: dist/cb-classic-debug.apk"
+          fi
+
+      - name: Собрать папку артефакта
+        if: always()
+        run: |
+          # в артефакте APK лежит одним файлом, без длинных путей gradle
+          mkdir -p artifact
+          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          if [ -f "$APK" ]; then
+            cp "$APK" artifact/cb-classic-debug.apk
+          fi
+          cp ops/apk-report.md artifact/apk-report.md 2>/dev/null || true
+          cp android-build.log artifact/android-build.log 2>/dev/null || true
+          ls -la artifact
+
+      - name: APK как артефакт запуска
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cb-classic-debug-apk
+          path: artifact/*
+          if-no-files-found: warn
+          retention-days: 90
+          compression-level: 0

@@ -1,0 +1,11 @@
+# админ (аккаунт из --profile) открывает панель и запускает ивент 2
+f3: type 1
+f8: press 155 -150
+f9: release
+f14: press -600 160
+f15: release
+f22: press 0 -90
+f23: release
+f28: type 2
+f32: press 155 -150
+f33: release

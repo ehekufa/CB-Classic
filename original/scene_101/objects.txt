@@ -1,0 +1,1 @@
+[["Фон",513,{"rotation":0,"path":"project_4/scene_101/object_513/image_912.png","size":1}],["Куб",514,{"rotation":0,"path":"project_4/scene_101/object_514/image_913.png","size":1}],["буК",515,{"rotation":0,"path":"project_4/scene_101/object_515/image_915.png","size":1}],["Диалог",516,{"rotation":0,"path":"project_4/scene_101/object_516/image_917.png","size":1}]]

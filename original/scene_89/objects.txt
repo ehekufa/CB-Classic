@@ -1,0 +1,1 @@
+[["Фон",285,{"rotation":0,"size":1.5}],["Назад",286,{"rotation":0,"path":"project_30/scene_89/object_286/image_706.png","size":1}],["Открыть яйцо",578,{"rotation":0,"path":"project_30/scene_89/object_578/image_1078.png","size":1}],["Открыть яйцо за 3 изумруда",595,{"rotation":0,"path":"project_30/scene_89/object_595/image_1128.png","size":1}]]

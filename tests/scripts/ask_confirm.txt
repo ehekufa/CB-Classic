@@ -1,0 +1,4 @@
+f3: type 1
+f8: press 155 -150
+f9: release
+f20: scene 1

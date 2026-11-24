@@ -1,0 +1,1 @@
+[["Фон",1,{"rotation":0,"size":1}],["Текст",2,{"rotation":0,"path":"project_2/scene_42/object_2/image_1.png","size":1.292}],["Спасибо",186,{"rotation":0,"path":"project_2/scene_42/object_186/image_720.png","size":1.292}]]
