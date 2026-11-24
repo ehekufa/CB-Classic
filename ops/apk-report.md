@@ -1,24 +1,24 @@
 # Отчёт сборки APK
 
-- дата: 2026-11-23T18:02:43Z
+- дата: 2026-11-24T05:06:26Z
 - SDL: release-2.30.9
 - NDK: 26.1.10909125
 - Gradle: 8.7
-- запуск: https://github.com/ehekufa/CB-Classic/actions/runs/45233807060
+- запуск: https://github.com/ehekufa/CB-Classic/actions/runs/45330679262
 - APK в запуске: артефакт `cb-classic-debug-apk`
 
 ## APK
 
 ```
--rw-r--r-- 1 runner runner 18241684 Nov 23 18:02 dist/cb-classic-debug.apk
-0b049ad043cdb551d4c9a215503429c9c24fd504f6678897432dae4edd41375f  dist/cb-classic-debug.apk
+-rw-r--r-- 1 runner runner 19341788 Nov 24 05:06 dist/cb-classic-debug.apk
+d4efaefa7f416f878763d6bdbe1beae37f836c4e1218f338bac9e5d3ed8338e6  dist/cb-classic-debug.apk
      1056  1981-01-01 01:01   classes.dex
   1309008  1981-01-01 01:01   lib/arm64-v8a/libSDL2.so
   1330832  1981-01-01 01:01   lib/arm64-v8a/libc++_shared.so
-   732688  1981-01-01 01:01   lib/arm64-v8a/libmain.so
+   737656  1981-01-01 01:01   lib/arm64-v8a/libmain.so
    918044  1981-01-01 01:01   lib/armeabi-v7a/libSDL2.so
   1109732  1981-01-01 01:01   lib/armeabi-v7a/libc++_shared.so
-   492588  1981-01-01 01:01   lib/armeabi-v7a/libmain.so
+   496044  1981-01-01 01:01   lib/armeabi-v7a/libmain.so
     35614  1981-01-01 01:01   assets/assets/project.lua
   4086673  1981-01-01 01:01   assets/assets/scenes/26_igra/016_fon/images/0222_fon_1.png
    742511  1981-01-01 01:01   assets/assets/scenes/26_igra/016_fon/images/1121_fon_2.png
@@ -33,12 +33,12 @@
      1012  1981-01-01 01:01   assets/assets/scenes/26_igra/021_igrok/images/0393_igrok_2.png
      1903  1981-01-01 01:01   assets/assets/scenes/26_igra/021_igrok/images/0829_igrok_7.png
 ...
-    36697  1981-01-01 01:01   META-INF/MANIFEST.MF
+    43660  1981-01-01 01:01   META-INF/MANIFEST.MF
 ---------                     -------
- 22740011                     296 files
+ 23845128                     360 files
 ```
 
-всего записей: 296
+всего записей: 360
 
 
 ## Проверка содержимого APK
@@ -59,9 +59,9 @@ classes3.dex: 97980 байт
   MainActivity:            0
 
 ### ресурсы
-всего записей: 296
-assets/:        281
-  png:          137
+всего записей: 360
+assets/:        345
+  png:          200
   mp3:          16
   generated/lua:116
   src/lua:      5
@@ -87,9 +87,9 @@ activity/action в манифесте:
 
 подпись:
 V2 Signer: certificate DN: C=US, O=Android, CN=Android Debug
-V2 Signer: certificate SHA-256 digest: 6a167cf3ef2285fc242ff3d5a76024be7b85fc9d2eeedcb7f5e9688ad87d3de3
-V2 Signer: certificate SHA-1 digest: 3d2b7ce33637c552bfb01985ce8a570802fd795c
-V2 Signer: certificate MD5 digest: 1d00e102a58778a321a0962711225c0f
+V2 Signer: certificate SHA-256 digest: 6cbcd2de845f42150320f9f3c4b77660b5efedd73313cd88bbcb6357ee0768cd
+V2 Signer: certificate SHA-1 digest: 687f757794cbb820b75f6535198286c730e9ff89
+V2 Signer: certificate MD5 digest: 2a3f58bc7773221bfacdc2ead1af5a17
 WARNING: META-INF/com/android/build/gradle/app-metadata.properties not protected by signature. Unauthorized modifications to this JAR entry will not be detected. Delete or move the entry outside of META-INF/.
 
 ### основные lua-модули
@@ -116,9 +116,9 @@ Daemon will be stopped at the end of the build
 > Task :app:preBuild UP-TO-DATE
 > Task :app:preDebugBuild UP-TO-DATE
 > Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
-> Task :app:javaPreCompileDebug
-> Task :app:checkDebugAarMetadata
 > Task :app:generateDebugResValues
+> Task :app:checkDebugAarMetadata
+> Task :app:javaPreCompileDebug
 > Task :app:mapDebugSourceSetPaths
 > Task :app:generateDebugResources
 > Task :app:packageDebugResources
@@ -131,26 +131,26 @@ Daemon will be stopped at the end of the build
 > Task :app:mergeDebugShaders
 > Task :app:compileDebugShaders NO-SOURCE
 > Task :app:generateDebugAssets UP-TO-DATE
-> Task :app:mergeDebugAssets
-> Task :app:compressDebugAssets
-> Task :app:desugarDebugFileDependencies
-> Task :app:processDebugJavaRes NO-SOURCE
 > Task :app:processDebugManifestForPackage
-> Task :app:checkDebugDuplicateClasses
-> Task :app:mergeDebugJavaResource
-> Task :app:mergeDebugStartupProfile
-> Task :app:preReleaseBuild UP-TO-DATE
-> Task :app:mergeExtDexDebug
-> Task :app:mergeLibDexDebug
+> Task :app:mergeDebugAssets
 > Task :app:processDebugResources
-> Task :app:configureCMakeRelease[arm64-v8a]
+> Task :app:compressDebugAssets
 
 > Task :app:compileDebugJavaWithJavac
 Note: Some input files use or override a deprecated API.
 Note: Recompile with -Xlint:deprecation for details.
 
+> Task :app:desugarDebugFileDependencies
 > Task :app:dexBuilderDebug
+> Task :app:processDebugJavaRes NO-SOURCE
+> Task :app:mergeDebugStartupProfile
+> Task :app:preReleaseBuild UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses
 > Task :app:mergeDebugGlobalSynthetics
+> Task :app:mergeDebugJavaResource
+> Task :app:configureCMakeRelease[arm64-v8a]
+> Task :app:mergeExtDexDebug
+> Task :app:mergeLibDexDebug
 > Task :app:mergeProjectDexDebug
 > Task :app:buildCMakeRelease[arm64-v8a]
 > Task :app:configureCMakeRelease[armeabi-v7a]
@@ -165,7 +165,7 @@ Note: Recompile with -Xlint:deprecation for details.
 > Task :app:createDebugApkListingFileRedirect
 > Task :app:assembleDebug
 
-BUILD SUCCESSFUL in 1m 3s
+BUILD SUCCESSFUL in 1m 16s
 39 actionable tasks: 39 executed
 код возврата gradle: 0
 ```
