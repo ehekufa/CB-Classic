@@ -243,7 +243,10 @@ int l_get(lua_State *L)
     } else if (std::strcmp(field, "layer") == 0) {
         lua_pushinteger(L, sprite->layer);
     } else if (std::strcmp(field, "image_index") == 0) {
-        lua_pushinteger(L, sprite->image_index + 1);
+        // «номер образа» как в Pocket Code (с единицы). Если объекту подсунули
+        // чужую картинку (setImageByID со скином), её нет в списке образов —
+        // номер 0, на этом построены стрелки прокрутки списка кубов.
+        lua_pushinteger(L, sprite->look_override ? 0 : sprite->image_index + 1);
     } else if (std::strcmp(field, "image_count") == 0) {
         lua_pushinteger(L, sprite->def ? static_cast<lua_Integer>(sprite->def->images.size()) : 0);
     } else if (std::strcmp(field, "image_name") == 0) {
@@ -358,7 +361,14 @@ int l_hit(lua_State *L)
     Sprite *sprite = e->find(arg_num(L, 1));
     double x = luaL_optnumber(L, 2, 0);
     double y = luaL_optnumber(L, 3, 0);
-    lua_pushinteger(L, (sprite && sprite->visible && sprite_hit(*sprite, x, y)) ? 1 : 0);
+    double vx = 0.0;
+    double vy = 0.0;
+    if (sprite) {
+        vx = sprite->x;
+        vy = sprite->y;
+        e->view_xy(*sprite, &vx, &vy);
+    }
+    lua_pushinteger(L, (sprite && sprite->visible && sprite_hit(*sprite, x, y, vx, vy)) ? 1 : 0);
     return 1;
 }
 
@@ -534,6 +544,64 @@ int l_text_value(lua_State *L)
         return 1;
     }
     lua_pushstring(L, field->value.c_str());
+    return 1;
+}
+
+// --- камера и модальный диалог -------------------------------------------
+
+int l_camera_focus(lua_State *L)
+{
+    Eng *e = engine_of(L);
+    int handle = static_cast<int>(luaL_checkinteger(L, 1));
+    double x = luaL_optnumber(L, 2, 0);
+    double y = luaL_optnumber(L, 3, 0);
+    e->camera_focus(handle, x, y);
+    return 0;
+}
+
+int l_camera_off(lua_State *L)
+{
+    Eng *e = engine_of(L);
+    e->camera_off(static_cast<int>(luaL_checkinteger(L, 1)));
+    return 0;
+}
+
+int l_ask_open(lua_State *L)
+{
+    Eng *e = engine_of(L);
+    const char *prompt = luaL_optstring(L, 1, "");
+    const char *label = luaL_optstring(L, 2, "");
+    double w = luaL_optnumber(L, 3, 520);
+    double h = luaL_optnumber(L, 4, 96);
+    e->ask_open(prompt, label, w, h);
+    return 0;
+}
+
+int l_ask_close(lua_State *L)
+{
+    engine_of(L)->ask_close();
+    return 0;
+}
+
+int l_ask_state(lua_State *L)
+{
+    Eng *e = engine_of(L);
+    lua_pushinteger(L, e->ask_active() ? e->ask_state() : 0);
+    return 1;
+}
+
+int l_ask_active(lua_State *L)
+{
+    lua_pushinteger(L, engine_of(L)->ask_active() ? 1 : 0);
+    return 1;
+}
+
+int l_ask_touch(lua_State *L)
+{
+    Eng *e = engine_of(L);
+    double x = luaL_optnumber(L, 1, 0);
+    double y = luaL_optnumber(L, 2, 0);
+    lua_pushinteger(L, e->ask_touch(x, y) ? 1 : 0);
     return 1;
 }
 
@@ -775,6 +843,13 @@ const luaL_Reg kApi[] = {
     {"text_blur", l_text_blur},
     {"text_focused", l_text_focused},
     {"text_value", l_text_value},
+    {"camera_focus", l_camera_focus},
+    {"camera_off", l_camera_off},
+    {"ask_open", l_ask_open},
+    {"ask_close", l_ask_close},
+    {"ask_state", l_ask_state},
+    {"ask_active", l_ask_active},
+    {"ask_touch", l_ask_touch},
     {"poll_text_commit", l_poll_text_commit},
     {"text_input", l_text_input},
     {"text_backspace", l_text_backspace},

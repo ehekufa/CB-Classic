@@ -6,6 +6,7 @@
 
     python3 tests/check_shot.py toast  frame.png
     python3 tests/check_shot.py field  frame.png 400 -100
+    python3 tests/check_shot.py scrolled before.png after.png
 """
 
 import struct
@@ -126,6 +127,36 @@ def check_field(path, x, y):
     return None
 
 
+def check_scrolled(before, after):
+    """Список кубов листается стрелками: содержимое съехало вниз на шаг 80,
+    а сами стрелки и «Назад» стоят на месте."""
+    w1, h1, a = read_png(before)
+    w2, h2, b = read_png(after)
+    if (w1, h1) != (w2, h2):
+        return "кадры разного размера"
+    # область списка (левая половина кадра) — по ней ищем сдвиг
+    x0, x1 = int(w1 * 0.08), int(w1 * 0.52)
+    best_shift, best_err = 0, None
+    for shift in range(-160, 161, 4):
+        err = 0
+        for y in range(max(0, 40 - shift), min(h1, h1 - 40 - shift), 4):
+            for x in range(x0, x1, 4):
+                pa = pixel(a, x, y)
+                pb = pixel(b, x, y + shift)
+                err += abs(pa[0] - pb[0]) + abs(pa[1] - pb[1]) + abs(pa[2] - pb[2])
+        if best_err is None or err < best_err:
+            best_shift, best_err = shift, err
+    if abs(best_shift - 80) > 8:
+        return f"список не съехал на шаг прокрутки: сдвиг {best_shift} px, ждём 80"
+    # стрелки и «Назад» не должны двигаться вместе со списком
+    for cx, cy in ((int(w1 * 0.587), 350), (int(w1 * 0.587), 490), (int(w1 * 0.77), 230)):
+        for y in range(cy - 40, cy + 40, 2):
+            for x in range(cx - 40, cx + 40, 2):
+                if pixel(a, x, y) != pixel(b, x, y):
+                    return f"кнопка управления уехала вместе со списком в ({x},{y})"
+    return None
+
+
 def main(argv):
     if len(argv) < 3:
         raise SystemExit(__doc__)
@@ -134,6 +165,8 @@ def main(argv):
         problem = check_toast(path)
     elif kind == "field" and len(argv) >= 5:
         problem = check_field(path, float(argv[3]), float(argv[4]))
+    elif kind == "scrolled" and len(argv) >= 4:
+        problem = check_scrolled(path, argv[3])
     else:
         raise SystemExit(__doc__)
     if problem:

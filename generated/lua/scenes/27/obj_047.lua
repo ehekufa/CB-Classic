@@ -12,7 +12,7 @@ return {
       body = function(o)
         E.set_pos(o, 650, E.op_neg(150))
         E.set_size(o, 12)
-        E.camera_off()
+        E.camera_off(o)
       end,
     },
   },

@@ -402,7 +402,10 @@ void Renderer::draw_sprite(Engine &engine, const Sprite &sprite)
     if (!asset || !asset->loaded) {
         return;
     }
-    draw_image(asset->image, sprite.x, sprite.y,
+    double vx = sprite.x;
+    double vy = sprite.y;
+    engine.view_xy(sprite, &vx, &vy);      // камера сцены (прокрутка списка кубов)
+    draw_image(asset->image, vx, vy,
                sprite.size / 100.0 * static_cast<double>(asset->width),
                sprite.size / 100.0 * static_cast<double>(asset->height),
                sprite.rotation, sprite.alpha, sprite.brightness);
@@ -583,27 +586,36 @@ void Renderer::draw_particles(Engine &engine)
 
 void Renderer::draw_ask_panel(Engine &engine)
 {
-    // E.ask создаёт поле с меткой «Вопрос:<текст>:<номер>». Рисуем под ним
-    // затемнение и панель с вопросом — как диалог в оригинале.
-    for (auto &entry : engine.texts()) {
-        TextField &field = entry.second;
-        if (!field.visible || entry.first.rfind("Вопрос:", 0) != 0) {
-            continue;
-        }
-        size_t first = entry.first.find(':') + 1;
-        size_t last = entry.first.rfind(':');
-        std::string prompt = last > first ? entry.first.substr(first, last - first) : std::string();
-        double sw = static_cast<double>(engine.stage_width());
-        double sh = static_cast<double>(engine.stage_height());
-        // fill_rect принимает левый-ВЕРХНИЙ угол (y идёт вниз), а не центр
-        fill_rect(-sw / 2.0, sh / 2.0, sw, sh, 0x0000008cu);
-        fill_rect(-380.0, 125.0, 760.0, 250.0, 0x1b3c5affu);
-        fill_rect(-380.0, 125.0, 760.0, 3.0, 0x3a90d0ffu);
-        fill_rect(-380.0, 10.0, 760.0, 2.0, 0x3a90d0ffu);
-        if (!prompt.empty()) {
-            draw_text(prompt, 0.0, 62.0, 62.0, 0xffffffffu, "center");
-        }
+    // E.ask — настоящий диалог, как в Pocket Code: вопрос крупным белым
+    // текстом, поле ввода (его рисует общий цикл полей) и две кнопки
+    // «Отмена»/«Принять» на тёмных плашках. Всё остальное затемнено.
+    if (!engine.ask_active()) {
         return;
+    }
+    const double sw = static_cast<double>(engine.stage_width());
+    const double sh = static_cast<double>(engine.stage_height());
+    // fill_rect принимает левый-ВЕРХНИЙ угол (y идёт вниз)
+    fill_rect(-sw / 2.0, sh / 2.0, sw, sh, 0x00000044u);
+
+    const std::string &prompt = engine.ask_prompt();
+    if (!prompt.empty()) {
+        // тень: вопрос читается и на светлой траве, и на тёмном фоне
+        draw_text(prompt, 2.0, Engine::kAskPromptY - 2.0, 110.0, 0x000000bbu, "center");
+        draw_text(prompt, 0.0, Engine::kAskPromptY, 110.0, 0xffffffffu, "center");
+    }
+
+    const double bw = Engine::kAskButtonW;
+    const double bh = Engine::kAskButtonH;
+    const double by = Engine::kAskButtonY;
+    const double dx = Engine::kAskButtonDx;
+    for (int i = 0; i < 2; ++i) {
+        double cx = i == 0 ? -dx : dx;
+        const char *label = i == 0 ? "Отмена" : "Принять";
+        // плашка рисуется «вниз» от верхней кромки
+        fill_rect(cx - bw / 2.0, by + bh / 2.0, bw, bh, 0x1b1b1be6u);
+        fill_rect(cx - bw / 2.0, by + bh / 2.0, bw, 2.0, 0x4a4a4affu);
+        fill_rect(cx - bw / 2.0, by - bh / 2.0, bw, 2.0, 0x4a4a4affu);
+        draw_text(label, cx, by, 72.0, 0xffffffffu, "center");
     }
 }
 

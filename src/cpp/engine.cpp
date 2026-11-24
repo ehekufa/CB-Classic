@@ -78,16 +78,16 @@ double sprite_pixel_height(const Sprite &s)
     return ref ? s.size / 100.0 * static_cast<double>(ref->height) : 0.0;
 }
 
-bool sprite_hit(const Sprite &s, double px, double py)
+bool sprite_hit(const Sprite &s, double px, double py, double sx, double sy)
 {
     double w = sprite_pixel_width(s);
     double h = sprite_pixel_height(s);
     if (w <= 0.0 || h <= 0.0) {
         return false;
     }
-    // обратное вращение вокруг центра спрайта
-    double dx = px - s.x;
-    double dy = py - s.y;
+    // обратное вращение вокруг центра спрайта (sx, sy — его позиция на экране)
+    double dx = px - sx;
+    double dy = py - sy;
     double rad = -s.rotation * kPi / 180.0;
     double cos_a = std::cos(rad);
     double sin_a = std::sin(rad);
@@ -488,8 +488,11 @@ bool Engine::sprite_hit_pixel(Sprite &s, double x, double y)
     if (w <= 0.0 || h <= 0.0) {
         return false;
     }
-    double dx = x - s.x;
-    double dy = y - s.y;
+    double vx = s.x;
+    double vy = s.y;
+    view_xy(s, &vx, &vy);
+    double dx = x - vx;
+    double dy = y - vy;
     double rad = -s.rotation * kPi / 180.0;
     double lx = dx * std::cos(rad) - dy * std::sin(rad);
     double ly = dx * std::sin(rad) + dy * std::cos(rad);
@@ -556,6 +559,107 @@ bool Engine::set_image_by_name(Sprite &sprite, const std::string &name)
     return false;
 }
 
+void Engine::camera_focus(int handle, double x, double y)
+{
+    if (!find(handle)) {
+        return;
+    }
+    camera_handle_ = handle;
+    camera_fx_ = x;
+    camera_fy_ = y;
+}
+
+void Engine::camera_off(int handle)
+{
+    Sprite *sprite = find(handle);
+    if (!sprite) {
+        return;
+    }
+    // В оригинале этот блок зовут и «выключить камеру», и «не двигать объект
+    // вместе с камерой»: в проекте так помечены кнопки «Назад», стрелки
+    // прокрутки и фон интерфейса — иначе они уезжали бы вместе со списком.
+    sprite->camera_fixed = true;
+    if (camera_handle_ == handle) {
+        camera_handle_ = 0;
+    }
+}
+
+void Engine::view_xy(const Sprite &s, double *x, double *y) const
+{
+    *x = s.x;
+    *y = s.y;
+    if (s.camera_fixed || camera_handle_ == 0) {
+        return;
+    }
+    auto it = sprites_.find(camera_handle_);
+    if (it == sprites_.end()) {
+        return;
+    }
+    *x -= it->second.x + camera_fx_;
+    *y -= it->second.y + camera_fy_;
+}
+
+// --- диалог E.ask ---------------------------------------------------------
+
+void Engine::ask_open(const std::string &prompt, const std::string &label, double field_w,
+                      double field_h)
+{
+    ask_active_ = true;
+    ask_result_ = 0;
+    ask_prompt_ = prompt;
+    ask_label_ = label;
+    TextField *field = text(label);
+    if (field) {
+        // поле диалога живёт по центру и не зависит от сцены
+        field->x = 0.0;
+        field->y = 20.0;
+        field->width = field_w;
+        field->height = field_h;
+        field->visible = true;
+        field->editable = true;
+    }
+}
+
+void Engine::ask_close()
+{
+    if (!focus_.empty() && focus_ == ask_label_) {
+        // Диалог закрылся: снимаем фокус молча — ответ уже прочитан в E.ask,
+        // а «Отмена» не должна ничего записывать в переменную.
+        focus_.clear();
+    }
+    ask_active_ = false;
+    ask_result_ = 0;
+    ask_prompt_.clear();
+    ask_label_.clear();
+}
+
+bool Engine::ask_touch(double x, double y)
+{
+    if (!ask_active_) {
+        return false;
+    }
+    TextField *field = text(ask_label_);
+    if (field) {
+        double w = field->width > 0.0 ? field->width : 520.0;
+        double h = field->height > 0.0 ? field->height : 96.0;
+        if (std::fabs(x - field->x) <= w / 2.0 && std::fabs(y - field->y) <= h / 2.0) {
+            focus_text(ask_label_);            // тап по полю — правим ответ
+            return true;
+        }
+    }
+    if (std::fabs(x - kAskButtonDx) <= kAskButtonW / 2.0 &&
+        std::fabs(y - kAskButtonY) <= kAskButtonH / 2.0) {
+        ask_result_ = 1;                       // «Принять»
+        return true;
+    }
+    if (std::fabs(x + kAskButtonDx) <= kAskButtonW / 2.0 &&
+        std::fabs(y - kAskButtonY) <= kAskButtonH / 2.0) {
+        ask_result_ = -1;                      // «Отмена»
+        return true;
+    }
+    return true;                               // диалог модальный: остальное мимо
+}
+
 std::vector<Sprite *> Engine::sprites_at(double x, double y)
 {
     std::vector<Sprite *> order = sprites_in_draw_order();
@@ -577,7 +681,13 @@ std::vector<Sprite *> Engine::sprites_at(double x, double y)
         double stage_area = static_cast<double>(stage_w_) * stage_h_;
         for (auto it = order.rbegin(); it != order.rend(); ++it) {
             Sprite *sprite = *it;
-            if (!sprite->visible || !sprite_hit(*sprite, x, y)) {
+            if (!sprite->visible) {
+                continue;
+            }
+            double vx = sprite->x;
+            double vy = sprite->y;
+            view_xy(*sprite, &vx, &vy);
+            if (!sprite_hit(*sprite, x, y, vx, vy)) {
                 continue;
             }
             double area = sprite_pixel_width(*sprite) * sprite_pixel_height(*sprite);

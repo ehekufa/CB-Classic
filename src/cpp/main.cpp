@@ -342,7 +342,12 @@ void App::apply_input_command(const std::string &line)
         if (key == "backspace") {
             engine.text_backspace();
         } else if (key == "enter") {
-            engine.blur_text();
+            // в диалоге E.ask Enter работает как кнопка «Принять»
+            if (engine.ask_active()) {
+                engine.ask_accept();
+            } else {
+                engine.blur_text();
+            }
         } else if (key == "esc") {
             if (engine.focused_text().empty()) {
                 apply_input_command("back");
@@ -923,7 +928,9 @@ int main(int argc, char **argv)
                             break;
                         case SDLK_RETURN:
                         case SDLK_KP_ENTER:
-                            if (!app.engine.focused_text().empty()) {
+                            if (app.engine.ask_active()) {
+                                app.engine.ask_accept();   // Enter = «Принять»
+                            } else if (!app.engine.focused_text().empty()) {
                                 app.engine.blur_text();
                             }
                             break;

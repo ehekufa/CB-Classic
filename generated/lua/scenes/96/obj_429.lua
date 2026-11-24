@@ -13,7 +13,7 @@ return {
         E.set_x(o, E.op_neg(550))
         E.set_size(o, 7000)
         E.set_rot(o, 90)
-        E.camera_off()
+        E.camera_off(o)
       end,
     },
     { -- скрипт 2: touch_down

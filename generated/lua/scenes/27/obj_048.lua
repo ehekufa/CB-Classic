@@ -12,7 +12,7 @@ return {
       body = function(o)
         E.set_pos(o, 130, 10)
         E.set_size(o, 125)
-        E.camera_off()
+        E.camera_off(o)
         E.clone_self(o)
         E.add_y(o, E.op_neg(140))
         E.set_image_by_id(o, 55)

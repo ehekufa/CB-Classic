@@ -11,7 +11,7 @@ return {
       trigger = "start",
       body = function(o)
         E.set_pos(o, E.op_neg(590), E.op_neg(150))
-        E.camera_off()
+        E.camera_off(o)
         E.set_rot(o, E.op_neg(90))
         E.ask(o, "Выберите игрока (1/3)", function(answer) E.set_gv(72, answer) end)
       end,

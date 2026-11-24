@@ -406,8 +406,10 @@ class BrickGen:
             "saveVariable": lambda: "E.store_var(...)",
             "readVariable": lambda: "E.load_var(...)",
             "removeAdaptiveSizeDevice": lambda: "E.adaptive_off()",
-            "removeObjectCamera": lambda: "E.camera_off()",
-            "focusCameraToObject": lambda: f"E.camera_focus({f(0)}, {f(1)})",
+            # камера привязана к объекту: «выключить камеру» = этот объект не
+            # едет вместе с камерой (кнопки и стрелки остаются на месте)
+            "removeObjectCamera": lambda: "E.camera_off(o)",
+            "focusCameraToObject": lambda: f"E.camera_focus(o, {f(0)}, {f(1)})",
             "setGravityAllObjects": lambda: f"E.set_gravity({f(0)}, {f(1)})",
             "addBody": lambda: "E.add_body(o, " + (self.option(args[0]) if args else "'dynamic'") + ")",
             "isSensor": lambda: "E.set_sensor(o, " + (self.option(args[0]) if args else "'off'") + ")",

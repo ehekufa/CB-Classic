@@ -65,8 +65,10 @@ local function draw_hud(scene_id)
     E.cb.text_set(SHADOW, "visible", 0)
     return
   end
-  draw_number(SHADOW, x + 3, y - 3, SHADOW_COLOR)
-  draw_number(LABEL, x, y, COLOR)
+  -- Вне меню счётчика изумрудов не видно вовсе: сколько их, видно только в
+  -- меню (в «Больше», «Игре» и остальных сценах числа быть не должно).
+  E.cb.text_set(LABEL, "visible", 0)
+  E.cb.text_set(SHADOW, "visible", 0)
   E.cb.text_set(PROJECT_LABEL, "visible", 0)
 end
 

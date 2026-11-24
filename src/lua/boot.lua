@@ -327,6 +327,13 @@ local function drain_text_commits()
 end
 
 local function handle_press(x, y)
+  -- Открыт диалог E.ask: он модальный — поле и кнопки «Отмена»/«Принять»
+  -- разбирает движок, а игра нажатие не получает (раньше тап мимо «съедал»
+  -- ответ и диалог закрывался сам).
+  if cb.ask_active() == 1 then
+    cb.ask_touch(x, y)
+    return
+  end
   if cb.text_focus_at(x, y) == 1 then
     return
   end

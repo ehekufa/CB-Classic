@@ -10,7 +10,7 @@ return {
     { -- скрипт 1: start
       trigger = "start",
       body = function(o)
-        E.camera_focus(0, 0)
+        E.camera_focus(o, 0, 0)
       end,
     },
     { -- скрипт 2: function:3

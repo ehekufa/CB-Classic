@@ -10,7 +10,7 @@ return {
     { -- скрипт 1: start
       trigger = "start",
       body = function(o)
-        E.camera_off()
+        E.camera_off(o)
         E.set_pos(o, 590, E.op_neg(150))
         E.set_size(o, 52)
       end,

@@ -138,6 +138,9 @@ struct Sprite {
 
     const ImageRef *current_image() const;
     const ImageRef *look_override = nullptr;   // картинка-скин не из своего списка
+    // removeObjectCamera: объект не двигается вместе с камерой (кнопки, стрелки,
+    // фон интерфейса), а остаётся на своём месте на экране
+    bool camera_fixed = false;
 };
 
 class Engine {
@@ -181,6 +184,35 @@ public:
     bool pop_release(double *x, double *y, std::vector<int> *handles);
     void clear_touches();
     void push_touch_press(double x, double y) { touch_begin(0, x, y); }
+
+    // --- камера (блоки focusCameraToObject / removeObjectCamera) ---
+    // Камера смотрит на объект, у которого вызван camera_focus (плюс смещение).
+    // Всё, что не помечено camera_off, рисуется со сдвигом -камера, поэтому
+    // «прокрутка» списка в оригинале сделана движением объекта-камеры.
+    void camera_focus(int handle, double x, double y);
+    void camera_off(int handle);
+    // экранная позиция спрайта: world - камера, если он не camera_fixed
+    void view_xy(const Sprite &s, double *x, double *y) const;
+    bool camera_active() const { return camera_handle_ != 0; }
+
+    // --- модальный вопрос E.ask ---
+    // Настоящий диалог, как в Pocket Code: вопрос, поле ввода и две кнопки
+    // «Отмена»/«Принять». Пока он открыт, игра нажатий не получает.
+    void ask_open(const std::string &prompt, const std::string &label, double field_w,
+                  double field_h);
+    void ask_close();
+    void ask_accept() { if (ask_active_) ask_result_ = 1; }   // Enter = «Принять»
+    bool ask_active() const { return ask_active_; }
+    int ask_state() const { return ask_result_; }     // 0 ждём, 1 принято, -1 отмена
+    bool ask_touch(double x, double y);               // true — нажатие съедено диалогом
+    const std::string &ask_prompt() const { return ask_prompt_; }
+    const std::string &ask_label() const { return ask_label_; }
+    // геометрия диалога (сценические координаты, Y идёт вверх)
+    static constexpr double kAskPromptY = 215.0;
+    static constexpr double kAskButtonW = 260.0;
+    static constexpr double kAskButtonH = 84.0;
+    static constexpr double kAskButtonY = -150.0;
+    static constexpr double kAskButtonDx = 155.0;
 
     // --- попадания по спрайтам ---
     bool sprite_hit_pixel(Sprite &s, double x, double y);        // с учётом альфы картинки
@@ -325,6 +357,17 @@ private:
     };
     std::deque<ReleaseEvent> releases_;
 
+    // камера: handle объекта, на который она смотрит, и смещение фокуса
+    int camera_handle_ = 0;
+    double camera_fx_ = 0.0;
+    double camera_fy_ = 0.0;
+
+    // диалог E.ask
+    bool ask_active_ = false;
+    int ask_result_ = 0;
+    std::string ask_prompt_;
+    std::string ask_label_;
+
     std::function<double(const std::string &, double)> measurer_;
     std::string focus_;
     std::deque<std::pair<std::string, std::string>> text_commits_;
@@ -353,7 +396,7 @@ private:
 // Утилиты, общие для движка и рендера.
 double sprite_pixel_width(const Sprite &s);
 double sprite_pixel_height(const Sprite &s);
-bool sprite_hit(const Sprite &s, double px, double py);
+bool sprite_hit(const Sprite &s, double px, double py, double sx, double sy);
 size_t utf8_length(const std::string &text);
 std::vector<unsigned> utf8_decode(const std::string &text);
 std::string utf8_encode(unsigned cp);

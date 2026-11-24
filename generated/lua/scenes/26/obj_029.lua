@@ -11,7 +11,7 @@ return {
       trigger = "start",
       body = function(o)
         E.set_pos(o, 400, 230)
-        E.camera_off()
+        E.camera_off(o)
       end,
     },
     { -- скрипт 2: touch_down

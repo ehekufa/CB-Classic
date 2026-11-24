@@ -240,8 +240,11 @@ void SdlView::draw_sprite(Engine &engine, const Sprite &sprite)
     if (w < 1.0 || h < 1.0) {
         return;
     }
-    const double cx = sprite.x * scale_ + width_ / 2.0;
-    const double cy = height_ / 2.0 - sprite.y * scale_;
+    double vx = sprite.x;
+    double vy = sprite.y;
+    engine.view_xy(sprite, &vx, &vy);      // камера сцены
+    const double cx = vx * scale_ + width_ / 2.0;
+    const double cy = height_ / 2.0 - vy * scale_;
     SDL_Rect dst;
     dst.x = static_cast<int>(std::lround(cx - w / 2.0));
     dst.y = static_cast<int>(std::lround(cy - h / 2.0));
@@ -301,25 +304,30 @@ void SdlView::draw_particles(Engine &engine)
 
 void SdlView::draw_ask_panel(Engine &engine)
 {
-    for (auto &entry : engine.texts()) {
-        TextField &field = entry.second;
-        if (!field.visible || entry.first.rfind("Вопрос:", 0) != 0) {
-            continue;
-        }
-        const size_t first = entry.first.find(':') + 1;
-        const size_t last = entry.first.rfind(':');
-        std::string prompt =
-            last > first ? entry.first.substr(first, last - first) : std::string();
-        const double sw = static_cast<double>(engine.stage_width());
-        const double sh = static_cast<double>(engine.stage_height());
-        fill_rect(-sw / 2.0, sh / 2.0, sw, sh, 0x0000008cu);
-        fill_rect(-380.0, 125.0, 760.0, 250.0, 0x1b3c5affu);
-        fill_rect(-380.0, 125.0, 760.0, 3.0, 0x3a90d0ffu);
-        fill_rect(-380.0, 10.0, 760.0, 2.0, 0x3a90d0ffu);
-        if (!prompt.empty()) {
-            draw_text(prompt, 0.0, 62.0, 62.0, 0xffffffffu, "center");
-        }
+    if (!engine.ask_active()) {
         return;
+    }
+    const double sw = static_cast<double>(engine.stage_width());
+    const double sh = static_cast<double>(engine.stage_height());
+    fill_rect(-sw / 2.0, sh / 2.0, sw, sh, 0x00000044u);
+
+    const std::string &prompt = engine.ask_prompt();
+    if (!prompt.empty()) {
+        draw_text(prompt, 2.0, Engine::kAskPromptY - 2.0, 110.0, 0x000000bbu, "center");
+        draw_text(prompt, 0.0, Engine::kAskPromptY, 110.0, 0xffffffffu, "center");
+    }
+
+    const double bw = Engine::kAskButtonW;
+    const double bh = Engine::kAskButtonH;
+    const double by = Engine::kAskButtonY;
+    const double dx = Engine::kAskButtonDx;
+    for (int i = 0; i < 2; ++i) {
+        double cx = i == 0 ? -dx : dx;
+        const char *label = i == 0 ? "Отмена" : "Принять";
+        fill_rect(cx - bw / 2.0, by + bh / 2.0, bw, bh, 0x1b1b1be6u);
+        fill_rect(cx - bw / 2.0, by + bh / 2.0, bw, 2.0, 0x4a4a4affu);
+        fill_rect(cx - bw / 2.0, by - bh / 2.0, bw, 2.0, 0x4a4a4affu);
+        draw_text(label, cx, by, 72.0, 0xffffffffu, "center");
     }
 }
 

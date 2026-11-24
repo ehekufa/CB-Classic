@@ -119,13 +119,17 @@ else
   printf '   OK\n'
 fi
 
-step "изумруды: в игре счётчик висит поверх интерфейса"
-$BIN --frames 8 --scene 26 --set-var "93=12@3" --verbose >/tmp/cb_em2.log 2>&1
-check $?
-grep -q 'hud:изумруды pos=0,' /tmp/cb_em2.log
-check $?
-grep -q 'hud:изумруды .*значение="12"' /tmp/cb_em2.log
-check $?
+step "изумруды: вне меню счётчика не видно (число — только в меню)"
+for scene in 26 31 95; do
+  $BIN --frames 8 --scene $scene --set-var "93=12@3" --verbose >/tmp/cb_em2.log 2>&1
+  check $?
+  if grep -q 'hud:изумруды' /tmp/cb_em2.log; then
+    printf '   ПРОВАЛ: на сцене %s всё ещё висит счётчик изумрудов\n' "$scene"
+    FAILED=$((FAILED + 1))
+  else
+    printf '   OK сцена %s — счётчика нет\n' "$scene"
+  fi
+done
 
 step "скины: переменная «Скин» меняет картинку игрока"
 $BIN --frames 6 --scene 26 --profile "12=2" --out /tmp/cb_frames_skin --verbose \
@@ -371,7 +375,7 @@ check $?
 $BIN --frames 8 --scene 95 --out /tmp/cb_frames_ask >/dev/null 2>&1
 check $?
 # поле модального вопроса — тоже чёрное (точка левее каретки по центру)
-python3 tests/check_shot.py field /tmp/cb_frames_ask/frame_0007.png -250 -55
+python3 tests/check_shot.py field /tmp/cb_frames_ask/frame_0007.png -220 20
 check $?
 
 step "ввод: текст без Enter подтверждается кнопкой «Ввести»"
@@ -383,11 +387,30 @@ check $?
 grep -q 'var:24 .*значение="145"' /tmp/cb_promo_noenter.log
 check $?
 
-step "ввод: модальный вопрос закрывается нажатием, но не пустым"
-$BIN --frames 26 --scene 95 --script tests/scripts/ask_confirm.txt --verbose \
+step "ввод: диалог спрашивает по-настоящему — «Принять» отвечает, «Отмена» нет"
+$BIN --frames 40 --scene 95 --script tests/scripts/ask_confirm.txt --verbose \
      >/tmp/cb_ask_confirm.log 2>&1
 check $?
-grep -q "ввод подтверждён: Вопрос:Выберите игрока (1/3):1 = \[1\]" /tmp/cb_ask_confirm.log
+grep -q 'ответ: Выберите игрока (1/3) = \[1\]' /tmp/cb_ask_confirm.log
+check $?
+$BIN --frames 40 --scene 95 --script tests/scripts/ask_cancel.txt --verbose \
+     >/tmp/cb_ask_cancel.log 2>&1
+check $?
+grep -q 'вопрос отменён: Выберите игрока (1/3)' /tmp/cb_ask_cancel.log
+check $?
+if grep -q 'ответ: Выберите игрока (1/3)' /tmp/cb_ask_cancel.log; then
+  printf '   ПРОВАЛ: «Отмена» всё равно записала ответ\n'
+  FAILED=$((FAILED + 1))
+else
+  printf '   OK «Отмена» ничего не записывает\n'
+fi
+
+step "кубы: стрелки вверх/вниз листают список, сами остаются на месте"
+$BIN --frames 30 --scene 27 --script tests/scripts/cube_scroll.txt \
+     --out /tmp/cb_frames_cubes >/tmp/cb_cubes.log 2>&1
+check $?
+python3 tests/check_shot.py scrolled /tmp/cb_frames_cubes/frame_0002.png \
+     /tmp/cb_frames_cubes/frame_0020.png
 check $?
 
 step "движок: кадры — валидные PNG нужного размера"

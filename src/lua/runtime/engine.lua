@@ -417,8 +417,22 @@ function E.open_link(url) cb.log("openLink: " .. str(url)) end
 function E.exit_game() cb.exit() end
 function E.set_bg_color(hex) cb.bg_color(str(hex)) end
 function E.adaptive_off() end
-function E.camera_off() end
-function E.camera_focus(x, y) cb.log("focusCamera: " .. str(x) .. "," .. str(y)) end
+-- Камера (блоки focusCameraToObject / removeObjectCamera).
+-- focusCameraToObject делает объект точкой, на которую смотрит камера: всё, что
+-- не помечено camera_off, рисуется со сдвигом. На этом в оригинале построена
+-- прокрутка списка кубов (стрелки вверх/вниз двигают объект «Камера»).
+-- camera_off помечает объект как «неподвижный»: кнопки «Назад», стрелки и фон
+-- интерфейса остаются на месте, пока список едет.
+function E.camera_off(o)
+  if o ~= nil then
+    cb.camera_off(o)
+  end
+end
+function E.camera_focus(o, x, y)
+  if o ~= nil then
+    cb.camera_focus(o, num(x), num(y))
+  end
+end
 function E.set_gravity(x, y) cb.log("gravity: " .. str(x) .. "," .. str(y)) end
 function E.add_body(o, kind) cb.log("addBody(" .. str(kind) .. ")") end
 function E.set_sensor(o, mode) cb.log("isSensor(" .. str(mode) .. ")") end
@@ -592,25 +606,39 @@ end
 
 -- Блок AskBrick: показывает поле ввода и ждёт ответа, не блокируя остальные
 -- скрипты (ждём через E.frame()).
+-- Блок AskBrick: настоящий диалог, как в Pocket Code — вопрос крупным текстом,
+-- поле ввода и кнопки «Отмена»/«Принять» (их рисует и обрабатывает движок).
+-- Скрипт ждёт ответа, но кадры продолжают идти.
 local ask_counter = 0
+local ASK_FIELD_W = 520
+local ASK_FIELD_H = 96
+local ASK_FIELD_Y = 20
 function E.ask(o, prompt, callback)
   ask_counter = ask_counter + 1
   local label = "Вопрос:" .. tostring(prompt) .. ":" .. tostring(ask_counter)
-  -- поле стоит ниже заголовка: вопрос рисует renderer (модальная панель),
-  -- иначе текст ложился прямо на интерфейс сцены
-  cb.text_create(label, 0, -55, 620, 80, "#ffffff", "center", 1)
-  cb.text_set(label, "size", 52)
+  cb.text_create(label, 0, ASK_FIELD_Y, ASK_FIELD_W, ASK_FIELD_H, "#ffffff", "center", 1)
+  cb.text_set(label, "size", 64)
   cb.text_set(label, "placeholder", "ответ")
   cb.text_set(label, "value", "")
-  E.text_handlers[label] = function(value)
-    cb.text_delete(label)
-    if callback then
-      callback(value)
-    end
-  end
+  cb.ask_open(str(prompt), label, ASK_FIELD_W, ASK_FIELD_H)
   cb.text_focus(label)
-  while E.text_pending(label) do
+  local result = 0
+  while result == 0 do
     E.frame()
+    result = cb.ask_state()
+  end
+  local value = cb.text_value(label) or ""
+  cb.ask_close()
+  cb.text_delete(label)
+  E.text_vars[label] = nil
+  E.text_handlers[label] = nil
+  if result > 0 then
+    cb.log("ответ: " .. str(prompt) .. " = [" .. str(value) .. "]")
+    if callback then
+      callback(value)        -- «Принять»: ответ уходит в переменную
+    end
+  else
+    cb.log("вопрос отменён: " .. str(prompt))
   end
 end
 function E.text_delete(label) cb.text_delete(str(label)) end
