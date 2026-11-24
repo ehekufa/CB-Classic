@@ -444,7 +444,9 @@ void SdlView::draw_scene(Engine &engine)
             fill_rect(left, field.y - h / 2.0 + 2.0, w, 2.0, frame);
             fill_rect(left, top, 2.0, h, frame);
             fill_rect(left + w - 2.0, top, 2.0, h, frame);
-            color = 0xff000000u;      // на белом фоне текст только чёрный
+            // цвет здесь 0xRRGGBBAA: чёрный — это 0x000000ff (0xff000000
+            // давал прозрачность, и набранное было не видно)
+            color = 0x000000ffu;      // на белом фоне текст только чёрный
         }
         if (text.empty() && !is_focused) {
             continue;
@@ -465,7 +467,7 @@ void SdlView::draw_scene(Engine &engine)
             }
             const double caret_h = field.size * 0.38;
             fill_rect(sx + total + 2.0, field.y + caret_h / 2.0, 2.0, caret_h,
-                      (color & 0x00ffffffu) | 0xff000000u);
+                      0x000000ffu);
         }
     }
     draw_video(engine);

@@ -425,6 +425,35 @@ check $?
 python3 tests/check_shot.py field /tmp/cb_frames_reg/frame_0219.png -150 -40
 check $?
 
+step "регистрация: ник и пароль видны чёрным на белом и сбрасываются при перезаходе"
+rm -f /tmp/cb_acc.tsv
+CB_STORE=/tmp/cb_acc.tsv $BIN --frames 90 --scene 77 --script tests/scripts/type_account.txt \
+    --out /tmp/cb_frames_typing --verbose >/tmp/cb_typing.log 2>&1
+check $?
+grep -q "ввод подтверждён: Имя = \[admin\]" /tmp/cb_typing.log
+check $?
+grep -q "ввод подтверждён: Пароль = \[Kenta2026\]" /tmp/cb_typing.log
+check $?
+# текст в полях чёрный (раньше был прозрачным — набранное не было видно)
+python3 tests/check_shot.py darktext /tmp/cb_frames_typing/frame_0089.png 0 50
+check $?
+python3 tests/check_shot.py darktext /tmp/cb_frames_typing/frame_0089.png 0 -40
+check $?
+# вход нигде не сохраняется: в локальном сторе нет строк account:
+if [ -f /tmp/cb_acc.tsv ]; then
+  ! grep -q "account:" /tmp/cb_acc.tsv
+  check $?
+fi
+# заново открыли «Регистрацию» — поля пустые (только серая подсказка)
+printf 'account:61\tadmin\naccount:62\tKenta2026\n' >/tmp/cb_acc_old.tsv
+CB_STORE=/tmp/cb_acc_old.tsv $BIN --frames 110 --scene 77 --script tests/scripts/account_reenter.txt \
+    --out /tmp/cb_frames_reenter >/tmp/cb_reenter.log 2>&1
+check $?
+python3 tests/check_shot.py emptyfield /tmp/cb_frames_reenter/frame_0109.png 0 50
+check $?
+python3 tests/check_shot.py emptyfield /tmp/cb_frames_reenter/frame_0109.png 0 -40
+check $?
+
 step "ивент: админ запускает ивент 2 — он появляется на экране"
 $BIN --frames 100 --scene 95 --profile "61=admin,62=Kenta2026" \
      --script tests/scripts/event_start.txt --verbose >/tmp/cb_event.log 2>&1

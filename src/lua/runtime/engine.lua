@@ -125,9 +125,17 @@ function E.set_gv(id, value)
     return
   end
   gvars[id] = value
-  if (id == E.account.login_var or id == E.account.password_var)
-      and not E.account.frozen[id] then
-    cb.store_set("account:" .. tostring(id), str(value))   -- вход запоминается
+  -- Вход нигде не сохраняется: и ник, и пароль живут только до конца сессии.
+end
+
+-- Экран «Регистрация» каждый раз открывается с пустыми полями (просьба автора:
+-- «при каждом перезаходе ник и пароль сбрасываются»). Значения из --profile —
+-- это тесты, их не трогаем.
+function E.clear_account()
+  for _, var in ipairs({ E.account.login_var, E.account.password_var }) do
+    if not E.account.frozen[var] then
+      gvars[var] = ""
+    end
   end
 end
 function E.add_gv(id, delta) gvars[id] = num(gvars[id]) + num(delta) end
@@ -475,6 +483,9 @@ function E.run_scene(id)
     E.account.announced = true
     E.toast("Аккаунт админа: " .. E.login_entered())
     E.admin_signin()          -- тихо входим в Firebase, чтобы правила пустили
+  end
+  if id == E.account.scene then
+    E.clear_account()
   end
   pending_scene = id
   cb.log("runScene(" .. tostring(pending_scene) .. ") <- " ..

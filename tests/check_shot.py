@@ -6,6 +6,8 @@
 
     python3 tests/check_shot.py toast  frame.png
     python3 tests/check_shot.py field  frame.png 400 -100
+    python3 tests/check_shot.py darktext frame.png 0 50
+    python3 tests/check_shot.py emptyfield frame.png 0 50
     python3 tests/check_shot.py scrolled before.png after.png
 """
 
@@ -128,6 +130,39 @@ def check_field(path, x, y):
     return None
 
 
+def check_dark_text(path, x, y, radius=170, limit=90):
+    """В поле ввода есть ЧЁРНЫЙ текст (ник/пароль видны) — ищем тёмные пиксели
+    в полосе вокруг точки. Подсказка-плейсхолдер — серая (#777777), она в
+    порог не попадает, поэтому проверка отличает набранное от подсказки."""
+    width, height, rows = read_png(path)
+    px = int(round(x + width / 2.0))
+    py = int(round(height / 2.0 - y))
+    if not (0 <= px < width and 0 <= py < height):
+        return f"точка {x},{y} вне кадра"
+    dark = 0
+    for yy in range(max(0, py - 30), min(height, py + 30)):
+        for xx in range(max(0, px - radius), min(width, px + radius)):
+            r, g, b, a = pixel(rows, xx, yy)
+            if a > 200 and r < limit and g < limit and b < limit:
+                dark += 1
+    if dark < 30:
+        return f"в поле у {x},{y} нет чёрного текста: тёмных пикселей {dark}"
+    return None
+
+
+def check_no_dark_text(path, x, y, radius=170, limit=90):
+    """Обратная проверка: поле пустое (только серая подсказка)."""
+    width, height, rows = read_png(path)
+    px = int(round(x + width / 2.0))
+    py = int(round(height / 2.0 - y))
+    for yy in range(max(0, py - 30), min(height, py + 30)):
+        for xx in range(max(0, px - radius), min(width, px + radius)):
+            r, g, b, a = pixel(rows, xx, yy)
+            if a > 200 and r < limit and g < limit and b < limit:
+                return f"поле у {x},{y} не пустое: чёрный пиксель в {xx},{yy}"
+    return None
+
+
 def check_scrolled(before, after):
     """Список кубов листается стрелками: содержимое съехало вниз на шаг 80,
     а сами стрелки и «Назад» стоят на месте."""
@@ -166,6 +201,10 @@ def main(argv):
         problem = check_toast(path)
     elif kind == "field" and len(argv) >= 5:
         problem = check_field(path, float(argv[3]), float(argv[4]))
+    elif kind == "darktext" and len(argv) >= 5:
+        problem = check_dark_text(path, float(argv[3]), float(argv[4]))
+    elif kind == "emptyfield" and len(argv) >= 5:
+        problem = check_no_dark_text(path, float(argv[3]), float(argv[4]))
     elif kind == "scrolled" and len(argv) >= 4:
         problem = check_scrolled(path, argv[3])
     else:

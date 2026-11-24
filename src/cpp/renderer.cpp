@@ -447,7 +447,9 @@ void Renderer::draw_scene(Engine &engine)
             fill_rect(left, field.y - h / 2.0 + 2.0, w, 2.0, frame);   // низ
             fill_rect(left, top, 2.0, h, frame);                       // лево
             fill_rect(left + w - 2.0, top, 2.0, h, frame);             // право
-            color = 0xff000000u;
+            // 0xRRGGBBAA: чёрный непрозрачный — 0x000000ff (0xff000000 —
+            // это прозрачный, из-за него набранный ник/пароль не рисовался)
+            color = 0x000000ffu;
         }
         if (text.empty() && !is_focused) {
             continue;
@@ -468,7 +470,7 @@ void Renderer::draw_scene(Engine &engine)
             }
             double caret_h = field.size * 0.38;
             fill_rect(sx + total + 2.0, field.y - caret_h / 2.0, 2.0, caret_h,
-                      (color & 0x00ffffffu) | 0xff000000u);
+                      0x000000ffu);
         }
     }
     draw_video(engine);

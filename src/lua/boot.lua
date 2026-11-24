@@ -260,18 +260,13 @@ function M.start(opts)
     return scene_index[math.floor(tonumber(id) or -1)] ~= nil
   end
 
-  -- вход, набранный в прошлый раз, подставляется в поля «Регистрация»
-  -- (но значения из --profile важнее: ими тесты задают аккаунт)
-  local in_profile = {}
-  if opts.profile then
-    for id in pairs(opts.profile) do
-      in_profile[tonumber(id)] = true
-    end
-  end
-  for _, id in ipairs({ E.account.login_var, E.account.password_var }) do
-    local stored = cb.store_get("account:" .. tostring(id))
-    if not in_profile[id] and stored ~= nil and stored ~= "" then
-      E.set_gv(id, stored)
+  -- Ник и пароль НЕ подставляются из прошлого запуска: автор попросил, чтобы
+  -- при каждом перезаходе они сбрасывались (см. E.clear_account).
+
+  -- «Регистрация» (сцена 77) всегда открывается с пустыми полями
+  function fresh_registration(scene_id)
+    if E.clear_account and scene_id == E.account.scene then
+      E.clear_account()
     end
   end
 
@@ -279,6 +274,7 @@ function M.start(opts)
   if not start_scene then
     start_scene = project.scenes[1].id
   end
+  fresh_registration(start_scene)
   if not cb.scene_run(start_scene) then
     error("не удалось открыть сцену " .. tostring(start_scene))
   end
@@ -506,6 +502,7 @@ function M.frame(dt)
 
   local pending = E.take_pending_scene and E.take_pending_scene()
   if pending and pending ~= active_scene then
+    fresh_registration(pending)
     if cb.scene_run(pending) then
       activate(pending)
     end
@@ -617,6 +614,7 @@ function M.back()
 end
 
 function M.run_scene(id)
+  fresh_registration(id)
   if cb.scene_run(id) then
     activate(id)
   end

@@ -1,0 +1,8 @@
+# набор ника и пароля на экране «Регистрация» (сцена 77)
+f30: press 0 45
+f31: release
+f40: type admin
+f50: press 0 -40
+f51: release
+f60: type Kenta2026
+f65: key enter
