@@ -27,6 +27,16 @@ step "сборка"
 make -s -j4
 check $?
 
+step "иконка приложения: из assets/icon.png собраны все размеры и включены в манифест"
+python3 tools/make_icon.py --check
+check $?
+grep -q 'android:icon="@mipmap/ic_launcher"' android/app/src/main/AndroidManifest.xml
+check $?
+grep -q 'android:roundIcon="@mipmap/ic_launcher_round"' android/app/src/main/AndroidManifest.xml
+check $?
+test -f android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+check $?
+
 step "C: PNG-декодер на всех ассетах + round-trip"
 cc -O2 -std=c11 -Isrc/c tests/c/test_png.c src/c/png.c src/c/inflate.c -o build/test_png
 ./build/test_png assets
