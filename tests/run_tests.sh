@@ -297,6 +297,32 @@ python3 tests/fb_check_write.py /tmp/cb_fb_dump.json "world/ScreenWidth" 1500
 check $?
 kill "$FB_PID" 2>/dev/null || true
 
+step "сеть: админ входит в Firebase, и строгие правила пускают запись ивента"
+FB_PORT2=$((8900 + $$ % 90))   # свой порт на каждый прогон: не липнем к занятому
+rm -f /tmp/cb_fb_admin_dump.json /tmp/cb_fb_admin_auth.json
+python3 tests/firebase_mock.py --port "$FB_PORT2" --require-auth \
+    --dump /tmp/cb_fb_admin_dump.json --dump-auth /tmp/cb_fb_admin_auth.json \
+    >/tmp/cb_fb_admin_mock.log 2>&1 &
+FB_PID2=$!
+sleep 1
+CB_FB_API_KEY=test-key CB_AUTH_URL="http://127.0.0.1:$FB_PORT2/v1/accounts:signInWithPassword" \
+  $BIN --frames 150 --fps 30 --realtime --scene 95 --profile "61=admin,62=Kenta2026" \
+       --script tests/scripts/event_start.txt --fb-url "http://127.0.0.1:$FB_PORT2/" \
+       --verbose >/tmp/cb_fb_admin.log 2>&1
+check $?
+grep -q "firebase: вход админа выполнен" /tmp/cb_fb_admin.log
+check $?
+# токен действительно ушёл в базу, а запись ивента прошла при --require-auth
+python3 - <<'PYAUTH'
+import json, sys
+seen = json.load(open("/tmp/cb_fb_admin_auth.json"))
+sys.exit(0 if "test-id-token" in seen else 1)
+PYAUTH
+check $?
+python3 tests/fb_check_write.py /tmp/cb_fb_admin_dump.json "world/Ивент" 2
+check $?
+kill "$FB_PID2" 2>/dev/null || true
+
 step "интро боя: в начале битвы идёт видео нужного кубика"
 $BIN --scene 26 --frames 100 --fps 30 --size 1500x720 --profile "3=100,4=6,12=1,47=4" \
      --seed 11 --verbose >/tmp/cb_intro_1.log 2>&1

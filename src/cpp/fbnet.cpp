@@ -608,11 +608,131 @@ bool FbNet::pop(FbUpdate *out)
     return true;
 }
 
+void FbNet::set_auth_token(const std::string &token)
+{
+    std::lock_guard<std::mutex> lock(mu_);
+    token_ = token;
+    auth_state_ = token.empty() ? 0 : 2;
+}
+
+void FbNet::clear_auth_token()
+{
+    std::lock_guard<std::mutex> lock(mu_);
+    token_.clear();
+    auth_state_ = 0;
+}
+
+bool FbNet::have_token() const
+{
+    std::lock_guard<std::mutex> lock(mu_);
+    return !token_.empty();
+}
+
+int FbNet::auth_state() const
+{
+    std::lock_guard<std::mutex> lock(mu_);
+    return auth_state_;
+}
+
+std::string FbNet::auth_error() const
+{
+    std::lock_guard<std::mutex> lock(mu_);
+    return auth_error_;
+}
+
+void FbNet::sign_in(const std::string &api_key, const std::string &email,
+                    const std::string &password)
+{
+    {
+        std::lock_guard<std::mutex> lock(mu_);
+        auth_key_ = api_key;
+        auth_email_ = email;
+        auth_password_ = password;
+        auth_pending_ = true;
+        auth_state_ = 1;
+        auth_error_.clear();
+    }
+    cv_.notify_all();
+}
+
+// Адрес базы с токеном: база требует ?auth=<idToken>, иначе правило с
+// «auth != null» не пустит запись.
+// Вызывается только с зажатым mu_ (из send_puts/fetch_node) — иначе мьютекс
+// берётся дважды и сетевой поток встаёт намертво.
+std::string FbNet::with_auth(const std::string &url) const
+{
+    if (token_.empty()) {
+        return url;
+    }
+    return url + (url.find('?') == std::string::npos ? "?" : "&") + "auth=" + token_;
+}
+
+// Достать строковое поле из JSON-ответа: {"idToken":"...","localId":"..."}
+static std::string json_string_field(const std::string &json, const std::string &name)
+{
+    const std::string key = "\"" + name + "\":\"";
+    size_t at = json.find(key);
+    if (at == std::string::npos) {
+        // бывает с пробелом после двоеточия
+        const std::string spaced = "\"" + name + "\": \"";
+        at = json.find(spaced);
+        if (at == std::string::npos) {
+            return "";
+        }
+        at += spaced.size();
+    } else {
+        at += key.size();
+    }
+    std::string out;
+    for (size_t i = at; i < json.size(); ++i) {
+        if (json[i] == '\\' && i + 1 < json.size()) {
+            out.push_back(json[i + 1]);
+            ++i;
+            continue;
+        }
+        if (json[i] == '"') {
+            break;
+        }
+        out.push_back(json[i]);
+    }
+    return out;
+}
+
+void FbNet::do_sign_in(const std::string &api_key, const std::string &email,
+                       const std::string &password)
+{
+    // В тестах адрес подменяется (эмулятор базы), в игре — настоящий Firebase.
+    const char *override = std::getenv("CB_AUTH_URL");
+    std::string url = (override && *override)
+        ? std::string(override)
+        : "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword";
+    url += "?key=" + api_key;
+    std::string body = "{\"email\":\"" + email + "\",\"password\":\"" + password +
+                       "\",\"returnSecureToken\":true}";
+    std::string response;
+    const bool ok = request("POST", url, body, &response);
+    const std::string token = ok ? json_string_field(response, "idToken") : std::string();
+    std::lock_guard<std::mutex> lock(mu_);
+    if (!token.empty()) {
+        token_ = token;
+        auth_state_ = 2;
+        auth_error_.clear();
+        last_error_.clear();
+        return;
+    }
+    auth_state_ = 3;
+    const std::string message = json_string_field(response, "message");
+    auth_error_ = message.empty() ? (last_error_.empty() ? "нет ответа" : last_error_)
+                                  : message;
+}
+
 void FbNet::loop()
 {
     while (true) {
         std::map<std::string, std::string> batch;
         std::vector<std::string> due;
+        bool auth_pending = false;
+        std::string key, email, password;
         {
             std::unique_lock<std::mutex> lock(mu_);
             cv_.wait_for(lock, std::chrono::milliseconds(kTickMs), [this] { return stop_; });
@@ -626,6 +746,13 @@ void FbNet::loop()
                 batch.swap(puts_);
                 next_send_ = now + kSendMs;
             }
+            if (auth_pending_) {
+                auth_pending = true;
+                auth_pending_ = false;
+                key = auth_key_;
+                email = auth_email_;
+                password = auth_password_;
+            }
             for (const auto &node : watches_) {
                 long long &when = watch_due_[node];
                 if (when <= now) {
@@ -633,6 +760,9 @@ void FbNet::loop()
                     due.push_back(node);
                 }
             }
+        }
+        if (auth_pending) {
+            do_sign_in(key, email, password);
         }
         if (!batch.empty()) {
             send_puts(batch);
@@ -682,7 +812,7 @@ void FbNet::send_puts(std::map<std::string, std::string> &batch)
         std::string url;
         {
             std::lock_guard<std::mutex> lock(mu_);
-            url = base_ + encode_path(parent) + ".json";
+            url = with_auth(base_ + encode_path(parent) + ".json");
             ++requests_;
         }
         if (!request(method, url, body, &response)) {
@@ -704,7 +834,7 @@ void FbNet::fetch_node(const std::string &node)
     std::string url;
     {
         std::lock_guard<std::mutex> lock(mu_);
-        url = base_ + encode_path(node) + ".json";
+        url = with_auth(base_ + encode_path(node) + ".json");
         ++requests_;
     }
     std::string response;

@@ -78,15 +78,28 @@ E.account = {
   -- пара автора из оригинала: пусть продолжает работать
   legacy = { { "1111", "1111" }, { "Dimasi4ek229", "5252" } },
   frozen = {},            -- [id] = true: значение пришло из --profile, не запоминаем
+  announced = false,      -- игрок уже вошёл в меню с админским аккаунтом
 }
 
+-- клавиатура телефона любит приписать пробел и сделать первую букву заглавной,
+-- поэтому логин сравниваем без пробелов и регистра, а пароль — без пробелов
+local function trim(text)
+  return (str(text):gsub("^%s+", ""):gsub("%s+$", ""))
+end
+
+function E.login_entered()
+  return trim(gvars[E.account.login_var])
+end
+
 function E.is_admin()
-  local login, password = str(gvars[E.account.login_var]), str(gvars[E.account.password_var])
-  if login == E.account.admin.login and password == E.account.admin.password then
+  local login = trim(gvars[E.account.login_var]):lower()
+  local password = trim(gvars[E.account.password_var])
+  local admin = E.account.admin
+  if login == admin.login:lower() and password:lower() == admin.password:lower() then
     return true
   end
   for _, pair in ipairs(E.account.legacy) do
-    if login == pair[1] and password == pair[2] then
+    if login == pair[1]:lower() and password:lower() == pair[2]:lower() then
       return true
     end
   end
@@ -96,8 +109,18 @@ end
 function E.set_gv(id, value)
   -- админский режим (71) включается только с аккаунтом админа: кнопка
   -- «Админ панель» на экране «Онлайн» раньше открывала его любому
+  if id == 71 and E.truthy(value) and E.is_admin() then
+    E.admin_signin()        -- админ включил панель: входим в базу, чтобы правила пустили
+  end
   if id == 71 and E.truthy(value) and not E.is_admin() then
-    E.toast("Нужен аккаунт админа")
+    -- показываем, что именно игра прочитала в поле «Имя»: так видно, если
+    -- логин набран с опечаткой или в него попал пробел
+    local entered = E.login_entered()
+    if entered == "" then
+      E.toast("Нужен аккаунт админа: войдите на экране «Регистрация»")
+    else
+      E.toast("Нужен аккаунт админа (вход: «" .. entered .. "»)")
+    end
     gvars[71] = 0
     return
   end
@@ -448,6 +471,11 @@ function E.run_scene(id)
   if id == 99 and E.has_scene and not E.has_scene(99) then
     id = 95
   end
+  if id == 1 and E.is_admin() and not E.account.announced then
+    E.account.announced = true
+    E.toast("Аккаунт админа: " .. E.login_entered())
+    E.admin_signin()          -- тихо входим в Firebase, чтобы правила пустили
+  end
   pending_scene = id
   cb.log("runScene(" .. tostring(pending_scene) .. ") <- " ..
     string.gsub(debug.traceback("", 2), "\n", " | "))
@@ -560,6 +588,78 @@ end
 
 function E.video_playing()
   return video_current ~= nil
+end
+
+-- Вход в Firebase по email/паролю (необязательный шаг). Пока Web API key не
+-- задан, игра работает как раньше: пишет в базу без входа, и правила должны
+-- пускать запись без auth. Как только ключ задан и админ вошёл, каждый запрос
+-- уходит с ?auth=<idToken>, и правила могут требовать auth для админских узлов.
+-- Web API key проекта circlebattle1 (не секрет: он публичный, лежит во всех
+-- веб-приложениях Firebase; доступ ограничивают правилами базы).
+E.FB_API_KEY = "AIzaSyAfOrOfz6om8ploshrkGIwDmlG7gF1-1-Y"
+-- ключ можно подставить и переменной окружения (так делают тесты)
+if cb.env then
+  local env_key = cb.env("CB_FB_API_KEY")
+  if env_key and env_key ~= "" then
+    E.FB_API_KEY = env_key
+  end
+end
+E.account.admin.email = "admin@cbclassic.local"
+local auth_state = 0       -- 0 не входили, 1 ждём, 2 вошли, 3 ошибка
+
+function E.admin_signin()
+  -- Готовый токен (например, секрет базы) — входит без email/пароля.
+  -- Задаётся переменной окружения CB_FB_DB_SECRET, в репозиторий не попадает:
+  -- это настоящий секрет, из APK его достанет любой.
+  if cb.env and cb.fb_set_token then
+    local secret = cb.env("CB_FB_DB_SECRET")
+    if secret and secret ~= "" and not E.db_secret_used then
+      E.db_secret_used = true
+      cb.fb_set_token(secret)
+      return true
+    end
+  end
+  if not cb.fb_auth then
+    cb.log("firebase: вход недоступен (нет сети в сборке)")
+    return false
+  end
+  if E.FB_API_KEY == "" then
+    cb.log("firebase: вход не настроен — нет Web API key")
+    return false
+  end
+  if auth_state == 1 or auth_state == 2 then
+    return true
+  end
+  cb.fb_auth(E.FB_API_KEY, E.account.admin.email, trim(gvars[E.account.password_var]))
+  auth_state = 1
+  return true
+end
+
+function E.auth_poll()
+  if not cb.fb_auth_state then
+    return
+  end
+  if auth_state == 1 then
+    local state = cb.fb_auth_state()
+    if state == 2 then
+      auth_state = 2
+      E.auth_at = cb.time and cb.time() or 0
+      cb.log("firebase: вход админа выполнен")
+      E.toast("База: вход админа выполнен")
+    elseif state == 3 then
+      auth_state = 3
+      cb.log("firebase: вход не удался: " .. tostring(cb.fb_auth_error and cb.fb_auth_error() or ""))
+    end
+    return
+  end
+  -- токен Firebase живёт час: за пять минут до конца входим заново, иначе
+  -- посреди игры запись начнёт отваливаться с «Permission denied»
+  if auth_state == 2 and E.auth_at and cb.time and E.is_admin() then
+    if cb.time() - E.auth_at > 55 * 60 then
+      auth_state = 0
+      E.admin_signin()
+    end
+  end
 end
 
 -- «Firebase» эмулируется локальным хранилищем (см. engine.cpp: fb_*).

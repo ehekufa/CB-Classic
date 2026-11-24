@@ -945,6 +945,36 @@ void Engine::fb_set(const std::string &key, const std::string &value)
     store_flush();
 }
 
+void Engine::fb_auth(const std::string &api_key, const std::string &email,
+                     const std::string &password)
+{
+    if (!net_.enabled()) {
+        log("сеть: вход в firebase не выполнен — сеть выключена");
+        return;
+    }
+    net_.sign_in(api_key, email, password);
+    log("firebase: вход " + email);
+}
+
+void Engine::fb_set_token(const std::string &token)
+{
+    if (!net_.enabled() || token.empty()) {
+        return;
+    }
+    net_.set_auth_token(token);
+    log("firebase: запросы пойдут с готовым токеном");
+}
+
+int Engine::fb_auth_state() const
+{
+    return net_.auth_state();
+}
+
+std::string Engine::fb_auth_error() const
+{
+    return net_.auth_error();
+}
+
 bool Engine::fb_get(const std::string &key, std::string *out) const
 {
     // Первое чтение ключа подписывает нас на его узел: дальше сервер сам

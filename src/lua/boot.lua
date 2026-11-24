@@ -497,6 +497,9 @@ function M.frame(dt)
   poll_presses()
   poll_releases()
   poll_text_commits()
+  if E.auth_poll then
+    E.auth_poll()          -- ответ на вход в Firebase приходит из сетевого потока
+  end
   emeralds.check_frame(active_scene)
   abilities.check_frame(active_scene)
   style_promo_field(active_scene)

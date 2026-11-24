@@ -278,6 +278,12 @@ public:
     // --- «Firebase» и сохранения эмулируются локально ---
     void fb_set(const std::string &key, const std::string &value);
     bool fb_get(const std::string &key, std::string *out) const;
+    // Вход в Firebase по email/паролю: после него запросы уходят с ?auth=...
+    void fb_auth(const std::string &api_key, const std::string &email,
+                 const std::string &password);
+    void fb_set_token(const std::string &token);    // готовый токен (секрет базы)
+    int fb_auth_state() const;                    // 0 нет, 1 ждём, 2 вошли, 3 ошибка
+    std::string fb_auth_error() const;
     void store_set(const std::string &key, const std::string &value);
     bool store_get(const std::string &key, std::string *out) const;
     void store_flush();

@@ -55,12 +55,27 @@ public:
     // Забрать пришедшее обновление (не блокирует, вызывается из кадра).
     bool pop(FbUpdate *out);
 
+    // Вход в Firebase по email/паролю (REST identitytoolkit). Токен
+    // подставляется в каждый запрос к базе как ?auth=<idToken>, и правила
+    // могут требовать auth для записи в админские узлы.
+    // auth_state(): 0 — не входили, 1 — ждём, 2 — вошли, 3 — ошибка.
+    void sign_in(const std::string &api_key, const std::string &email,
+                 const std::string &password);
+    int auth_state() const;
+    std::string auth_error() const;
+    bool have_token() const;
+    void set_auth_token(const std::string &token);   // для тестов/повторного входа
+    void clear_auth_token();
+
     int requests() const { return requests_; }
     int failures() const { return failures_; }
     std::string last_error() const;
 
 private:
     void loop();
+    void do_sign_in(const std::string &api_key, const std::string &email,
+                    const std::string &password);
+    std::string with_auth(const std::string &url) const;
     void send_puts(std::map<std::string, std::string> &batch);
     void fetch_node(const std::string &node);
     bool request(const std::string &method, const std::string &url, const std::string &body,
@@ -78,6 +93,11 @@ private:
     std::map<std::string, long long> watch_due_;       // когда опрашивать (мс)
     std::deque<FbUpdate> updates_;
     std::string last_error_;
+    std::string token_;                    // idToken Firebase ("" — без входа)
+    int auth_state_ = 0;
+    std::string auth_error_;
+    bool auth_pending_ = false;
+    std::string auth_key_, auth_email_, auth_password_;
     int requests_ = 0;
     int failures_ = 0;
 };

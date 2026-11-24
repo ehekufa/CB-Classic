@@ -4,6 +4,7 @@
 // Вся логика блоков живёт в src/lua/runtime/engine.lua.
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <string>
 
@@ -758,6 +759,47 @@ int l_firebase_get(lua_State *L)
     return 1;
 }
 
+int l_env(lua_State *L)
+{
+    // cb.env("ИМЯ") — переменная окружения (для ключей и тестов);
+    // нужно потому, что os в песочнице Lua недоступен
+    const char *value = std::getenv(luaL_checkstring(L, 1));
+    if (value) {
+        lua_pushstring(L, value);
+    } else {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
+int l_firebase_token(lua_State *L)
+{
+    // cb.fb_set_token("...") — войти по готовому токену (например, секрету базы)
+    engine_of(L)->fb_set_token(luaL_optstring(L, 1, ""));
+    return 0;
+}
+
+int l_firebase_auth(lua_State *L)
+{
+    // cb.fb_auth(key, email, password) — вход в Firebase по email/паролю
+    engine_of(L)->fb_auth(luaL_checkstring(L, 1), luaL_checkstring(L, 2),
+                          luaL_optstring(L, 3, ""));
+    return 0;
+}
+
+int l_firebase_auth_state(lua_State *L)
+{
+    lua_pushinteger(L, engine_of(L)->fb_auth_state());
+    return 1;
+}
+
+int l_firebase_auth_error(lua_State *L)
+{
+    const std::string error = engine_of(L)->fb_auth_error();
+    lua_pushlstring(L, error.data(), error.size());
+    return 1;
+}
+
 int l_video_frame(lua_State *L)
 {
     engine_of(L)->video_frame(luaL_optstring(L, 1, ""));
@@ -867,7 +909,12 @@ const luaL_Reg kApi[] = {
     {"text_set", l_text_set},
     {"text_delete", l_text_delete},
     {"firebase_url", l_firebase_url},
+    {"env", l_env},
     {"firebase_set", l_firebase_set},
+    {"fb_set_token", l_firebase_token},
+    {"fb_auth", l_firebase_auth},
+    {"fb_auth_state", l_firebase_auth_state},
+    {"fb_auth_error", l_firebase_auth_error},
     {"video_frame", l_video_frame},
     {"video_stop", l_video_stop},
     {"video_active", l_video_active},
